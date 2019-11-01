@@ -1,0 +1,90 @@
+﻿<Project TreatAsLocalProperty="NodeReuse" Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
+    <NodeReuse>False</NodeReuse>
+    <LangVersion>8</LangVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
+    <Version>0.0.1</Version>
+    <OutputPath>bin\$(Configuration)</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Authors>Kim Hugener-Ohlsen</Authors>
+    <Company>Hukano</Company>
+    <Owners>Kim Hugener-Ohlsen</Owners>
+    <Description>
+      Automated NuGet package publisher:
+      - Publish prerelease package to local NuGet feed
+      - Publish to official NuGet feed
+      - Customizable publish for CI based on development, integration, production stages
+      - Automated versioning of prereleases
+      - Local debug support
+    </Description>
+    <RepositoryUrl>https://github.com/hugener/Sundew.Build.Publish</RepositoryUrl>
+    <PackageReleaseNotes>1.0.0 - Initial release</PackageReleaseNotes>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Kim Hugener-Ohlsen</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Debug\Sundew.Build.Publish.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Release\Sundew.Build.Publish.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.3.0" />
+    <PackageReference Include="NuGet.Commands" Version="5.3.1" />
+    <PackageReference Include="NuGet.Configuration" Version="5.3.1" />
+    <PackageReference Include="NuGet.Protocol" Version="5.3.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Base" Version="4.0.0-pre002" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Package\tools\**" />
+    <EmbeddedResource Remove="Package\tools\**" />
+    <None Remove="Package\tools\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <OutputFiles Include="$(OutputPath)\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" AfterTargets="PreBuildEvent">
+    <Delete Files="@(OutputFiles->'Package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+  </Target>
+
+  <Target Name="SetNuspecProperties" AfterTargets="SbpPreparePublishNuGet">
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);company=$(Company);description=$(Description);copyright=$(Copyright);authors=$(Authors);version=$(PackageVersion);repositoryUrl=$(RepositoryUrl);releaseNotes=$(PackageReleaseNotes);repositoryType=$(RepositoryType);licenseExpression=$(PackageLicenseExpression);targetFramework=$(TargetFramework);configuration=$(Configuration);projectDir=$(MSBuildProjectDirectory);outputPath=$(OutputPath)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'Package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+  </Target>
+
+  <Import Project="Package\build\Sundew.Build.Publish.targets" />
+</Project>

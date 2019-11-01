@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SBP'))">
+    <SbpEnablePublish Condition="'$(SbpEnablePublish)'==''">True</SbpEnablePublish>
+    <SbpEnablePublish Condition="$(DefineConstants.Contains('SBP_DISABLE_PUBLISH'))">False</SbpEnablePublish>
+    <SbpTimeoutInSeconds Condition="'$(SbpTimeoutInSeconds)'==''">300</SbpTimeoutInSeconds>
+    <SbpCopyLocalSourcePdbToSymbolCache Condition="'$(SbpCopyLocalSourcePdbToSymbolCache)'==''">True</SbpCopyLocalSourcePdbToSymbolCache>
+    <SbpCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SBP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SbpCopyLocalSourcePdbToSymbolCache>
+  </PropertyGroup>
+
+  <UsingTask
+    TaskName="PreparePublishTask"
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.dll"/>
+  <UsingTask
+    TaskName="PublishTask"
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.dll"/>
+
+  <Target Name="SbpPreparePublishNuGet" BeforeTargets="Pack" AfterTargets="Build">
+    <PreparePublishTask Condition="!$(DefineConstants.Contains('DISABLE_SBP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"
+                 SolutionDir="$(SolutionDir)"
+                 Version="$(Version)"
+                 ProductionSource="$(SbpProductionSource)"
+                 IntegrationSource="$(SbpIntegrationSource)"
+                 DevelopmentSource="$(SbpDevelopmentSource)"
+                 LocalSource="$(SbpLocalSource)"
+                 SourceName="$(SbpSourceName)">
+      <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
+      <Output PropertyName="SbpSource" TaskParameter="Source"/>
+      <Output PropertyName="SbpSymbolsSource" TaskParameter="SymbolsSource"/>
+    </PreparePublishTask>
+  </Target>
+
+  <Target Name="SbpPublishNuGet" AfterTargets="Pack">
+    <PublishTask Condition="!$(DefineConstants.Contains('DISABLE_SBP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"
+                 SolutionDir="$(SolutionDir)"
+                 ProjectDir="$(MSBuildProjectDirectory)"
+                 PackageId="$(PackageId)"
+                 Version="$(PackageVersion)"
+                 PackInputs="@(NuGetPackInput)"
+                 OutputPath="$(PackageOutputPath)"
+                 Source="$(SbpSource)"
+                 SymbolsSource="$(SbpSymbolsSource)"
+                 ApiKey="$(SbpApiKey)"
+                 SymbolApiKey="$(SbpSymbolApiKey)"
+                 PublishPackages="$(SbpEnablePublish)"
+                 TimeoutInSeconds="$(SbpTimeoutInSeconds)"
+                 NoServiceEndpoint="$(SbpNoServiceEndpoint)"
+                 SkipDuplicate="$(SbpSkipDuplicate)"
+                 CopyLocalSourcePdbToSymbolCache="$(SbpCopyLocalSourcePdbToSymbolCache)"
+                 SymbolCacheDir="$(SbpSymbolCacheDir)">
+      <Output ItemName="SbpPackages" TaskParameter="PackagePaths"/>
+    </PublishTask>
+  </Target>
+</Project>
