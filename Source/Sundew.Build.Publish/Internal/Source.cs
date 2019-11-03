@@ -23,7 +23,8 @@ namespace Sundew.Build.Publish.Internal
         private const string UriText = "Uri";
         private const string SymbolsUriText = "SymbolsUri";
         private const string DefaultSourceNameText = "default";
-        private const string DefaultReleaseSourceNameText = "default-stable";
+        private const string DefaultStableSourceNameText = "default-stable";
+        private const string LocalStableSourceNameText = "local-stable";
         private const string EscapedPipeText = "||";
         private const string PipeText = "|";
         private const string NoDefaultPushSourceHasBeenConfiguredText = "No default push source has been configured.";
@@ -68,12 +69,17 @@ namespace Sundew.Build.Publish.Internal
                         throw new InvalidOperationException(NoDefaultPushSourceHasBeenConfiguredText);
                     }
 
-                    if (sourceName.Equals(DefaultReleaseSourceNameText, StringComparison.InvariantCultureIgnoreCase))
+                    if (sourceName.Equals(DefaultStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                     {
                         return new Source(default, defaultSource, default, string.Empty, true);
                     }
 
                     return new Source(default, defaultSource, default, PrePackagePrefix, false);
+                }
+
+                if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return new Source(default, localSource, default, string.Empty, true);
                 }
 
                 var sources = new[]

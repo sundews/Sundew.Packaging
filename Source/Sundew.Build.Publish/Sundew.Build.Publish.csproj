@@ -7,7 +7,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>0.0.1</Version>
+    <Version>1.0.0</Version>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
@@ -26,6 +26,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Kim Hugener-Ohlsen</Copyright>
+    <Configurations>Debug;Release;Release-Stable</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,6 +41,13 @@
     <DocumentationFile>bin\Release\Sundew.Build.Publish.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Release\Sundew.Build.Publish.xml</DocumentationFile>
+    <SbpSourceName>local-stable</SbpSourceName>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.3.0" />
@@ -50,7 +58,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="4.0.0-pre002" />
+    <PackageReference Include="Sundew.Base" Version="4.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="1.7.0" />
   </ItemGroup>
 

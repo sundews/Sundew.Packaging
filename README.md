@@ -32,7 +32,10 @@ Use the NuGet commandline to modify the settings: https://docs.microsoft.com/en-
 ### **3.3 Local source from project**
 The local source can also be overwritten by settings the **SbpLocalSource** MSBuild property.
 
-### **3.4 Publishing local builds**
+### **3.4 Stable local builds**
+Local build can be created with a stable version number by setting the  **SbpSourceName** MSBuild property to: **local-stable**
+
+### **3.5 Publishing local builds**
 Local builds can also be published by setting the **SbpSourceName** MSBuild property.<br/>
 Valid values are:
 - **default** - Creates a prerelease build and publishes it to the default push source.
@@ -42,10 +45,10 @@ For this to work, the default push source must be configured in NuGet.config: ht
 
 For example it would be possible to create additional build configurations within the csproj (Release-Stable, Prerelease), which would set the **SbpSourceName** property accordingly.
 
-### **3.5 Versioning**
+### **3.6 Versioning**
 Local source packages are per default versioned as prerelease package and will have a postfix appended to the configured version number: **pre-u&lt;UTC-TIMESTAMP&gt;**
 
-### **3.6 Debugging support**
+### **3.7 Debugging support**
 Local builds by default output .pdb files to the default symbol cache directory **%LocalAppData%\Temp\SymbolCache)**.
 To change the symbol cache directory, set the **SbpSymbolCacheDir** MSBuild property or configure in NuGet.config under "config" - add - "symbolCacheDir"
 

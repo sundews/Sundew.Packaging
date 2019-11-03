@@ -329,3 +329,4 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 /Source/Sundew.Build.Publish/Package/tools
+/Source/Sundew.Build.Publish.UnitTests/Sundew.Build.Publish.UnitTests.xml

@@ -81,6 +81,19 @@ namespace Sundew.Build.Publish.UnitTests
         }
 
         [Fact]
+        public void Execute_When_SourceNameIsLocalStable_Then_PackageVersionShouldBeTesteeVersion()
+        {
+            this.testee.SourceName = "local-stable";
+
+            var result = this.testee.Execute();
+
+            result.Should().BeTrue();
+            this.testee.Source.Should().Be(PreparePublishTask.DefaultLocalSource);
+            this.testee.SymbolsSource.Should().BeNull();
+            this.testee.PackageVersion.Should().Be(this.testee.Version);
+        }
+
+        [Fact]
         public void Execute_When_LocalPushSourceIsSet_Then_PushSourceShouldBeEqual()
         {
             this.testee.LocalSource = @"c:\temp";
