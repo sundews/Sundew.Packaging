@@ -30,13 +30,14 @@ namespace Sundew.Build.Publish.Internal
         private const string NoDefaultPushSourceHasBeenConfiguredText = "No default push source has been configured.";
         private static readonly Regex SourceRegex = new Regex($@"((?<{StageRegexText}>([^\|\s]|\|\|)+)\|)(?<{UriText}>[^\|\s]+)(\|(?<{SymbolsUriText}>[^\|\s]+))?");
 
-        public Source(Regex stageRegex, string uri, string symbolsUri, string packagePrefix, bool isRelease)
+        public Source(Regex stageRegex, string uri, string symbolsUri, string packagePrefix, bool isRelease, bool isFallback = false)
         {
             this.StageRegex = stageRegex;
             this.Uri = uri;
             this.SymbolsUri = symbolsUri;
             this.PackagePrefix = packagePrefix;
             this.IsRelease = isRelease;
+            this.IsFallback = isFallback;
         }
 
         public Regex StageRegex { get; }
@@ -48,6 +49,8 @@ namespace Sundew.Build.Publish.Internal
         public string PackagePrefix { get; }
 
         public bool IsRelease { get; }
+
+        public bool IsFallback { get; }
 
         public static Source SelectSource(
             string sourceName,
@@ -74,7 +77,7 @@ namespace Sundew.Build.Publish.Internal
                         return new Source(default, defaultSource, default, string.Empty, true);
                     }
 
-                    return new Source(default, defaultSource, default, PrePackagePrefix, false);
+                    return new Source(default, defaultSource, default, PrePackagePrefix, false, true);
                 }
 
                 if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
@@ -96,7 +99,7 @@ namespace Sundew.Build.Publish.Internal
                 }
             }
 
-            return new Source(null, localSource, default, PrePackagePrefix, false);
+            return new Source(null, localSource, default, PrePackagePrefix, false, true);
         }
 
         public static Source Parse(string pushSource, string packagePrefix, bool isRelease)

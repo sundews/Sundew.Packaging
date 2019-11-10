@@ -13,8 +13,10 @@ namespace Sundew.Build.Publish
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Versioning;
+    using Sundew.Base.Enumerations;
     using Sundew.Base.Time;
     using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
 
     /// <summary>MSBuild task that prepare for publishing the created NuGet package.</summary>
@@ -22,22 +24,21 @@ namespace Sundew.Build.Publish
     public class PreparePublishTask : Task
     {
         internal const string DefaultLocalSourceName = "Local (Sundew)";
-        internal const string PrePackageDateTimeFormat = "yyyyMMdd-HHmmss";
         internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Assembly.GetExecutingAssembly().GetName().Name);
         internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
         private readonly IAddLocalSourceCommand addLocalSourceCommand;
-        private readonly IDateTime dateTime;
+        private readonly IPrereleaseVersioner prereleaseVersioner;
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
         public PreparePublishTask()
-            : this(new AddLocalSourceCommand(new Internal.IO.FileSystem(), new SettingsFactory()), new DateTimeProvider())
+            : this(new AddLocalSourceCommand(new Internal.IO.FileSystem(), new SettingsFactory()), new PrereleaseVersioner(new DateTimeProvider()))
         {
         }
 
-        internal PreparePublishTask(IAddLocalSourceCommand addLocalSourceCommand, IDateTime dateTime)
+        internal PreparePublishTask(IAddLocalSourceCommand addLocalSourceCommand, IPrereleaseVersioner prereleaseVersioner)
         {
             this.addLocalSourceCommand = addLocalSourceCommand;
-            this.dateTime = dateTime;
+            this.prereleaseVersioner = prereleaseVersioner;
         }
 
         /// <summary>Gets or sets the solution dir.</summary>
@@ -49,6 +50,10 @@ namespace Sundew.Build.Publish
         /// <value>The version.</value>
         [Required]
         public string Version { get; set; }
+
+        /// <summary>Gets or sets the prerelease versioning mode.</summary>
+        /// <value>The prerelease versioning mode.</value>
+        public string PrereleaseVersioningMode { get; set; }
 
         /// <summary>Gets or sets the name of the local source.</summary>
         /// <value>The name of the local source.</value>
@@ -128,9 +133,20 @@ namespace Sundew.Build.Publish
 
             if (SemanticVersion.TryParse(this.Version, out var semanticVersion))
             {
-                this.PackageVersion = pushSource.IsRelease ?
-                    semanticVersion.ToFullString() :
-                    new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, pushSource.PackagePrefix + this.dateTime.UtcTime.ToString(PrePackageDateTimeFormat)).ToFullString();
+                if (pushSource.IsRelease)
+                {
+                    this.PackageVersion = semanticVersion.ToFullString();
+                }
+                else
+                {
+                    if (!this.PrereleaseVersioningMode.TryParseEnum(out PrereleaseVersioningMode prereleaseVersioningMode, true))
+                    {
+                        prereleaseVersioningMode = Publish.PrereleaseVersioningMode.IncrementPatch;
+                    }
+
+                    this.PackageVersion = this.prereleaseVersioner.GetPrereleaseVersion(semanticVersion, prereleaseVersioningMode, pushSource).ToFullString();
+                }
+
                 return true;
             }
 

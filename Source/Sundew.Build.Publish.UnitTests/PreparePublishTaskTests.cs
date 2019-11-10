@@ -7,13 +7,12 @@
 
 namespace Sundew.Build.Publish.UnitTests
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using FluentAssertions;
     using NSubstitute;
     using NuGet.Configuration;
-    using Sundew.Base.Time;
+    using NuGet.Versioning;
     using Sundew.Build.Publish.Commands;
     using Sundew.Build.Publish.Internal;
     using Xunit;
@@ -21,23 +20,27 @@ namespace Sundew.Build.Publish.UnitTests
 
     public class PreparePublishTaskTests
     {
-        private const string ExpectedPreVersion = "1.0.1-pre-u20160108-173613";
-        private const string ExpectedDevVersion = "1.0.1-dev-u20160108-173613";
+        private const string ExpectedPreVersion = "1.0.2-pre-u20160108-173613";
+        private const string ExpectedDevIncrementPatchVersion = "1.0.2-dev-u20160108-173613";
+        private const string ExpectedDevNoChangeVersion = "1.0.1-dev-u20160108-173613";
         private const string ExpectedDefaultPushSource = "http://nuget.org";
 
         private readonly PreparePublishTask testee;
         private readonly IAddLocalSourceCommand addLocalSourceCommand = Substitute.For<IAddLocalSourceCommand>();
-        private readonly IDateTime dateTime = Substitute.For<IDateTime>();
+        private readonly IPrereleaseVersioner prereleaseVersioner = Substitute.For<IPrereleaseVersioner>();
         private readonly ISettings settings = Substitute.For<ISettings>();
+        private readonly SemanticVersion semanticVersion = new SemanticVersion(1, 0, 1);
 
         public PreparePublishTaskTests()
         {
-            this.testee = new PreparePublishTask(this.addLocalSourceCommand, this.dateTime)
+            this.testee = new PreparePublishTask(this.addLocalSourceCommand, this.prereleaseVersioner)
             {
-                Version = "1.0.0",
+                Version = this.semanticVersion.ToFullString(),
             };
 
-            this.dateTime.UtcTime.Returns(new DateTime(2016, 1, 8, 17, 36, 13));
+            this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.NoChange, Arg.Any<Source>()).Returns(SemanticVersion.Parse(ExpectedDevNoChangeVersion));
+            this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.IncrementPatch, Arg.Is<Source>(source => source.IsFallback)).Returns(SemanticVersion.Parse(ExpectedPreVersion));
+            this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.IncrementPatch, Arg.Is<Source>(source => !source.IsFallback)).Returns(SemanticVersion.Parse(ExpectedDevIncrementPatchVersion));
             this.addLocalSourceCommand.Add(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns((callInfo) => new LocalSource((string)callInfo[2], this.settings));
         }
@@ -122,8 +125,10 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee.PackageVersion.Should().Be(this.testee.Version);
         }
 
-        [Fact]
-        public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual()
+        [Theory]
+        [InlineData(PrereleaseVersioningMode.NoChange, ExpectedDevNoChangeVersion)]
+        [InlineData(PrereleaseVersioningMode.IncrementPatch, ExpectedDevIncrementPatchVersion)]
+        public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(PrereleaseVersioningMode prereleaseVersioningMode, string expectedPackageVersion)
         {
             const string ExpectedPushSource = @"c:\temp\packages";
             const string ExpectedSymbolsPushSource = @"c:\temp\symbols";
@@ -131,13 +136,14 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee.ProductionSource = $@"master|https://production.com|https://production.com/symbols";
             this.testee.DevelopmentSource = $@"\w+|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/NewFeature";
+            this.testee.PrereleaseVersioningMode = prereleaseVersioningMode.ToString();
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
             this.testee.Source.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
-            this.testee.PackageVersion.Should().Be(ExpectedDevVersion);
+            this.testee.PackageVersion.Should().Be(expectedPackageVersion);
         }
 
         private void ArrangeDefaultPushSource()
