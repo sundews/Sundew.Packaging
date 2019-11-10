@@ -7,7 +7,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
@@ -22,7 +22,8 @@
       - Local debug support
     </Description>
     <RepositoryUrl>https://github.com/hugener/Sundew.Build.Publish</RepositoryUrl>
-    <PackageReleaseNotes>1.0.0 - Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>1.0.1 - Improved support for dotnet build
+1.0.0 - Initial release</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Kim Hugener-Ohlsen</Copyright>
@@ -52,14 +53,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.3.0" />
-    <PackageReference Include="NuGet.Commands" Version="5.3.1" />
-    <PackageReference Include="NuGet.Configuration" Version="5.3.1" />
-    <PackageReference Include="NuGet.Protocol" Version="5.3.1" />
+    <PackageReference Include="NuGet.Commands" Version="5.3.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.3.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="4.0.1-pre-u20191107-095542" />
+    <PackageReference Include="Sundew.Base" Version="4.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="1.7.0" />
   </ItemGroup>
 

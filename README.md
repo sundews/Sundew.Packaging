@@ -91,20 +91,23 @@ Packages for the three sources above are versioned differently:<br>
 
 ## **5. Additional MSBuild info**
 ### **5.1 Additional MSBuild properties**
-- **SbpTimeoutInSeconds** sets the publish timeout in seconds (Default: 300)
-- **SbpSkipDuplicate** instructs to skip duplicate packages (Default: false)
-- **SbpNoServiceEndpoint** instructs not to append NuGet paths to publish url. (Default: false)
-- **SbpApiKey** specifies the NuGet api key
-- **SbpSymbolApiKey** specifies the NuGet symbols api key
+- **SbpTimeoutInSeconds** = sets the publish timeout in seconds (Default: 300)
+- **SbpSkipDuplicate** = instructs to skip duplicate packages (Default: false)
+- **SbpNoServiceEndpoint** = instructs not to append NuGet paths to publish url. (Default: false)
+- **SbpApiKey** = specifies the NuGet api key
+- **SbpSymbolApiKey** = specifies the NuGet symbols api key
+- **SbpPrereleaseVersioningMode** = specifies the mode for versioning prerelease versions:
+  - **NoChange** = does not change the version number.
+  - **IncrementPatch** = (default) increments the patch part with 1.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:<br> 
 **SbpPackages**
 The items contains the following information:
-- **ItemSpec**  The absolute package path
-- **PackageSource** is where the package was pushed to
-- **Published** indicates whether the package was published
-- **IsSymbol** indicates whether the package is a symbols package
+- **ItemSpec** = The absolute package path
+- **PackageSource** = is where the package was pushed to
+- **Published** = indicates whether the package was published
+- **IsSymbol** = indicates whether the package is a symbols package
 
 ## **6. Extensibility**
 The combination of build output and disabling publication allows to override the publish functionality. By creating a MSBuild target, which runs after the **SbpPublishNuGet** target and that consumes the **SbpPackages** TaskItems, it is possible to create a custom way of publishing packages. This could be usefull for some CI setups where the build itself is not responsible for publishing packages, but rather to instruct the CI, which packages should be published and where. 
