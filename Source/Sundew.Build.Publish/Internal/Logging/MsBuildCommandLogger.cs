@@ -20,6 +20,11 @@ namespace Sundew.Build.Publish.Logging
             this.taskLoggingHelper = taskLoggingHelper;
         }
 
+        public void LogImportant(string message)
+        {
+            this.taskLoggingHelper.LogMessage(MessageImportance.High, message);
+        }
+
         public void LogInfo(string message)
         {
             this.taskLoggingHelper.LogMessage(MessageImportance.Normal, message);

@@ -44,7 +44,7 @@ namespace Sundew.Build.Publish.Commands
 
             var destinationPath = Path.Combine(source, Path.GetFileName(packagePath));
             this.fileSystem.Copy(packagePath, destinationPath, !skipDuplicate);
-            commandLogger.LogInfo($"Successfully copied package to: {destinationPath}");
+            commandLogger.LogImportant($"Successfully copied package to: {destinationPath}");
             return destinationPath;
         }
     }

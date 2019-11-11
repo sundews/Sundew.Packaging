@@ -87,7 +87,8 @@ namespace Sundew.Build.Publish.UnitTests
                 Arg.Any<ISettings>(),
                 false,
                 false,
-                Arg.Any<NuGet.Common.ILogger>());
+                Arg.Any<NuGet.Common.ILogger>(),
+                Arg.Any<ICommandLogger>());
         }
 
         [Fact]

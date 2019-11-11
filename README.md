@@ -99,6 +99,7 @@ Packages for the three sources above are versioned differently:<br>
 - **SbpPrereleaseVersioningMode** = specifies the mode for versioning prerelease versions:
   - **NoChange** = does not change the version number.
   - **IncrementPatch** = (default) increments the patch part with 1.
+- **AllowLocalSource** = (default: true) specifies whether local source is allowed. Usefull for CI environment to disable local source if none of the stage where matched.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:<br> 

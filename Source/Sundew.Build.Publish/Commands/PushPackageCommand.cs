@@ -27,6 +27,7 @@ namespace Sundew.Build.Publish.Commands
         /// <param name="noServiceEndpoint">The no service endpoint.</param>
         /// <param name="skipDuplicates">Skips duplicate.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="commandLogger">The command logger.</param>
         /// <returns>An async task.</returns>
         public async System.Threading.Tasks.Task PushAsync(
             string packagePath,
@@ -39,7 +40,8 @@ namespace Sundew.Build.Publish.Commands
             ISettings settings,
             bool noServiceEndpoint,
             bool skipDuplicates,
-            ILogger logger)
+            ILogger logger,
+            ICommandLogger commandLogger)
         {
             var packageSourceProvider = new PackageSourceProvider(settings);
             await PushRunner.Run(
@@ -57,6 +59,7 @@ namespace Sundew.Build.Publish.Commands
                 skipDuplicates,
                 logger);
 
+            commandLogger.LogImportant($"Successfully pushed package to: {source}");
             if (!string.IsNullOrEmpty(symbolPackagePath) && !string.IsNullOrEmpty(symbolsSource))
             {
                 await PushRunner.Run(
@@ -73,6 +76,7 @@ namespace Sundew.Build.Publish.Commands
                     noServiceEndpoint,
                     skipDuplicates,
                     logger);
+                commandLogger.LogImportant($"Successfully pushed symbols package to: {symbolsSource}");
             }
         }
     }

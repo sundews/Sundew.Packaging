@@ -7,7 +7,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>

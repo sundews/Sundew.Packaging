@@ -23,22 +23,22 @@ namespace Sundew.Build.Publish.Logging
 
         public void LogDebug(string data)
         {
-            this.log.LogMessage(MessageImportance.Low, $"NuGet Debug: {data}");
+            this.log.LogMessage(MessageImportance.Low, $"SBP:NuGet Debug: {data}");
         }
 
         public void LogVerbose(string data)
         {
-            this.log.LogMessage(MessageImportance.Low, $"NuGet Verbose: {data}");
+            this.log.LogMessage(MessageImportance.Low, $"SBP:NuGet Verbose: {data}");
         }
 
         public void LogInformation(string data)
         {
-            this.log.LogMessage(MessageImportance.Normal, $"NuGet Information: {data}");
+            this.log.LogMessage(MessageImportance.Normal, $"SBP:NuGet Information: {data}");
         }
 
         public void LogMinimal(string data)
         {
-            this.log.LogMessage(MessageImportance.Low, $"NuGet Minimal: {data}");
+            this.log.LogMessage(MessageImportance.High, $"SBP:NuGet Minimal: {data}");
         }
 
         public void LogWarning(string data)
@@ -53,7 +53,7 @@ namespace Sundew.Build.Publish.Logging
 
         public void LogInformationSummary(string data)
         {
-            this.log.LogMessage(MessageImportance.Normal, $"NuGet Summary: {data}");
+            this.log.LogMessage(MessageImportance.Normal, $"SBP:NuGet Summary: {data}");
         }
 
         public void Log(LogLevel level, string data)

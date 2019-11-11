@@ -25,6 +25,7 @@ namespace Sundew.Build.Publish.Commands
         /// <param name="noServiceEndpoint">The no service endpoint.</param>
         /// <param name="skipDuplicates">Skips duplicate.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="commandLogger">The command logger.</param>
         /// <returns>An async task.</returns>
         System.Threading.Tasks.Task PushAsync(
             string packagePath,
@@ -37,6 +38,7 @@ namespace Sundew.Build.Publish.Commands
             ISettings settings,
             bool noServiceEndpoint,
             bool skipDuplicates,
-            ILogger logger);
+            ILogger logger,
+            ICommandLogger commandLogger);
     }
 }

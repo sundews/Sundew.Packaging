@@ -36,6 +36,7 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee = new PreparePublishTask(this.addLocalSourceCommand, this.prereleaseVersioner)
             {
                 Version = this.semanticVersion.ToFullString(),
+                AllowLocalSource = true,
             };
 
             this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.NoChange, Arg.Any<Source>()).Returns(SemanticVersion.Parse(ExpectedDevNoChangeVersion));
@@ -109,7 +110,7 @@ namespace Sundew.Build.Publish.UnitTests
         }
 
         [Fact]
-        public void Execute_When_ProductionPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual()
+        public void Execute_When_ProductionPushSourceIsSetAndPushSourceSelectorMatches_Then_SourceShouldBeExpectedSource()
         {
             const string ExpectedPushSource = @"c:\temp\packages";
             const string ExpectedSymbolsPushSource = @"c:\temp\symbols";
@@ -123,6 +124,21 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee.Source.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(this.testee.Version);
+        }
+
+        [Fact]
+        public void Execute_When_DevelopmentSourceIsDisableAndOtherDidntMatch_Then_IsPublishEnabledShouldBeFalse()
+        {
+            this.testee.ProductionSource = $@"master|c:\temp\packages|c:\temp\symbols";
+            this.testee.AllowLocalSource = false;
+            this.testee.SourceName = "feature/featureX";
+
+            var result = this.testee.Execute();
+
+            result.Should().BeTrue();
+            this.testee.Source.Should().Be(null);
+            this.testee.SymbolsSource.Should().Be(null);
+            this.testee.PublishPackages.Should().BeFalse();
         }
 
         [Theory]

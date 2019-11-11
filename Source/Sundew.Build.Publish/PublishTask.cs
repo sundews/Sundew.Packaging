@@ -163,9 +163,9 @@ namespace Sundew.Build.Publish
             {
                 var settings = this.settingsFactory.LoadDefaultSettings(this.SolutionDir);
                 var source = this.Source;
+                var msBuildCommandLogger = new MsBuildCommandLogger(this.Log);
                 if (source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile)
                 {
-                    var msBuildCommandLogger = new MsBuildCommandLogger(this.Log);
                     this.copyPackageToLocalSourceCommand.Add(this.PackageId, packagePath, source, this.SkipDuplicate, msBuildCommandLogger);
                     if (this.CopyLocalSourcePdbToSymbolCache)
                     {
@@ -191,7 +191,8 @@ namespace Sundew.Build.Publish
                         settings,
                         this.NoServiceEndpoint,
                         this.SkipDuplicate,
-                        new NuGetToMsBuildLoggerAdapter(this.Log)).Wait();
+                        new NuGetToMsBuildLoggerAdapter(this.Log),
+                        msBuildCommandLogger).Wait();
                 }
             }
 

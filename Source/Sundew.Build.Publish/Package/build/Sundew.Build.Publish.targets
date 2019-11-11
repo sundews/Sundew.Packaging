@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SBP'))">
+    <SbpAllowLocalSource Condition="'$(SbpAllowLocalSource)'==''">True</SbpAllowLocalSource>
     <SbpEnablePublish Condition="'$(SbpEnablePublish)'==''">True</SbpEnablePublish>
     <SbpEnablePublish Condition="$(DefineConstants.Contains('SBP_DISABLE_PUBLISH'))">False</SbpEnablePublish>
     <SbpTimeoutInSeconds Condition="'$(SbpTimeoutInSeconds)'==''">300</SbpTimeoutInSeconds>
@@ -25,10 +26,12 @@
                  IntegrationSource="$(SbpIntegrationSource)"
                  DevelopmentSource="$(SbpDevelopmentSource)"
                  LocalSource="$(SbpLocalSource)"
+                 AllowLocalSource="$(SbpAllowLocalSource)"
                  SourceName="$(SbpSourceName)">
       <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
       <Output PropertyName="SbpSource" TaskParameter="Source"/>
       <Output PropertyName="SbpSymbolsSource" TaskParameter="SymbolsSource"/>
+      <Output PropertyName="SbpEnablePublish" TaskParameter="PublishPackages" Condition="'$(SbpEnablePublish)'=='True'"/>
     </PreparePublishTask>
   </Target>
 

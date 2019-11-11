@@ -10,6 +10,10 @@ namespace Sundew.Build.Publish.Commands
     /// <summary>Inteface for implementing a command logger.</summary>
     public interface ICommandLogger
     {
+        /// <summary>Logs the important.</summary>
+        /// <param name="message">The message.</param>
+        void LogImportant(string message);
+
         /// <summary>Logs the information.</summary>
         /// <param name="message">The message.</param>
         void LogInfo(string message);

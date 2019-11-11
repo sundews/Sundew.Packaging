@@ -98,6 +98,11 @@ namespace Sundew.Build.Publish
         /// <value>The local source.</value>
         public string LocalSource { get; set; }
 
+        /// <summary>Gets or sets a value indicating whether [allow local source].</summary>
+        /// <value>
+        ///   <c>true</c> if [allow local source]; otherwise, <c>false</c>.</value>
+        public bool AllowLocalSource { get; set; }
+
         /// <summary>Gets the package version.</summary>
         /// <value>The package version.</value>
         [Output]
@@ -113,6 +118,12 @@ namespace Sundew.Build.Publish
         [Output]
         public string SymbolsSource { get; private set; }
 
+        /// <summary>Gets a value indicating whether this instance is publish enabled.</summary>
+        /// <value>
+        ///   <c>true</c> if this instance is publish enabled; otherwise, <c>false</c>.</value>
+        [Output]
+        public bool PublishPackages { get; private set; }
+
         /// <summary>Must be implemented by derived class.</summary>
         /// <returns>true, if successful.</returns>
         public override bool Execute()
@@ -120,20 +131,22 @@ namespace Sundew.Build.Publish
             var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
             var localSource = this.addLocalSourceCommand.Add(this.SolutionDir, localSourceName, this.LocalSource ?? DefaultLocalSource);
 
-            var pushSource = Internal.Source.SelectSource(
+            var source = SourceSelector.SelectSource(
                 this.SourceName,
                 this.ProductionSource,
                 this.IntegrationSource,
                 this.DevelopmentSource,
                 localSource.Path,
-                localSource.DefaultSettings);
+                localSource.DefaultSettings,
+                this.AllowLocalSource);
 
-            this.Source = pushSource.Uri;
-            this.SymbolsSource = pushSource.SymbolsUri;
+            this.PublishPackages = source.IsEnabled;
+            this.Source = source.Uri;
+            this.SymbolsSource = source.SymbolsUri;
 
             if (SemanticVersion.TryParse(this.Version, out var semanticVersion))
             {
-                if (pushSource.IsRelease)
+                if (source.IsRelease)
                 {
                     this.PackageVersion = semanticVersion.ToFullString();
                 }
@@ -144,7 +157,7 @@ namespace Sundew.Build.Publish
                         prereleaseVersioningMode = Publish.PrereleaseVersioningMode.IncrementPatch;
                     }
 
-                    this.PackageVersion = this.prereleaseVersioner.GetPrereleaseVersion(semanticVersion, prereleaseVersioningMode, pushSource).ToFullString();
+                    this.PackageVersion = this.prereleaseVersioner.GetPrereleaseVersion(semanticVersion, prereleaseVersioningMode, source).ToFullString();
                 }
 
                 return true;
