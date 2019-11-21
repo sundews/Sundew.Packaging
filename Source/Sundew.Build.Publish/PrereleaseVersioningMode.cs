@@ -10,13 +10,13 @@ namespace Sundew.Build.Publish
     /// <summary>Determines how prereleases are versioned.</summary>
     public enum PrereleaseVersioningMode
     {
-        /// <summary>Specifies that the major, minor, patch version are not changed.</summary>
-        NoChange,
+        /// <summary>Specifies that the patch component of the version number is incremented by 1, if the stable version exists.</summary>
+        Automatic,
 
         /// <summary>Specifies that the patch component of the version number is incremented by 1.</summary>
         IncrementPatch,
 
-        /*/// <summary>Specifies that the patch component of the version number is incremented by 1, if the stable version exists (Not yet supported).</summary>
-        IncrementPatchIfStableVersionExists,*/
+        /// <summary>Specifies that the major, minor, patch version are not changed.</summary>
+        NoChange,
     }
 }

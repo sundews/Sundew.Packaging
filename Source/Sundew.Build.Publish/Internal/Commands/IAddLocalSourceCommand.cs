@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
     /// <summary>Interface for implementing a command that can add local sources.</summary>
     public interface IAddLocalSourceCommand

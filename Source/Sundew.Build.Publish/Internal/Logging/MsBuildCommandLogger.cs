@@ -9,7 +9,7 @@ namespace Sundew.Build.Publish.Logging
 {
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
-    using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
 
     internal class MsBuildCommandLogger : ICommandLogger
     {

@@ -5,9 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
-    using NuGet.Configuration;
+    using global::NuGet.Configuration;
 
     /// <summary>Contains information about local source and local symbols source.</summary>
     public readonly struct LocalSource

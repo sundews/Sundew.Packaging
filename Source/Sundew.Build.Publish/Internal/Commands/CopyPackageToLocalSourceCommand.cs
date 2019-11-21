@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
     using System.IO;
     using Sundew.Build.Publish.Internal.IO;

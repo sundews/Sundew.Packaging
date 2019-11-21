@@ -5,12 +5,12 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.UnitTests.Commands
+namespace Sundew.Build.Publish.UnitTests.Internal.Commands
 {
     using System.IO;
     using FluentAssertions;
     using NSubstitute;
-    using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
     using Xunit;
 

@@ -5,16 +5,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
     using System.IO;
     using System.Linq;
-    using NuGet.Configuration;
+    using global::NuGet.Configuration;
     using Sundew.Build.Publish.Internal.IO;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
 
     /// <summary>Adds a local source to the specified NuGet.Config.</summary>
-    /// <seealso cref="Sundew.Build.Publish.Commands.IAddLocalSourceCommand" />
+    /// <seealso cref="IAddLocalSourceCommand" />
     public class AddLocalSourceCommand : IAddLocalSourceCommand
     {
         internal const string NuGetConfigFileName = "NuGet.Config";

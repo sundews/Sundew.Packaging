@@ -17,7 +17,10 @@ namespace Sundew.Build.Publish
     using Sundew.Base.Time;
     using Sundew.Build.Publish.Commands;
     using Sundew.Build.Publish.Internal;
+    using Sundew.Build.Publish.Internal.Commands;
+    using Sundew.Build.Publish.Internal.IO;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
+    using Sundew.Build.Publish.Logging;
 
     /// <summary>MSBuild task that prepare for publishing the created NuGet package.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
@@ -31,7 +34,13 @@ namespace Sundew.Build.Publish
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
         public PreparePublishTask()
-            : this(new AddLocalSourceCommand(new Internal.IO.FileSystem(), new SettingsFactory()), new PrereleaseVersioner(new DateTimeProvider()))
+            : this(
+                new AddLocalSourceCommand(
+                    new FileSystem(),
+                    new SettingsFactory()),
+                new PrereleaseVersioner(
+                    new DateTimeProvider(),
+                    new AutomaticPackageVersioner(new LocalPackageExistsCommand(new FileSystem()), new RemotePackageExistsCommand())))
         {
         }
 
@@ -45,6 +54,11 @@ namespace Sundew.Build.Publish
         /// <value>The solution dir.</value>
         [Required]
         public string SolutionDir { get; set; }
+
+        /// <summary>Gets or sets the package identifier.</summary>
+        /// <value>The package identifier.</value>
+        [Required]
+        public string PackageId { get; set; }
 
         /// <summary>Gets or sets the version.</summary>
         /// <value>The version.</value>
@@ -154,10 +168,10 @@ namespace Sundew.Build.Publish
                 {
                     if (!this.PrereleaseVersioningMode.TryParseEnum(out PrereleaseVersioningMode prereleaseVersioningMode, true))
                     {
-                        prereleaseVersioningMode = Publish.PrereleaseVersioningMode.IncrementPatch;
+                        prereleaseVersioningMode = Publish.PrereleaseVersioningMode.Automatic;
                     }
 
-                    this.PackageVersion = this.prereleaseVersioner.GetPrereleaseVersion(semanticVersion, prereleaseVersioningMode, source).ToFullString();
+                    this.PackageVersion = this.prereleaseVersioner.GetPrereleaseVersion(this.PackageId, semanticVersion, prereleaseVersioningMode, source, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
                 }
 
                 return true;

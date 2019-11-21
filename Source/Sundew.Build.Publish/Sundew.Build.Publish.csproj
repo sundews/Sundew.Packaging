@@ -7,7 +7,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>1.0.2</Version>
+    <Version>2.0.0</Version>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
@@ -22,13 +22,13 @@
       - Local debug support
     </Description>
     <RepositoryUrl>https://github.com/hugener/Sundew.Build.Publish</RepositoryUrl>
-    <PackageReleaseNotes>1.0.1 - Improved support for dotnet build
-1.0.0 - Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>2.0 - Added support for automatic prerelease patch increment
+1.0 - Initial release
+</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Kim Hugener-Ohlsen</Copyright>
     <Configurations>Debug;Release;Release-Stable</Configurations>
-    <SbpPrereleaseVersioningMode>NoChange</SbpPrereleaseVersioningMode>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -79,10 +79,11 @@
 
   <ItemGroup>
     <OutputFiles Include="$(OutputPath)\**\*.*" />
+    <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\netcoreapp3.0\runtimes\**\*.*" />
   </ItemGroup>
 
   <Target Name="PreBuild" AfterTargets="PreBuildEvent">
-    <Delete Files="@(OutputFiles->'Package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <RemoveDir Directories="Package\tools" ContinueOnError="False" />
   </Target>
 
   <Target Name="SetNuspecProperties" AfterTargets="SbpPreparePublishNuGet">
@@ -93,6 +94,8 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'Package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'Package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Delete Files="Package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
   </Target>
 
   <Import Project="Package\build\Sundew.Build.Publish.targets" />

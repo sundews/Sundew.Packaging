@@ -14,6 +14,7 @@ namespace Sundew.Build.Publish
     using Microsoft.Build.Utilities;
     using NuGet.Common;
     using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
     using Sundew.Build.Publish.Logging;

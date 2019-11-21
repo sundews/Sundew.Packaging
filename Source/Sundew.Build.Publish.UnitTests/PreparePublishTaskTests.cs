@@ -11,15 +11,17 @@ namespace Sundew.Build.Publish.UnitTests
     using System.Linq;
     using FluentAssertions;
     using NSubstitute;
+    using NuGet.Common;
     using NuGet.Configuration;
     using NuGet.Versioning;
-    using Sundew.Build.Publish.Commands;
     using Sundew.Build.Publish.Internal;
+    using Sundew.Build.Publish.Internal.Commands;
     using Xunit;
     using BindingFlags = System.Reflection.BindingFlags;
 
     public class PreparePublishTaskTests
     {
+        private const string APackageId = "Package.Id";
         private const string ExpectedPreVersion = "1.0.2-pre-u20160108-173613";
         private const string ExpectedDevIncrementPatchVersion = "1.0.2-dev-u20160108-173613";
         private const string ExpectedDevNoChangeVersion = "1.0.1-dev-u20160108-173613";
@@ -37,11 +39,21 @@ namespace Sundew.Build.Publish.UnitTests
             {
                 Version = this.semanticVersion.ToFullString(),
                 AllowLocalSource = true,
+                PackageId = APackageId,
             };
 
-            this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.NoChange, Arg.Any<Source>()).Returns(SemanticVersion.Parse(ExpectedDevNoChangeVersion));
-            this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.IncrementPatch, Arg.Is<Source>(source => source.IsFallback)).Returns(SemanticVersion.Parse(ExpectedPreVersion));
-            this.prereleaseVersioner.GetPrereleaseVersion(this.semanticVersion, PrereleaseVersioningMode.IncrementPatch, Arg.Is<Source>(source => !source.IsFallback)).Returns(SemanticVersion.Parse(ExpectedDevIncrementPatchVersion));
+            this.prereleaseVersioner
+                .GetPrereleaseVersion(APackageId, this.semanticVersion, PrereleaseVersioningMode.NoChange, Arg.Any<Source>(), Arg.Any<ILogger>())
+                .Returns(SemanticVersion.Parse(ExpectedDevNoChangeVersion));
+            this.prereleaseVersioner
+                .GetPrereleaseVersion(APackageId, this.semanticVersion, PrereleaseVersioningMode.IncrementPatch, Arg.Is<Source>(source => source.IsFallback), Arg.Any<ILogger>())
+                .Returns(SemanticVersion.Parse(ExpectedPreVersion));
+            this.prereleaseVersioner
+                .GetPrereleaseVersion(APackageId, this.semanticVersion, PrereleaseVersioningMode.IncrementPatch, Arg.Is<Source>(source => !source.IsFallback), Arg.Any<ILogger>())
+                .Returns(SemanticVersion.Parse(ExpectedDevIncrementPatchVersion));
+            this.prereleaseVersioner
+                .GetPrereleaseVersion(APackageId, this.semanticVersion, PrereleaseVersioningMode.Automatic, Arg.Any<Source>(), Arg.Any<ILogger>())
+                .Returns(SemanticVersion.Parse(ExpectedPreVersion));
             this.addLocalSourceCommand.Add(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns((callInfo) => new LocalSource((string)callInfo[2], this.settings));
         }
@@ -127,7 +139,7 @@ namespace Sundew.Build.Publish.UnitTests
         }
 
         [Fact]
-        public void Execute_When_DevelopmentSourceIsDisableAndOtherDidntMatch_Then_IsPublishEnabledShouldBeFalse()
+        public void Execute_When_DevelopmentSourceIsDisableAndOtherDidNotMatch_Then_IsPublishEnabledShouldBeFalse()
         {
             this.testee.ProductionSource = $@"master|c:\temp\packages|c:\temp\symbols";
             this.testee.AllowLocalSource = false;
@@ -136,14 +148,13 @@ namespace Sundew.Build.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(null);
-            this.testee.SymbolsSource.Should().Be(null);
             this.testee.PublishPackages.Should().BeFalse();
         }
 
         [Theory]
         [InlineData(PrereleaseVersioningMode.NoChange, ExpectedDevNoChangeVersion)]
         [InlineData(PrereleaseVersioningMode.IncrementPatch, ExpectedDevIncrementPatchVersion)]
+        [InlineData(PrereleaseVersioningMode.Automatic, ExpectedPreVersion)]
         public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(PrereleaseVersioningMode prereleaseVersioningMode, string expectedPackageVersion)
         {
             const string ExpectedPushSource = @"c:\temp\packages";

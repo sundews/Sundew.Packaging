@@ -14,7 +14,7 @@ namespace Sundew.Build.Publish.UnitTests
     using Microsoft.Build.Utilities;
     using NSubstitute;
     using NuGet.Configuration;
-    using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
     using Xunit;

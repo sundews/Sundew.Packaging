@@ -16,6 +16,5 @@
   <files>
     <file src="Package\**\*.*" target=""/>
     <file src="Package\build\*.*" target="buildCrossTargeting"/>
-    <!--<file src="$projectDir$\$outputPath$\$targetFramework$\*.dll" target="tools"/>-->
   </files>
 </package>

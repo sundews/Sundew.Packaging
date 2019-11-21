@@ -5,13 +5,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.UnitTests.Commands
+namespace Sundew.Build.Publish.UnitTests.Internal.Commands
 {
     using System.IO;
     using System.Reflection;
     using NSubstitute;
     using NuGet.Configuration;
-    using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
     using Xunit;
 
@@ -33,7 +33,7 @@ namespace Sundew.Build.Publish.UnitTests.Commands
             this.testee = new CopyPdbToSymbolCacheCommand(this.fileSystem);
             this.commandLogger = Substitute.For<ICommandLogger>();
             this.settings = Substitute.For<ISettings>();
-            this.fileSystem.ReadAllBytes(Arg.Any<string>()).Returns(GetBytes(Assembly.GetExecutingAssembly().GetManifestResourceStream("Sundew.Build.Publish.UnitTests.Commands.Sundew.Build.Publish.pdb")));
+            this.fileSystem.ReadAllBytes(Arg.Any<string>()).Returns(GetBytes(Assembly.GetExecutingAssembly().GetManifestResourceStream("Sundew.Build.Publish.UnitTests.Internal.Commands.Sundew.Build.Publish.pdb")));
         }
 
         [Fact]

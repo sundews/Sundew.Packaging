@@ -5,9 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
-    using NuGet.Configuration;
+    using global::NuGet.Configuration;
 
     /// <summary>Interface for implementing a command that copies pdb files to the symbol cache.</summary>
     public interface ICopyPdbToSymbolCacheCommand

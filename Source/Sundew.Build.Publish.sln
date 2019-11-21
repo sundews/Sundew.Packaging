@@ -4,8 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Build.Publish", "Sundew.Build.Publish\Sundew.Build.Publish.csproj", "{8E83995F-3B2D-48ED-B9E6-C2FA67BFCB6B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E} = {87E650BB-5EB9-4BE9-BE14-5A93D15E655E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Build.Publish.UnitTests", "Sundew.Build.Publish.UnitTests\Sundew.Build.Publish.UnitTests.csproj", "{15503FBB-CE4B-40B1-9E1C-35A40D9107A4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGet.Runtime.Hack", "NuGet.Runtime.Hack\NuGet.Runtime.Hack.csproj", "{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +31,12 @@ Global
 		{15503FBB-CE4B-40B1-9E1C-35A40D9107A4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15503FBB-CE4B-40B1-9E1C-35A40D9107A4}.Release-Stable|Any CPU.ActiveCfg = Release-Stable|Any CPU
 		{15503FBB-CE4B-40B1-9E1C-35A40D9107A4}.Release-Stable|Any CPU.Build.0 = Release-Stable|Any CPU
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}.Release-Stable|Any CPU.ActiveCfg = Release-Stable|Any CPU
+		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E}.Release-Stable|Any CPU.Build.0 = Release-Stable|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

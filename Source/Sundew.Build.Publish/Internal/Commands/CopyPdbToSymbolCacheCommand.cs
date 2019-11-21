@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
     using System;
     using System.Collections.Immutable;
@@ -13,7 +13,7 @@ namespace Sundew.Build.Publish.Commands
     using System.Linq;
     using System.Reflection.Metadata;
     using System.Text;
-    using NuGet.Configuration;
+    using global::NuGet.Configuration;
     using Sundew.Build.Publish.Internal.IO;
 
     /// <summary>

@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.UnitTests.Commands
+namespace Sundew.Build.Publish.UnitTests.Internal.Commands
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -13,7 +13,7 @@ namespace Sundew.Build.Publish.UnitTests.Commands
     using FluentAssertions;
     using NSubstitute;
     using NuGet.Configuration;
-    using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
     using Xunit;

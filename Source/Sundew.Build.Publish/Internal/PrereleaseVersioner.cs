@@ -8,33 +8,43 @@
 namespace Sundew.Build.Publish.Internal
 {
     using System;
+    using global::NuGet.Common;
     using global::NuGet.Versioning;
     using Sundew.Base.Time;
+    using Sundew.Build.Publish.Commands;
+    using Sundew.Build.Publish.Internal.Commands;
 
     internal class PrereleaseVersioner : IPrereleaseVersioner
     {
         internal const string PrePackageDateTimeFormat = "yyyyMMdd-HHmmss";
         private readonly IDateTime dateTime;
+        private readonly IAutomaticPackageVersioner automaticPackageVersioner;
 
-        public PrereleaseVersioner(IDateTime dateTime)
+        public PrereleaseVersioner(IDateTime dateTime, IAutomaticPackageVersioner automaticPackageVersioner)
         {
             this.dateTime = dateTime;
+            this.automaticPackageVersioner = automaticPackageVersioner;
         }
 
-        public SemanticVersion GetPrereleaseVersion(SemanticVersion semanticVersion, PrereleaseVersioningMode prereleaseVersioningMode, Source source)
+        public SemanticVersion GetPrereleaseVersion(string packageId, SemanticVersion semanticVersion, PrereleaseVersioningMode prereleaseVersioningMode, Source source, ILogger logger)
         {
             return prereleaseVersioningMode switch
             {
-                Publish.PrereleaseVersioningMode.IncrementPatch => new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, this.GetPrereleasePostfix(source)),
-                Publish.PrereleaseVersioningMode.NoChange => new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, this.GetPrereleasePostfix(source)),
-                //// Publish.PrereleaseVersioningMode.IncrementPatchIfStableVersionExists => throw new NotImplementedException("This mode has not yet been implemented.");
+                PrereleaseVersioningMode.Automatic => this.GetPrereleaseVersion(this.automaticPackageVersioner.GetSemanticVersion(packageId, semanticVersion, source.Uri, logger).Result, source),
+                PrereleaseVersioningMode.IncrementPatch => new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, this.GetPrereleasePostfix(source)),
+                PrereleaseVersioningMode.NoChange => this.GetPrereleaseVersion(semanticVersion, source),
                 _ => throw new ArgumentOutOfRangeException("prereleaseVersioningMode", prereleaseVersioningMode, $"Unsupported prerelease versioning mode: {prereleaseVersioningMode}")
             };
         }
 
-        private string GetPrereleasePostfix(Source pushSource)
+        private SemanticVersion GetPrereleaseVersion(SemanticVersion semanticVersion, Source source)
         {
-            return pushSource.PackagePrefix + this.dateTime.UtcTime.ToString(PrePackageDateTimeFormat);
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, this.GetPrereleasePostfix(source));
+        }
+
+        private string GetPrereleasePostfix(Source source)
+        {
+            return source.PackagePrefix + this.dateTime.UtcTime.ToString(PrePackageDateTimeFormat);
         }
     }
 }

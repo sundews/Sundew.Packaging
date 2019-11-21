@@ -5,10 +5,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
-    using NuGet.Common;
-    using NuGet.Configuration;
+    using global::NuGet.Common;
+    using global::NuGet.Configuration;
 
     /// <summary>Interface for implementing a push command that pushes NuGet packages to a NuGet server.</summary>
     public interface IPushPackageCommand

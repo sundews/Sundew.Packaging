@@ -2,6 +2,7 @@
 
 ## **1. Description**
 Sundew.Build.Publish is an automatic package publisher that can work standalone locally or integrated as a part of a CI/CD pipeline.
+- Automation for multi-repos
 - Publish prerelease package to local NuGet feed
 - Publish to official NuGet feed (or default push source)
 - Customizable publish for CI based on development, integration, production stages
@@ -97,9 +98,10 @@ Packages for the three sources above are versioned differently:<br>
 - **SbpApiKey** = specifies the NuGet api key
 - **SbpSymbolApiKey** = specifies the NuGet symbols api key
 - **SbpPrereleaseVersioningMode** = specifies the mode for versioning prerelease versions:
+  - **Automatic** = (default) increments the patch part with 1, if the stable version already exists.
+  - **IncrementPatch** = increments the patch part with 1.
   - **NoChange** = does not change the version number.
-  - **IncrementPatch** = (default) increments the patch part with 1.
-- **AllowLocalSource** = (default: true) specifies whether local source is allowed. Usefull for CI environment to disable local source if none of the stage where matched.
+- **SbpAllowLocalSource** = (default: true) specifies whether local source is allowed. Usefull for CI environments to disable local source if none of the stages where matched.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:<br> 

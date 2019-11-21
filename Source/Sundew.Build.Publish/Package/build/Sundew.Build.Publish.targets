@@ -7,7 +7,7 @@
     <SbpTimeoutInSeconds Condition="'$(SbpTimeoutInSeconds)'==''">300</SbpTimeoutInSeconds>
     <SbpCopyLocalSourcePdbToSymbolCache Condition="'$(SbpCopyLocalSourcePdbToSymbolCache)'==''">True</SbpCopyLocalSourcePdbToSymbolCache>
     <SbpCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SBP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SbpCopyLocalSourcePdbToSymbolCache>
-    <SbpPrereleaseVersioningMode Condition="'$(SbpPrereleaseVersioningMode)'==''">IncrementPatch</SbpPrereleaseVersioningMode>
+    <SbpPrereleaseVersioningMode Condition="'$(SbpPrereleaseVersioningMode)'==''">Automatic</SbpPrereleaseVersioningMode>
   </PropertyGroup>
 
   <UsingTask
@@ -20,6 +20,7 @@
   <Target Name="SbpPreparePublishNuGet" BeforeTargets="Pack" AfterTargets="Build">
     <PreparePublishTask Condition="!$(DefineConstants.Contains('DISABLE_SBP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"
                  SolutionDir="$(SolutionDir)"
+                 PackageId="$(PackageId)"
                  Version="$(Version)"
                  PrereleaseVersioningMode="$(SbpPrereleaseVersioningMode)"
                  ProductionSource="$(SbpProductionSource)"

@@ -10,20 +10,24 @@ namespace Sundew.Build.Publish.UnitTests.Internal
     using System;
     using FluentAssertions;
     using NSubstitute;
+    using NuGet.Common;
     using NuGet.Versioning;
     using Sundew.Base.Time;
+    using Sundew.Build.Publish.Commands;
     using Sundew.Build.Publish.Internal;
+    using Sundew.Build.Publish.Internal.Commands;
     using Xunit;
 
     public class PrereleaseVersionerTests
     {
+        private const string AnyPackageId = "Package.Id";
         private const string AnyPushSource = @"Ignored|c:\temp\ignored";
         private readonly IDateTime dateTime = Substitute.For<IDateTime>();
         private readonly PrereleaseVersioner testee;
 
         public PrereleaseVersionerTests()
         {
-            this.testee = new PrereleaseVersioner(this.dateTime);
+            this.testee = new PrereleaseVersioner(this.dateTime, Substitute.For<IAutomaticPackageVersioner>());
             this.dateTime.UtcTime.Returns(new DateTime(2016, 01, 08, 17, 36, 13));
         }
 
@@ -36,7 +40,12 @@ namespace Sundew.Build.Publish.UnitTests.Internal
         [InlineData("3.0.2", PrereleaseVersioningMode.IncrementPatch, "int-u", "3.0.3-int-u20160108-173613")]
         public void GetPrereleaseVersion_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, PrereleaseVersioningMode prereleaseVersioningMode, string prefix, string expectedResult)
         {
-            var result = this.testee.GetPrereleaseVersion(SemanticVersion.Parse(versionNumber), prereleaseVersioningMode, Source.Parse(AnyPushSource, prefix, false));
+            var result = this.testee.GetPrereleaseVersion(
+                AnyPackageId,
+                SemanticVersion.Parse(versionNumber),
+                prereleaseVersioningMode,
+                Source.Parse(AnyPushSource, prefix, false),
+                Substitute.For<ILogger>());
 
             result.ToFullString().Should().Be(expectedResult);
         }
