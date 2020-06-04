@@ -12,10 +12,12 @@
 
   <UsingTask
     TaskName="PreparePublishTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.dll"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"
+    TaskFactory="TaskHostFactory"/>
   <UsingTask
     TaskName="PublishTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.dll"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"
+    TaskFactory="TaskHostFactory"/>
 
   <Target Name="SbpPreparePublishNuGet" BeforeTargets="Pack" AfterTargets="Build">
     <PreparePublishTask Condition="!$(DefineConstants.Contains('DISABLE_SBP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"

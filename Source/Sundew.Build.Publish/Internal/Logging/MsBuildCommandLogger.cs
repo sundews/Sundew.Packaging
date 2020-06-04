@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Logging
+namespace Sundew.Build.Publish.Internal.Logging
 {
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;

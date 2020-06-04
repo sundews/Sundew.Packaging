@@ -7,7 +7,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
@@ -22,13 +22,15 @@
       - Local debug support
     </Description>
     <RepositoryUrl>https://github.com/hugener/Sundew.Build.Publish</RepositoryUrl>
-    <PackageReleaseNotes>2.0 - Added support for automatic prerelease patch increment
-1.0 - Initial release
-</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      2.0 - Added support for automatic prerelease patch increment
+      1.0 - Initial release
+    </PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Kim Hugener-Ohlsen</Copyright>
     <Configurations>Debug;Release;Release-Stable</Configurations>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -51,16 +53,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.3.0" />
-    <PackageReference Include="NuGet.Commands" Version="5.3.0" />
-    <PackageReference Include="NuGet.Protocol" Version="5.3.0" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.5.0" />
+    <PackageReference Include="NuGet.Commands" Version="5.6.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.6.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="4.0.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="1.7.0" />
+    <PackageReference Include="Sundew.Base" Version="4.2.1" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.8.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,11 +80,6 @@
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
-  <ItemGroup>
-    <OutputFiles Include="$(OutputPath)\**\*.*" />
-    <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\netcoreapp3.0\runtimes\**\*.*" />
-  </ItemGroup>
-
   <Target Name="PreBuild" AfterTargets="PreBuildEvent">
     <RemoveDir Directories="Package\tools" ContinueOnError="False" />
   </Target>
@@ -93,6 +91,11 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\System*.dll" />
+      <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\netcoreapp3.0\runtimes\**\*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'Package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
     <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'Package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
     <Delete Files="Package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />

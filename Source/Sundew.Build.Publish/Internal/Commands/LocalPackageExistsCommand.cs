@@ -5,13 +5,12 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
     using System.IO;
     using System.Threading.Tasks;
-    using NuGet.Common;
-    using NuGet.Versioning;
-    using Sundew.Build.Publish.Internal.Commands;
+    using global::NuGet.Common;
+    using global::NuGet.Versioning;
     using Sundew.Build.Publish.Internal.IO;
 
     internal class LocalPackageExistsCommand : IPackageExistsCommand

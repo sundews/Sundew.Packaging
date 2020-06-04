@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Commands
+namespace Sundew.Build.Publish.Internal.Commands
 {
-    using NuGet.Commands;
-    using NuGet.Common;
-    using NuGet.Configuration;
-    using Sundew.Build.Publish.Internal.Commands;
+    using global::NuGet.Commands;
+    using global::NuGet.Common;
+    using global::NuGet.Configuration;
 
     /// <summary>Pushes a NuGet package to a NuGet server.</summary>
     /// <seealso cref="IPushPackageCommand" />

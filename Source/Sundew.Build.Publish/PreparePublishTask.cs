@@ -15,12 +15,11 @@ namespace Sundew.Build.Publish
     using NuGet.Versioning;
     using Sundew.Base.Enumerations;
     using Sundew.Base.Time;
-    using Sundew.Build.Publish.Commands;
     using Sundew.Build.Publish.Internal;
     using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
+    using Sundew.Build.Publish.Internal.Logging;
     using Sundew.Build.Publish.Internal.NuGet.Configuration;
-    using Sundew.Build.Publish.Logging;
 
     /// <summary>MSBuild task that prepare for publishing the created NuGet package.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />

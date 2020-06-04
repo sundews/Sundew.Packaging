@@ -5,12 +5,12 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Build.Publish.Logging
+namespace Sundew.Build.Publish.Internal.Logging
 {
     using System;
+    using global::NuGet.Common;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
-    using NuGet.Common;
 
     internal class NuGetToMsBuildLoggerAdapter : global::NuGet.Common.ILogger
     {
