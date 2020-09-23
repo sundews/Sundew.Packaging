@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 /Source/Sundew.Build.Publish/Package/tools
 /Source/Sundew.Build.Publish.UnitTests/Sundew.Build.Publish.UnitTests.xml
+/Source/Sundew.Build.Publish/tools

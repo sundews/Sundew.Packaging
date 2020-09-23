@@ -6,24 +6,23 @@
     <IsPackable>false</IsPackable>
 
     <Configurations>Debug;Release;Release-Stable</Configurations>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <DocumentationFile>D:\Kim\Repos\Sundew.Build.Publish\Source\Sundew.Build.Publish.UnitTests\Sundew.Build.Publish.UnitTests.xml</DocumentationFile>
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Kim\Repos\Sundew.Build.Publish\Source\Sundew.Build.Publish.UnitTests\Sundew.Build.Publish.UnitTests.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
-    <DocumentationFile>D:\Kim\Repos\Sundew.Build.Publish\Source\Sundew.Build.Publish.UnitTests\Sundew.Build.Publish.UnitTests.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn>CS1591</NoWarn>

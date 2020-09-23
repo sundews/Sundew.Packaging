@@ -66,14 +66,21 @@ namespace Sundew.Build.Publish.Internal.Commands
                 }
             }
 
-            var debugId = GetDebugIdDirectoryName(this.GetDebugId(pdbFilePath));
-            var pdbFileName = Path.GetFileName(pdbFilePath);
-            var outputPath = Path.Combine(symbolCacheDirectoryPath, pdbFileName, debugId, pdbFileName);
-            var pdbDirectoryPath = Path.GetDirectoryName(outputPath);
-            this.fileSystem.CreateDirectory(pdbDirectoryPath);
-            this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SbpFileExtensionText), string.Empty);
-            this.fileSystem.Copy(pdbFilePath, outputPath, true);
-            commandLogger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
+            try
+            {
+                var debugId = GetDebugIdDirectoryName(this.GetDebugId(pdbFilePath));
+                var pdbFileName = Path.GetFileName(pdbFilePath);
+                var outputPath = Path.Combine(symbolCacheDirectoryPath, pdbFileName, debugId, pdbFileName);
+                var pdbDirectoryPath = Path.GetDirectoryName(outputPath);
+                this.fileSystem.CreateDirectory(pdbDirectoryPath);
+                this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SbpFileExtensionText), string.Empty);
+                this.fileSystem.Copy(pdbFilePath, outputPath, true);
+                commandLogger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
+            }
+            catch (BadImageFormatException)
+            {
+                commandLogger.LogWarning("Pdb could not be copied to symbol cache. Only portable pdbs are supported.");
+            }
         }
 
         private static string GetDebugIdDirectoryName(byte[] debugId)

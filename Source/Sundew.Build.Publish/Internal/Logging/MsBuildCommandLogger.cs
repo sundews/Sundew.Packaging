@@ -34,5 +34,10 @@ namespace Sundew.Build.Publish.Internal.Logging
         {
             this.taskLoggingHelper.LogMessage(MessageImportance.Low, message);
         }
+
+        public void LogWarning(string message)
+        {
+            this.taskLoggingHelper.LogWarning(message);
+        }
     }
 }

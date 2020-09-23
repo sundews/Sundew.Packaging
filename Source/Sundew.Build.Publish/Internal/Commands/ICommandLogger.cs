@@ -21,5 +21,11 @@ namespace Sundew.Build.Publish.Internal.Commands
         /// <summary>Logs the message.</summary>
         /// <param name="message">The message.</param>
         void LogMessage(string message);
+
+        /// <summary>
+        /// Logs the warning.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        void LogWarning(string message);
     }
 }
