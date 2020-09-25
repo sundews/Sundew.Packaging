@@ -30,13 +30,12 @@ namespace Sundew.Build.Publish.UnitTests
         private readonly PreparePublishTask testee;
         private readonly IAddLocalSourceCommand addLocalSourceCommand = Substitute.For<IAddLocalSourceCommand>();
         private readonly IPrereleaseVersioner prereleaseVersioner = Substitute.For<IPrereleaseVersioner>();
-        private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand = Substitute.For<IPersistNuGetVersionCommand>();
         private readonly ISettings settings = Substitute.For<ISettings>();
         private readonly SemanticVersion semanticVersion = new SemanticVersion(1, 0, 1);
 
         public PreparePublishTaskTests()
         {
-            this.testee = new PreparePublishTask(this.addLocalSourceCommand, this.prereleaseVersioner, this.persistNuGetVersionCommand)
+            this.testee = new PreparePublishTask(this.addLocalSourceCommand, this.prereleaseVersioner)
             {
                 Version = this.semanticVersion.ToFullString(),
                 AllowLocalSource = true,
@@ -172,7 +171,6 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee.Source.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(expectedPackageVersion);
-            this.persistNuGetVersionCommand.Received(1).Save(expectedPackageVersion, Arg.Any<string>(), Arg.Any<string>());
         }
 
         private void ArrangeDefaultPushSource()

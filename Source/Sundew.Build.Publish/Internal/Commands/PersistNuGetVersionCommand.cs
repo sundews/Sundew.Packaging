@@ -35,9 +35,12 @@ namespace Sundew.Build.Publish.Internal.Commands
         /// <param name="version">The version.</param>
         /// <param name="outputPath">The output path.</param>
         /// <param name="outputName">Name of the output.</param>
-        public void Save(string version, string outputPath, string outputName)
+        /// <param name="commandLogger">The command logger.</param>
+        public void Save(string version, string outputPath, string outputName, ICommandLogger commandLogger)
         {
-            this.fileSystem.WriteAllText(Path.Combine(outputPath, outputName + SbpVersionFileName), version);
+            var filePath = Path.Combine(outputPath, outputName + SbpVersionFileName);
+            this.fileSystem.WriteAllText(filePath, version);
+            commandLogger.LogInfo($"Wrote version: {version} to {filePath}");
         }
     }
 }

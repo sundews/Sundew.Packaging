@@ -22,6 +22,11 @@ namespace Sundew.Build.Publish.Internal.IO
             File.WriteAllText(path, contents);
         }
 
+        public string ReadAllText(string path)
+        {
+            return File.ReadAllText(path);
+        }
+
         public bool DirectoryExists(string path)
         {
             return Directory.Exists(path);

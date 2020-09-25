@@ -36,10 +36,17 @@ namespace Sundew.Build.Publish
         private readonly ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand;
         private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
+        private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand;
 
         /// <summary>Initializes a new instance of the <see cref="PublishTask"/> class.</summary>
         public PublishTask()
-         : this(new PushPackageCommand(), new CopyPackageToLocalSourceCommand(), new CopyPdbToSymbolCacheCommand(), new Internal.IO.FileSystem(), new SettingsFactory())
+         : this(
+             new PushPackageCommand(),
+             new CopyPackageToLocalSourceCommand(),
+             new CopyPdbToSymbolCacheCommand(),
+             new Internal.IO.FileSystem(),
+             new SettingsFactory(),
+             new PersistNuGetVersionCommand(new FileSystem()))
         {
         }
 
@@ -48,13 +55,15 @@ namespace Sundew.Build.Publish
             ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand,
             ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand,
             IFileSystem fileSystem,
-            ISettingsFactory settingsFactory)
+            ISettingsFactory settingsFactory,
+            IPersistNuGetVersionCommand persistNuGetVersionCommand)
         {
             this.pushPackageCommand = pushPackageCommand;
             this.copyPackageToLocalSourceCommand = copyPackageToLocalSourceCommand;
             this.copyPdbToSymbolCacheCommand = copyPdbToSymbolCacheCommand;
             this.fileSystem = fileSystem;
             this.settingsFactory = settingsFactory;
+            this.persistNuGetVersionCommand = persistNuGetVersionCommand;
         }
 
         /// <summary>Gets or sets the solution dir.</summary>
@@ -76,6 +85,11 @@ namespace Sundew.Build.Publish
         /// <value>The output path.</value>
         [Required]
         public string OutputPath { get; set; }
+
+        /// <summary>Gets or sets the package output path.</summary>
+        /// <value>The package output path.</value>
+        [Required]
+        public string PackageOutputPath { get; set; }
 
         /// <summary>Gets or sets the package identifier.</summary>
         /// <value>The package identifier.</value>
@@ -149,6 +163,8 @@ namespace Sundew.Build.Publish
                 throw new FileNotFoundException(string.Format(PackagePathPackagePathDoesNotExistFormat, packagePath));
             }
 
+            var msBuildCommandLogger = new MsBuildCommandLogger(this.Log);
+            this.persistNuGetVersionCommand.Save(this.Version, this.OutputPath, this.PackageId, msBuildCommandLogger);
             var symbolPackagePath = packagePathWithoutExtension + SnupkgFileExtension;
             if (!this.fileSystem.FileExists(symbolPackagePath))
             {
@@ -163,7 +179,6 @@ namespace Sundew.Build.Publish
             {
                 var settings = this.settingsFactory.LoadDefaultSettings(this.SolutionDir);
                 var source = this.Source;
-                var msBuildCommandLogger = new MsBuildCommandLogger(this.Log);
                 if (source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile)
                 {
                     this.copyPackageToLocalSourceCommand.Add(this.PackageId, packagePath, source, this.SkipDuplicate, msBuildCommandLogger);
@@ -216,7 +231,7 @@ namespace Sundew.Build.Publish
 
         private string GetPackagePathWithoutExtension()
         {
-            return Path.Combine(this.ProjectDir, this.OutputPath, $"{this.PackageId}.{this.Version}");
+            return Path.Combine(this.ProjectDir, this.PackageOutputPath, $"{this.PackageId}.{this.Version}");
         }
     }
 }

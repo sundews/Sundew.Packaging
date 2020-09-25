@@ -12,29 +12,33 @@ namespace Sundew.Build.Publish
     using System.Linq;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
+    using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
+    using Sundew.Build.Publish.Internal.Logging;
 
     /// <summary>
     /// Task for adjusting project reference versions.
     /// </summary>
     public class AdjustProjectReferenceVersionsTask : Task
     {
-        private const string MSBuildSourceProjectFileName = "MSBuildSourceProjectFile";
+        internal const string MSBuildSourceProjectFileName = "MSBuildSourceProjectFile";
+        internal const string ProjectVersionName = "ProjectVersion";
         private const string SundewBuildPublishVersionFileExtension = "sbpv";
-        private const string ProjectVersionName = "ProjectVersion";
         private readonly IFileSystem fileSystem;
+        private readonly ICommandLogger commandLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdjustProjectReferenceVersionsTask"/> class.
         /// </summary>
         public AdjustProjectReferenceVersionsTask()
-            : this(new FileSystem())
+            : this(new FileSystem(), null)
         {
         }
 
-        internal AdjustProjectReferenceVersionsTask(IFileSystem fileSystem)
+        internal AdjustProjectReferenceVersionsTask(IFileSystem fileSystem, ICommandLogger commandLogger)
         {
             this.fileSystem = fileSystem;
+            this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
 
         /// <summary>
@@ -87,9 +91,11 @@ namespace Sundew.Build.Publish
                     var assemblyVersionFile = Path.ChangeExtension(resolvedProjectReference.ItemSpec, SundewBuildPublishVersionFileExtension);
                     if (this.fileSystem.FileExists(assemblyVersionFile))
                     {
-                        var packageVersion = File.ReadAllText(assemblyVersionFile);
-                        if (!string.IsNullOrEmpty(packageVersion))
+                        var packageVersion = this.fileSystem.ReadAllText(assemblyVersionFile);
+                        var referenceVersion = projectReference.GetMetadata(ProjectVersionName);
+                        if (!string.IsNullOrEmpty(packageVersion) && !Equals(referenceVersion, packageVersion))
                         {
+                            this.commandLogger.LogInfo($"Replaced version: {referenceVersion} with {packageVersion} for ProjectReference: {Path.GetFileName(projectReference.ItemSpec)} ");
                             projectReference.SetMetadata(ProjectVersionName, packageVersion);
                         }
                     }
@@ -97,7 +103,7 @@ namespace Sundew.Build.Publish
             }
             catch (Exception e)
             {
-                this.Log.LogWarningFromException(e);
+                this.commandLogger.LogWarning(e.ToString());
             }
 
             this.AdjustedProjectReferences = this.ProjectReferences;

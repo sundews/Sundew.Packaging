@@ -18,6 +18,7 @@ namespace Sundew.Build.Publish.Internal.Commands
         /// <param name="version">The version.</param>
         /// <param name="outputPath">The output path.</param>
         /// <param name="outputName">Name of the output.</param>
-        void Save(string version, string outputPath, string outputName);
+        /// <param name="commandLogger">The command logger.</param>
+        void Save(string version, string outputPath, string outputName, ICommandLogger commandLogger);
     }
 }

@@ -23,19 +23,21 @@ namespace Sundew.Build.Publish.UnitTests
     {
         private const string ExpectedPackageId = "PackageId";
         private const string ProjectDir = @"c:\sdb";
-        private const string OutputPath = @"c:\sdb\bin";
+        private const string PackageOutputPath = @"c:\sdb\bin";
+        private const string OutputPath = @"c:\sdb\bin\Debug";
         private const string Version = "1.0.0";
         private const int TimeoutInSeconds = 300;
-        private static readonly string ExpectedPackagePath = Path.Combine(OutputPath, $"{ExpectedPackageId}.{Version}.nupkg");
-        private static readonly string ExpectedSymbolsPackagePath = Path.Combine(OutputPath, $"{ExpectedPackageId}.{Version}.snupkg");
-        private static readonly string ExpectedSymbolsPackagePathLong = Path.Combine(OutputPath, $"{ExpectedPackageId}.{Version}.symbols.nupkg");
-        private static readonly string ExpectedPdbPath = Path.Combine(OutputPath, $"{ExpectedPackageId}.{Version}.pdb");
+        private static readonly string ExpectedPackagePath = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.nupkg");
+        private static readonly string ExpectedSymbolsPackagePath = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.snupkg");
+        private static readonly string ExpectedSymbolsPackagePathLong = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.symbols.nupkg");
+        private static readonly string ExpectedPdbPath = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.pdb");
         private readonly IPushPackageCommand pushPackageCommand = Substitute.For<IPushPackageCommand>();
         private readonly ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand = Substitute.For<ICopyPackageToLocalSourceCommand>();
         private readonly ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand = Substitute.For<ICopyPdbToSymbolCacheCommand>();
         private readonly IFileSystem fileSystem = Substitute.For<IFileSystem>();
         private readonly ISettingsFactory settingsFactory = Substitute.For<ISettingsFactory>();
         private readonly IBuildEngine buildEngine = Substitute.For<IBuildEngine>();
+        private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand = Substitute.For<IPersistNuGetVersionCommand>();
         private readonly PublishTask testee;
 
         public PublishTaskTests()
@@ -45,11 +47,13 @@ namespace Sundew.Build.Publish.UnitTests
                 this.copyPackageToLocalSourceCommand,
                 this.copyPdbToSymbolCacheCommand,
                 this.fileSystem,
-                this.settingsFactory)
+                this.settingsFactory,
+                this.persistNuGetVersionCommand)
             {
                 BuildEngine = this.buildEngine,
                 PackageId = ExpectedPackageId,
                 ProjectDir = ProjectDir,
+                PackageOutputPath = PackageOutputPath,
                 OutputPath = OutputPath,
                 Version = Version,
                 PublishPackages = true,
@@ -110,6 +114,14 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee.Execute();
 
             this.testee.PackagePaths.Select(x => x.ItemSpec).Should().Equal(new[] { ExpectedPackagePath, ExpectedSymbolsPackagePath });
+        }
+
+        [Fact]
+        public void Execute_Then_PersistNuGetVersionShouldBeCalled()
+        {
+            this.testee.Execute();
+
+            this.persistNuGetVersionCommand.Received(1).Save(Version, OutputPath, Arg.Any<string>(), Arg.Any<ICommandLogger>());
         }
 
         [Fact]

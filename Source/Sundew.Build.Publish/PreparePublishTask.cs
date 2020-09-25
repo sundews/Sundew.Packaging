@@ -30,7 +30,6 @@ namespace Sundew.Build.Publish
         internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
         private readonly IAddLocalSourceCommand addLocalSourceCommand;
         private readonly IPrereleaseVersioner prereleaseVersioner;
-        private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand;
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
         public PreparePublishTask()
@@ -40,16 +39,16 @@ namespace Sundew.Build.Publish
                     new SettingsFactory()),
                 new PrereleaseVersioner(
                     new DateTimeProvider(),
-                    new AutomaticPackageVersioner(new LocalPackageExistsCommand(new FileSystem()), new RemotePackageExistsCommand())),
-                new PersistNuGetVersionCommand(new FileSystem()))
+                    new AutomaticPackageVersioner(new LocalPackageExistsCommand(new FileSystem()), new RemotePackageExistsCommand())))
         {
         }
 
-        internal PreparePublishTask(IAddLocalSourceCommand addLocalSourceCommand, IPrereleaseVersioner prereleaseVersioner, IPersistNuGetVersionCommand persistNuGetVersionCommand)
+        internal PreparePublishTask(
+            IAddLocalSourceCommand addLocalSourceCommand,
+            IPrereleaseVersioner prereleaseVersioner)
         {
             this.addLocalSourceCommand = addLocalSourceCommand;
             this.prereleaseVersioner = prereleaseVersioner;
-            this.persistNuGetVersionCommand = persistNuGetVersionCommand;
         }
 
         /// <summary>Gets or sets the solution dir.</summary>
@@ -66,15 +65,6 @@ namespace Sundew.Build.Publish
         /// <value>The version.</value>
         [Required]
         public string Version { get; set; }
-
-        /// <summary>
-        /// Gets or sets the output path.
-        /// </summary>
-        /// <value>
-        /// The output path.
-        /// </value>
-        [Required]
-        public string OutputPath { get; set; }
 
         /// <summary>Gets or sets the prerelease versioning mode.</summary>
         /// <value>The prerelease versioning mode.</value>
@@ -183,7 +173,6 @@ namespace Sundew.Build.Publish
                     }
 
                     this.PackageVersion = this.prereleaseVersioner.GetPrereleaseVersion(this.PackageId, semanticVersion, prereleaseVersioningMode, source, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
-                    this.persistNuGetVersionCommand.Save(this.PackageVersion, this.OutputPath, this.PackageId);
                 }
 
                 return true;
