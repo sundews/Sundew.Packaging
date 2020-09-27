@@ -8,6 +8,7 @@
       <InputAssemblies Remove="$(OutputPath)$(AssemblyName).dll" />
       <InputAssemblies Remove="$(OutputPath)**\Microsoft.Build*.dll" />
       <InputAssemblies Remove="$(OutputPath)**\System*.dll" />
+      <InputAssemblies Remove="$(OutputPath)**\NuGet*.dll" />
     </ItemGroup>
 
     <ILRepack

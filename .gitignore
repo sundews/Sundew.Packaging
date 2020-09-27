@@ -163,7 +163,6 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
-.package/
 
 # Publish Web Output
 *.[Pp]ublish.xml
@@ -189,6 +188,7 @@ PublishScripts/
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
+.package/
 
 # Microsoft Azure Build Output
 csx/
