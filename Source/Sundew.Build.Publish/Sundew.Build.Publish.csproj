@@ -7,7 +7,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>2.1.0</Version>
+    <Version>2.1.2</Version>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
@@ -28,25 +28,14 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Kim Hugener-Ohlsen</Copyright>
     <Configurations>Debug;Release;Release-Stable</Configurations>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AssemblyVersion>2.1.2.0</AssemblyVersion>
+    <FileVersion>2.1.2.0</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <DocumentationFile>bin\Debug\Sundew.Build.Publish.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <DocumentationFile>bin\Release\Sundew.Build.Publish.xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\Sundew.Build.Publish.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <DocumentationFile>bin\Release\Sundew.Build.Publish.xml</DocumentationFile>
     <SbpSourceName>local-stable</SbpSourceName>
   </PropertyGroup>
 
@@ -65,9 +54,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Package\**" />
-    <EmbeddedResource Remove="Package\**" />
-    <None Remove="Package\**" />
+    <Compile Remove=".package\**" />
+    <EmbeddedResource Remove=".package\**" />
+    <None Remove=".package\**" />
     <None Remove="tools\**" />
   </ItemGroup>
 
@@ -80,7 +69,7 @@
   </ItemGroup>
 
   <Target Name="_DeletePackageDirectory" AfterTargets="PreBuildEvent">
-    <RemoveDir Directories="Package\tools" ContinueOnError="False" />
+    <RemoveDir Directories=".package\tools" ContinueOnError="False" />
   </Target>
 
   <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
@@ -96,10 +85,10 @@
       <TargetsFiles Include="build\Sundew.Build.Publish.targets" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'Package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'Package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Copy SourceFiles="@(TargetsFiles)" DestinationFiles="@(TargetsFiles->'Package\build\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Delete Files="Package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
+    <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'.package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'.package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Copy SourceFiles="@(TargetsFiles)" DestinationFiles="@(TargetsFiles->'.package\build\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
   </Target>
 
  <Target Name="_CopySelf" BeforeTargets="Clean;Build">

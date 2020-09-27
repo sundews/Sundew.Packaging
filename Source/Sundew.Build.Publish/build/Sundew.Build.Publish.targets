@@ -12,16 +12,13 @@
 
   <UsingTask
     TaskName="PreparePublishTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"
-    TaskFactory="TaskHostFactory"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"/>
   <UsingTask
     TaskName="AdjustProjectReferenceVersionsTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"
-    TaskFactory="TaskHostFactory"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"/>
   <UsingTask
     TaskName="PublishTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"
-    TaskFactory="TaskHostFactory"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"/>
 
   <Target Name="SbpPreparePublishNuGetDuringClean" BeforeTargets="_GetOutputItemsFromPack" DependsOnTargets="SbpPreparePublishNuGet" Condition="!$(DefineConstants.Contains('DISABLE_SBP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false">
   </Target>

@@ -14,7 +14,7 @@
     <repository type="$repositoryType$" url="$repositoryUrl$"></repository>
   </metadata>
   <files>
-    <file src="Package\**\*.*" target=""/>
-    <file src="Package\build\*.*" target="buildCrossTargeting"/>
+    <file src=".package\**\*.*" target=""/>
+    <file src=".package\build\*.*" target="buildCrossTargeting"/>
   </files>
 </package>
