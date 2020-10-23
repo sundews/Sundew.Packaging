@@ -33,7 +33,7 @@ namespace Sundew.Build.Publish.UnitTests.Internal
         [InlineData("##vso[task.setvariable package_{0}={0}]{3}|##vso[task.setvariable source_{0}={0}]{2}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
         [InlineData("MessageWithSemiColon||ShouldNotSplitWhenEscaped", new[] { @"MessageWithSemiColon|ShouldNotSplitWhenEscaped" })]
         [InlineData("1|2|3", new[] { @"1", "2", "3" })]
-        public void Log_When_ActualMessageShouldBeExpectedResult(string packagePushFormats, string[] expectedResult)
+        public void Log_Then_ActualMessageShouldBeExpectedResult(string packagePushFormats, string[] expectedResult)
         {
             var commandLogger = Substitute.For<ICommandLogger>();
             var actualMessages = new List<string>();
