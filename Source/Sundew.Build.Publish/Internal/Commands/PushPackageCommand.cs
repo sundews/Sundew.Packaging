@@ -7,6 +7,7 @@
 
 namespace Sundew.Build.Publish.Internal.Commands
 {
+    using System.Threading.Tasks;
     using global::NuGet.Commands;
     using global::NuGet.Common;
     using global::NuGet.Configuration;
@@ -29,7 +30,7 @@ namespace Sundew.Build.Publish.Internal.Commands
         /// <param name="logger">The logger.</param>
         /// <param name="commandLogger">The command logger.</param>
         /// <returns>An async task.</returns>
-        public async System.Threading.Tasks.Task PushAsync(
+        public async Task PushAsync(
             string packagePath,
             string source,
             string apiKey,

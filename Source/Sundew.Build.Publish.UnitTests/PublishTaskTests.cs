@@ -38,6 +38,7 @@ namespace Sundew.Build.Publish.UnitTests
         private readonly ISettingsFactory settingsFactory = Substitute.For<ISettingsFactory>();
         private readonly IBuildEngine buildEngine = Substitute.For<IBuildEngine>();
         private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand = Substitute.For<IPersistNuGetVersionCommand>();
+        private readonly ICommandLogger commandLogger = Substitute.For<ICommandLogger>();
         private readonly PublishTask testee;
 
         public PublishTaskTests()
@@ -48,7 +49,8 @@ namespace Sundew.Build.Publish.UnitTests
                 this.copyPdbToSymbolCacheCommand,
                 this.fileSystem,
                 this.settingsFactory,
-                this.persistNuGetVersionCommand)
+                this.persistNuGetVersionCommand,
+                this.commandLogger)
             {
                 BuildEngine = this.buildEngine,
                 PackageId = ExpectedPackageId,
@@ -122,6 +124,25 @@ namespace Sundew.Build.Publish.UnitTests
             this.testee.Execute();
 
             this.persistNuGetVersionCommand.Received(1).Save(Version, OutputPath, Arg.Any<string>(), Arg.Any<ICommandLogger>());
+        }
+
+        [Fact]
+        public void Execute_When_PackagePushLogFormatIsSet_Then_MessageShouldBeLoggedWithFormat()
+        {
+            this.testee.Source = @"http://nuget.org";
+            this.testee.PublishLogFormats = "##vso[task.setvariable variable=package_{0}]{3}-{2}-{1}";
+
+            this.testee.Execute();
+
+            this.commandLogger.Received(1).LogImportant($"##vso[task.setvariable variable=package_{ExpectedPackageId}]{ExpectedPackagePath}-{this.testee.Source}-{Version}");
+        }
+
+        [Fact]
+        public void Execute_When_PackagePushLogFormatIsSetNotSet_Then_NothingIsLogged()
+        {
+            this.testee.Execute();
+
+            this.commandLogger.DidNotReceive().LogImportant(Arg.Any<string>());
         }
 
         [Fact]

@@ -13,6 +13,7 @@ namespace Sundew.Build.Publish
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Common;
+    using Sundew.Build.Publish.Internal;
     using Sundew.Build.Publish.Internal.Commands;
     using Sundew.Build.Publish.Internal.IO;
     using Sundew.Build.Publish.Internal.Logging;
@@ -37,6 +38,7 @@ namespace Sundew.Build.Publish
         private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
         private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand;
+        private readonly ICommandLogger commandLogger;
 
         /// <summary>Initializes a new instance of the <see cref="PublishTask"/> class.</summary>
         public PublishTask()
@@ -46,7 +48,8 @@ namespace Sundew.Build.Publish
              new CopyPdbToSymbolCacheCommand(),
              new Internal.IO.FileSystem(),
              new SettingsFactory(),
-             new PersistNuGetVersionCommand(new FileSystem()))
+             new PersistNuGetVersionCommand(new FileSystem()),
+             null)
         {
         }
 
@@ -56,7 +59,8 @@ namespace Sundew.Build.Publish
             ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand,
             IFileSystem fileSystem,
             ISettingsFactory settingsFactory,
-            IPersistNuGetVersionCommand persistNuGetVersionCommand)
+            IPersistNuGetVersionCommand persistNuGetVersionCommand,
+            ICommandLogger commandLogger)
         {
             this.pushPackageCommand = pushPackageCommand;
             this.copyPackageToLocalSourceCommand = copyPackageToLocalSourceCommand;
@@ -64,6 +68,7 @@ namespace Sundew.Build.Publish
             this.fileSystem = fileSystem;
             this.settingsFactory = settingsFactory;
             this.persistNuGetVersionCommand = persistNuGetVersionCommand;
+            this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
 
         /// <summary>Gets or sets the solution dir.</summary>
@@ -146,6 +151,14 @@ namespace Sundew.Build.Publish
         /// <value>The timeout in seconds.</value>
         public int TimeoutInSeconds { get; set; }
 
+        /// <summary>
+        /// Gets or sets the publish log formats.
+        /// </summary>
+        /// <value>
+        /// The publish log formats.
+        /// </value>
+        public string PublishLogFormats { get; set; }
+
         /// <summary>Gets the package paths.</summary>
         /// <value>The package paths.</value>
         [Output]
@@ -163,8 +176,7 @@ namespace Sundew.Build.Publish
                 throw new FileNotFoundException(string.Format(PackagePathPackagePathDoesNotExistFormat, packagePath));
             }
 
-            var msBuildCommandLogger = new MsBuildCommandLogger(this.Log);
-            this.persistNuGetVersionCommand.Save(this.Version, this.OutputPath, this.PackageId, msBuildCommandLogger);
+            this.persistNuGetVersionCommand.Save(this.Version, this.OutputPath, this.PackageId, this.commandLogger);
             var symbolPackagePath = packagePathWithoutExtension + SnupkgFileExtension;
             if (!this.fileSystem.FileExists(symbolPackagePath))
             {
@@ -181,14 +193,14 @@ namespace Sundew.Build.Publish
                 var source = this.Source;
                 if (source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile)
                 {
-                    this.copyPackageToLocalSourceCommand.Add(this.PackageId, packagePath, source, this.SkipDuplicate, msBuildCommandLogger);
+                    this.copyPackageToLocalSourceCommand.Add(this.PackageId, packagePath, source, this.SkipDuplicate, this.commandLogger);
                     if (this.CopyLocalSourcePdbToSymbolCache)
                     {
                         foreach (var packInput in this.PackInputs)
                         {
                             if (Path.GetExtension(packInput.ItemSpec) == PdbFileExtension)
                             {
-                                this.copyPdbToSymbolCacheCommand.AddAndCleanCache(packInput.ItemSpec, this.SymbolCacheDir, settings, msBuildCommandLogger);
+                                this.copyPdbToSymbolCacheCommand.AddAndCleanCache(packInput.ItemSpec, this.SymbolCacheDir, settings, this.commandLogger);
                             }
                         }
                     }
@@ -207,10 +219,11 @@ namespace Sundew.Build.Publish
                         this.NoServiceEndpoint,
                         this.SkipDuplicate,
                         new NuGetToMsBuildLoggerAdapter(this.Log),
-                        msBuildCommandLogger).Wait();
+                        this.commandLogger).Wait();
                 }
             }
 
+            PublishLogger.Log(this.commandLogger, this.PublishLogFormats, this.PackageId, this.Version, this.Source, packagePath);
             var packagePathTaskItem = new TaskItem(packagePath);
             packagePathTaskItem.SetMetadata(PackageSourceText, this.Source);
             packagePathTaskItem.SetMetadata(PublishedText, this.PublishPackages.ToString(CultureInfo.InvariantCulture));

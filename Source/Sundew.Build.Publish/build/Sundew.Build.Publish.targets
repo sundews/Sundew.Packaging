@@ -73,7 +73,8 @@
                  NoServiceEndpoint="$(SbpNoServiceEndpoint)"
                  SkipDuplicate="$(SbpSkipDuplicate)"
                  CopyLocalSourcePdbToSymbolCache="$(SbpCopyLocalSourcePdbToSymbolCache)"
-                 SymbolCacheDir="$(SbpSymbolCacheDir)">
+                 SymbolCacheDir="$(SbpSymbolCacheDir)"
+                 PublishLogFormats="$(SbpPublishLogFormats)">
       <Output ItemName="SbpPackages" TaskParameter="PackagePaths"/>
     </PublishTask>
   </Target>

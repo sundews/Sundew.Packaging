@@ -7,13 +7,16 @@
 
 namespace Sundew.Build.Publish.Internal.Commands
 {
+    using System.Threading.Tasks;
     using global::NuGet.Common;
     using global::NuGet.Configuration;
 
     /// <summary>Interface for implementing a push command that pushes NuGet packages to a NuGet server.</summary>
     public interface IPushPackageCommand
     {
-        /// <summary>Pushes the asynchronous.</summary>
+        /// <summary>
+        /// Pushes the asynchronous.
+        /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="source">The source.</param>
         /// <param name="apiKey">The API key.</param>
@@ -26,8 +29,10 @@ namespace Sundew.Build.Publish.Internal.Commands
         /// <param name="skipDuplicates">Skips duplicate.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="commandLogger">The command logger.</param>
-        /// <returns>An async task.</returns>
-        System.Threading.Tasks.Task PushAsync(
+        /// <returns>
+        /// An async task.
+        /// </returns>
+        Task PushAsync(
             string packagePath,
             string source,
             string apiKey,

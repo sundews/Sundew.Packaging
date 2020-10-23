@@ -102,6 +102,13 @@ Packages for the three sources above are versioned differently:<br>
   - **IncrementPatch** = increments the patch part with 1.
   - **NoChange** = does not change the version number.
 - **SbpAllowLocalSource** = (default: true) specifies whether local source is allowed. Usefull for CI environments to disable local source if none of the stages where matched.
+- **SbpPublishLogFormat** = (default: null) specifies a format with which packages to be pushed can be logged. Multiple log formats can be separated by |.
+  - **{0}** - The package id.
+  - **{1}** - The resulting package version
+  - **{2}** - The selected package source
+  - **{3}** - The package path
+  
+   Usefull for CI environments to extract information from the build. E.g. to set a build variable to the package source and path for pushing packages from the CI environment only.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:<br> 

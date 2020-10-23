@@ -58,7 +58,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Sundew.Build.Publish\Sundew.Build.Publish.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Internal\Commands\Sundew.Build.Publish.pdb" />
   </ItemGroup>
