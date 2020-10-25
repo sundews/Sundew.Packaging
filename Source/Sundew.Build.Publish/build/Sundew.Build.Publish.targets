@@ -74,7 +74,8 @@
                  SkipDuplicate="$(SbpSkipDuplicate)"
                  CopyLocalSourcePdbToSymbolCache="$(SbpCopyLocalSourcePdbToSymbolCache)"
                  SymbolCacheDir="$(SbpSymbolCacheDir)"
-                 PublishLogFormats="$(SbpPublishLogFormats)">
+                 PublishLogFormats="$(SbpPublishLogFormats)"
+                 AllowLocalSource="$(SbpAllowLocalSource)">
       <Output ItemName="SbpPackages" TaskParameter="PackagePaths"/>
     </PublishTask>
   </Target>

@@ -128,6 +128,11 @@ namespace Sundew.Build.Publish
         ///   <c>true</c> if this instance is publish enabled; otherwise, <c>false</c>.</value>
         public bool PublishPackages { get; set; }
 
+        /// <summary>Gets or sets a value indicating whether [allow local source].</summary>
+        /// <value>
+        ///   <c>true</c> if [allow local source]; otherwise, <c>false</c>.</value>
+        public bool AllowLocalSource { get; set; }
+
         /// <summary>Gets or sets a value indicating whether [copy PDB to symbol cache].</summary>
         /// <value>
         ///   <c>true</c> if [copy PDB to symbol cache]; otherwise, <c>false</c>.</value>
@@ -187,11 +192,12 @@ namespace Sundew.Build.Publish
                 }
             }
 
+            var source = this.Source;
+            var isLocalSource = source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
             if (this.PublishPackages)
             {
                 var settings = this.settingsFactory.LoadDefaultSettings(this.SolutionDir);
-                var source = this.Source;
-                if (source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile)
+                if (isLocalSource)
                 {
                     this.copyPackageToLocalSourceCommand.Add(this.PackageId, packagePath, source, this.SkipDuplicate, this.commandLogger);
                     if (this.CopyLocalSourcePdbToSymbolCache)
@@ -223,7 +229,11 @@ namespace Sundew.Build.Publish
                 }
             }
 
-            PublishLogger.Log(this.commandLogger, this.PublishLogFormats, this.PackageId, this.Version, this.Source, packagePath);
+            if (source != null && (!isLocalSource || this.AllowLocalSource))
+            {
+                PublishLogger.Log(this.commandLogger, this.PublishLogFormats, this.PackageId, this.Version, source, packagePath);
+            }
+
             var packagePathTaskItem = new TaskItem(packagePath);
             packagePathTaskItem.SetMetadata(PackageSourceText, this.Source);
             packagePathTaskItem.SetMetadata(PublishedText, this.PublishPackages.ToString(CultureInfo.InvariantCulture));

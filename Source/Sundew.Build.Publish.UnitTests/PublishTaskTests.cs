@@ -146,6 +146,40 @@ namespace Sundew.Build.Publish.UnitTests
         }
 
         [Fact]
+        public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
+        {
+            this.testee.Source = @"http://nuget.org";
+            this.testee.PublishLogFormats = "{0}";
+            this.testee.AllowLocalSource = false;
+
+            this.testee.Execute();
+
+            this.commandLogger.Received(1).LogImportant(ExpectedPackageId);
+        }
+
+        [Fact]
+        public void Execute_When_SourceIsLocalAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
+        {
+            this.testee.Source = @"c:\temp\packages";
+            this.testee.PublishLogFormats = "{0}";
+            this.testee.AllowLocalSource = false;
+
+            this.testee.Execute();
+
+            this.commandLogger.DidNotReceive().LogImportant(Arg.Any<string>());
+        }
+
+        [Fact]
+        public void Execute_When_SourceIsNull_Then_PublishPackageLoggingShouldBeDisabled()
+        {
+            this.testee.PublishLogFormats = "{0}";
+
+            this.testee.Execute();
+
+            this.commandLogger.DidNotReceive().LogImportant(Arg.Any<string>());
+        }
+
+        [Fact]
         public void Execute_When_NoSymbolPackageExists_Then_PackagePathsShouldBeExpectedResult()
         {
             this.fileSystem.FileExists(ExpectedSymbolsPackagePath).Returns(false);
