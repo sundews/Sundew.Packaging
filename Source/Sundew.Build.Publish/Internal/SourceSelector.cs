@@ -62,7 +62,7 @@ namespace Sundew.Build.Publish.Internal
                     Source.Parse(developmentSource, DevelopmentPackagePrefix, false),
                 };
 
-                var source = sources.FirstOrDefault(x => x.StageRegex != null && x.StageRegex.IsMatch(sourceName));
+                var source = Array.Find(sources, x => x.StageRegex?.IsMatch(sourceName) == true);
                 if (!source.Equals(default))
                 {
                     return source;

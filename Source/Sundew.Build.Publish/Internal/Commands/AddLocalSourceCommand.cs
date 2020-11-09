@@ -7,6 +7,7 @@
 
 namespace Sundew.Build.Publish.Internal.Commands
 {
+    using System;
     using System.IO;
     using System.Linq;
     using global::NuGet.Configuration;
@@ -19,6 +20,7 @@ namespace Sundew.Build.Publish.Internal.Commands
     {
         internal const string NuGetConfigFileName = "NuGet.Config";
         internal const string PackageSourcesText = "packageSources";
+        private const string UndefinedText = "*Undefined*";
 
         private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
@@ -36,21 +38,31 @@ namespace Sundew.Build.Publish.Internal.Commands
         }
 
         /// <summary>Adds the specified local source to a NuGet.Config in solution dir.</summary>
-        /// <param name="solutionDir">The solution dir.</param>
+        /// <param name="workingDirectory">The working directory.</param>
         /// <param name="localSourceName">The local source name.</param>
         /// <param name="localSource">The default local source.</param>
         /// <returns>The actual local source.</returns>
-        public LocalSource Add(string solutionDir, string localSourceName, string localSource)
+        public LocalSource Add(string workingDirectory, string localSourceName, string localSource)
         {
-            var nugetConfigPath = Path.Combine(solutionDir, NuGetConfigFileName);
-            var settings = this.fileSystem.FileExists(nugetConfigPath)
-                ? this.settingsFactory.LoadSpecificSettings(solutionDir, NuGetConfigFileName)
-                : this.settingsFactory.Create(solutionDir, NuGetConfigFileName, false);
-            var defaultSettings = this.settingsFactory.LoadDefaultSettings(solutionDir);
+            if (workingDirectory == UndefinedText)
+            {
+                workingDirectory = Path.GetDirectoryName(this.fileSystem.GetCurrentDirectory());
+            }
+
+            if (workingDirectory == null)
+            {
+                throw new ArgumentException("The working directory cannot be null.", nameof(workingDirectory));
+            }
+
+            var nugetConfigPath = Path.Combine(workingDirectory, NuGetConfigFileName);
+            var defaultSettings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
             var packageSourcesSection = defaultSettings.GetSection(PackageSourcesText);
             var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == localSourceName);
             if (addItem == null)
             {
+                var settings = this.fileSystem.FileExists(nugetConfigPath)
+                    ? this.settingsFactory.LoadSpecificSettings(workingDirectory, NuGetConfigFileName)
+                    : this.settingsFactory.Create(workingDirectory, NuGetConfigFileName, false);
                 settings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
                 settings.SaveToDisk();
                 return new LocalSource(localSource, defaultSettings);

@@ -2,10 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Configurations>Debug;Release;Release-Stable</Configurations>
+    <OutputPath>bin/$(Configuration)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
 
   </PropertyGroup>

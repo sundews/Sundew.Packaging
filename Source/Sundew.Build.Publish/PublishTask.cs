@@ -31,6 +31,7 @@ namespace Sundew.Build.Publish
         private const string NupkgFileExtension = ".nupkg";
         private const string PackagePathPackagePathDoesNotExistFormat = "The package path: {0} does not exist.";
         private const string PdbFileExtension = ".pdb";
+        private const string UndefinedText = "*Undefined*";
 
         private readonly IPushPackageCommand pushPackageCommand;
         private readonly ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand;
@@ -196,6 +197,17 @@ namespace Sundew.Build.Publish
             var isLocalSource = source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
             if (this.PublishPackages)
             {
+                var workingDirectory = this.SolutionDir;
+                if (workingDirectory == UndefinedText)
+                {
+                    workingDirectory = Path.GetDirectoryName(this.fileSystem.GetCurrentDirectory());
+                }
+
+                if (workingDirectory == null)
+                {
+                    throw new ArgumentException("The working directory cannot be null.", nameof(workingDirectory));
+                }
+
                 var settings = this.settingsFactory.LoadDefaultSettings(this.SolutionDir);
                 if (isLocalSource)
                 {

@@ -11,10 +11,10 @@ namespace Sundew.Build.Publish.Internal.Commands
     public interface IAddLocalSourceCommand
     {
         /// <summary>Adds the specified local source to a NuGet.Config in solution dir.</summary>
-        /// <param name="solutionDir">The solution dir.</param>
+        /// <param name="workingDirectory">The solution dir.</param>
         /// <param name="localSourceName">The local source name.</param>
         /// <param name="localSource">The default local source.</param>
         /// <returns>The actual local source.</returns>
-        LocalSource Add(string solutionDir, string localSourceName, string localSource);
+        LocalSource Add(string workingDirectory, string localSourceName, string localSource);
     }
 }

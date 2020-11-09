@@ -127,7 +127,7 @@ namespace Sundew.Build.Publish.UnitTests
             const string ExpectedPushSource = @"c:\temp\packages";
             const string ExpectedSymbolsPushSource = @"c:\temp\symbols";
 
-            this.testee.ProductionSource = $@"master|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.ProductionSource = $"master|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "master";
 
             var result = this.testee.Execute();
@@ -141,7 +141,7 @@ namespace Sundew.Build.Publish.UnitTests
         [Fact]
         public void Execute_When_DevelopmentSourceIsDisableAndOtherDidNotMatch_Then_IsPublishEnabledShouldBeFalse()
         {
-            this.testee.ProductionSource = $@"master|c:\temp\packages|c:\temp\symbols";
+            this.testee.ProductionSource = @"master|c:\temp\packages|c:\temp\symbols";
             this.testee.AllowLocalSource = false;
             this.testee.SourceName = "feature/featureX";
 
@@ -160,7 +160,7 @@ namespace Sundew.Build.Publish.UnitTests
             const string ExpectedPushSource = @"c:\temp\packages";
             const string ExpectedSymbolsPushSource = @"c:\temp\symbols";
 
-            this.testee.ProductionSource = $@"master|https://production.com|https://production.com/symbols";
+            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
             this.testee.DevelopmentSource = $@"\w+|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/NewFeature";
             this.testee.PrereleaseVersioningMode = prereleaseVersioningMode.ToString();

@@ -56,5 +56,10 @@ namespace Sundew.Build.Publish.Internal.IO
         {
             return File.ReadAllBytes(path);
         }
+
+        public string GetCurrentDirectory()
+        {
+            return Directory.GetCurrentDirectory();
+        }
     }
 }

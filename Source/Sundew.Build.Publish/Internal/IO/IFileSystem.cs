@@ -29,5 +29,7 @@ namespace Sundew.Build.Publish.Internal.IO
         string ReadAllText(string path);
 
         byte[] ReadAllBytes(string path);
+
+        string GetCurrentDirectory();
     }
 }

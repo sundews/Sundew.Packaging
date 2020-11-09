@@ -7,6 +7,7 @@
 
 namespace Sundew.Build.Publish.UnitTests.Internal.Commands
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -62,6 +63,15 @@ namespace Sundew.Build.Publish.UnitTests.Internal.Commands
             this.settings.Received(0).AddOrUpdate(Arg.Any<string>(), Arg.Any<AddItem>());
             this.settings.Received(0).SaveToDisk();
             result.Path.Should().Be(ExpectedLocalSourceText);
+        }
+
+        [Fact]
+        public void Add_When_WorkingDirectoryIsUndefinedAndCurrentDirectoryIsARoot_Then_ArgumentExceptionShouldBeThrown()
+        {
+            this.fileSystem.GetCurrentDirectory().Returns("c:\\");
+            Action act = () => this.testee.Add("*Undefined*", ALocalSourceNameText, ADefaultLocalSourceText);
+
+            act.Should().ThrowExactly<ArgumentException>();
         }
 
         private void ArrangeLocalSourceSetting()
