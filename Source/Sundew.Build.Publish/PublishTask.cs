@@ -102,6 +102,11 @@ namespace Sundew.Build.Publish
         [Required]
         public string PackageId { get; set; }
 
+        /// <summary>Gets or sets the assembly name.</summary>
+        /// <value>The assembly name.</value>
+        [Required]
+        public string AssemblyName { get; set; }
+
         /// <summary>Gets or sets the version.</summary>
         /// <value>The version.</value>
         [Required]
@@ -182,7 +187,7 @@ namespace Sundew.Build.Publish
                 throw new FileNotFoundException(string.Format(PackagePathPackagePathDoesNotExistFormat, packagePath));
             }
 
-            this.persistNuGetVersionCommand.Save(this.Version, this.OutputPath, this.PackageId, this.commandLogger);
+            this.persistNuGetVersionCommand.Save(this.Version, this.OutputPath, this.AssemblyName, this.commandLogger);
             var symbolPackagePath = packagePathWithoutExtension + SnupkgFileExtension;
             if (!this.fileSystem.FileExists(symbolPackagePath))
             {

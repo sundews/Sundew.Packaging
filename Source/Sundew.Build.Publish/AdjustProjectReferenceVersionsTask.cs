@@ -48,7 +48,7 @@ namespace Sundew.Build.Publish
         /// The resolved project references.
         /// </value>
         [Required]
-        public ITaskItem[] ResolvedProjectReferences { get; set; }
+        public ITaskItem[] ResolvedProjectReferences { get; set; } = new ITaskItem[0];
 
         /// <summary>
         /// Gets or sets the project references.
@@ -57,7 +57,7 @@ namespace Sundew.Build.Publish
         /// The project references.
         /// </value>
         [Required]
-        public ITaskItem[] ProjectReferences { get; set; }
+        public ITaskItem[] ProjectReferences { get; set; } = new ITaskItem[0];
 
         /// <summary>
         /// Gets the adjusted project references.
@@ -66,7 +66,7 @@ namespace Sundew.Build.Publish
         /// The adjusted project references.
         /// </value>
         [Output]
-        public ITaskItem[] AdjustedProjectReferences { get; private set; }
+        public ITaskItem[] AdjustedProjectReferences { get; private set; } = new ITaskItem[0];
 
         /// <summary>
         /// Must be implemented by derived class.
@@ -80,7 +80,7 @@ namespace Sundew.Build.Publish
             {
                 foreach (var projectReference in this.ProjectReferences)
                 {
-                    var resolvedProjectReference = this.ResolvedProjectReferences.FirstOrDefault(x =>
+                    var resolvedProjectReference = this.ResolvedProjectReferences?.FirstOrDefault(x =>
                         x.GetMetadata(MSBuildSourceProjectFileName) == projectReference.ItemSpec);
 
                     if (resolvedProjectReference == null)

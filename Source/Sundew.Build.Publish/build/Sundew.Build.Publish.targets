@@ -60,6 +60,7 @@
                  SolutionDir="$(SolutionDir)"
                  ProjectDir="$(MSBuildProjectDirectory)"
                  PackageId="$(PackageId)"
+                 AssemblyName="$(AssemblyName)"
                  Version="$(PackageVersion)"
                  PackInputs="@(NuGetPackInput)"
                  OutputPath="$(MSBuildProjectDirectory)/$(OutputPath)"

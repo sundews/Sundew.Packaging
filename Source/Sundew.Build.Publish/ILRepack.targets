@@ -15,7 +15,7 @@
            Parallel="true"
            Internalize="true"
            InputAssemblies="$(OutputPath)\$(AssemblyName).dll;@(InputAssemblies)"
-           InternalizeExclude="Sundew.Build.Publish"
+           InternalizeExclude="$(OutputPath)\$(AssemblyName).dll"
            TargetKind="Dll"
            LibraryPath="$(OutputPath)"
            OutputFile="$(OutputPath)\$(AssemblyName).m.dll" />

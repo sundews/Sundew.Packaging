@@ -3,12 +3,10 @@
   <PropertyGroup>
     <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
     <NodeReuse>False</NodeReuse>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <NuspecFile>Sundew.Build.Publish.nuspec</NuspecFile>
-    <Version>2.2.6</Version>
-    <OutputPath>bin\$(Configuration)</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
     <Company>Hukano</Company>
@@ -30,7 +28,7 @@
     <Configurations>Debug;Release;Release-Stable</Configurations>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <DocumentationFile>$(OutputPath)\Sundew.Build.Publish.xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/hugener/Sundew.Build.Publish</PackageProjectUrl>
   </PropertyGroup>
 
@@ -39,17 +37,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.1" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.6.0" />
-    <PackageReference Include="NuGet.Commands" Version="5.7.0" />
-    <PackageReference Include="NuGet.Protocol" Version="5.7.0" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.8.0" />
+    <PackageReference Include="NuGet.Commands" Version="5.8.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.8.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="5.0.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="1.8.1" />
+    <PackageReference Include="Sundew.Base" Version="6.0.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -80,7 +78,7 @@
   <Target Name="_CopyPackageFiles" AfterTargets="PostBuildEvent">
     <ItemGroup>
       <OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
-      <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\netcoreapp3.0\runtimes\**\*.*" />
+      <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\net5.0\runtimes\**\*.*" />
       <TargetsFiles Include="build\Sundew.Build.Publish.targets" />
     </ItemGroup>
 
@@ -95,7 +93,8 @@
       <OutputSelfFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+   <!--
+   <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />-->
   </Target>
   
   <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Build.Publish.targets" />
