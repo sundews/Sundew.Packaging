@@ -11,16 +11,18 @@
     <Authors>Kim Hugener-Ohlsen</Authors>
     <Company>Hukano</Company>
     <Owners>Kim Hugener-Ohlsen</Owners>
-    <Description>Automated NuGet package publisher:
-- Publish prerelease package to local NuGet feed
-- Publish to official NuGet feed
-- Customizable publish for CI based on development, integration, production stages
-- Automated versioning of prereleases
-- Local debug support
+    <Description>
+      Automated NuGet package publisher:
+      - Publish prerelease package to local NuGet feed
+      - Publish to official NuGet feed
+      - Customizable publish for CI based on development, integration, production stages
+      - Automated versioning of prereleases
+      - Local debug support
     </Description>
     <RepositoryUrl>https://github.com/hugener/Sundew.Build.Publish</RepositoryUrl>
-    <PackageReleaseNotes>2.0 - Added support for automatic prerelease patch increment
-1.0 - Initial release
+    <PackageReleaseNotes>
+      2.0 - Added support for automatic prerelease patch increment
+      1.0 - Initial release
     </PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -88,14 +90,13 @@
     <Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
   </Target>
 
- <Target Name="_CopySelf" BeforeTargets="Clean;Build">
+  <Target Name="_CopySelf" BeforeTargets="Clean;Build">
     <ItemGroup>
       <OutputSelfFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
     </ItemGroup>
 
-   <!--
-   <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />-->
+    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
   </Target>
-  
+
   <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Build.Publish.targets" />
 </Project>

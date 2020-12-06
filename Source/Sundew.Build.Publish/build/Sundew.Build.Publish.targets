@@ -8,17 +8,18 @@
     <SbpCopyLocalSourcePdbToSymbolCache Condition="'$(SbpCopyLocalSourcePdbToSymbolCache)'==''">True</SbpCopyLocalSourcePdbToSymbolCache>
     <SbpCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SBP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SbpCopyLocalSourcePdbToSymbolCache>
     <SbpPrereleaseVersioningMode Condition="'$(SbpPrereleaseVersioningMode)'==''">Automatic</SbpPrereleaseVersioningMode>
+    <SbpFileName>Sundew.Build.Publish.m.dll</SbpFileName>
   </PropertyGroup>
 
   <UsingTask
     TaskName="PreparePublishTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SbpFileName)"/>
   <UsingTask
     TaskName="AdjustProjectReferenceVersionsTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SbpFileName)"/>
   <UsingTask
     TaskName="PublishTask"
-    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\Sundew.Build.Publish.m.dll"/>
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SbpFileName)"/>
 
   <Target Name="SbpPreparePublishNuGetDuringClean" BeforeTargets="_GetOutputItemsFromPack" DependsOnTargets="SbpPreparePublishNuGet" Condition="!$(DefineConstants.Contains('DISABLE_SBP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false">
   </Target>

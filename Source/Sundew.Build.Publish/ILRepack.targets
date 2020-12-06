@@ -5,7 +5,7 @@
     <ItemGroup>
       <InputAssemblies Include="$(OutputPath)**\*.dll" />
       <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
-      <InputAssemblies Remove="$(OutputPath)$(AssemblyName).dll" />
+      <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
       <InputAssemblies Remove="$(OutputPath)**\Microsoft.Build*.dll" />
       <InputAssemblies Remove="$(OutputPath)**\System*.dll" />
       <InputAssemblies Remove="$(OutputPath)**\NuGet*.dll" />
@@ -14,8 +14,8 @@
     <ILRepack
            Parallel="true"
            Internalize="true"
-           InputAssemblies="$(OutputPath)\$(AssemblyName).dll;@(InputAssemblies)"
-           InternalizeExclude="$(OutputPath)\$(AssemblyName).dll"
+           InputAssemblies="$(OutputPath)$(AssemblyName).dll;@(InputAssemblies)"
+           InternalizeExclude="$(AssemblyName)"
            TargetKind="Dll"
            LibraryPath="$(OutputPath)"
            OutputFile="$(OutputPath)\$(AssemblyName).m.dll" />
