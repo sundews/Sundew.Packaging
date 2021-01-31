@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SPP'))">
+    <SppAllowLocalSource Condition="'$(SppAllowLocalSource)'==''">True</SppAllowLocalSource>
+    <SppEnablePublish Condition="'$(SppEnablePublish)'==''">True</SppEnablePublish>
+    <SppEnablePublish Condition="$(DefineConstants.Contains('SPP_DISABLE_PUBLISH'))">False</SppEnablePublish>
+    <SppTimeoutInSeconds Condition="'$(SppTimeoutInSeconds)'==''">300</SppTimeoutInSeconds>
+    <SppCopyLocalSourcePdbToSymbolCache Condition="'$(SppCopyLocalSourcePdbToSymbolCache)'==''">True</SppCopyLocalSourcePdbToSymbolCache>
+    <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
+    <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
+    <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+  </PropertyGroup>
+
+  <UsingTask
+    TaskName="PreparePublishTask"
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
+  <UsingTask
+    TaskName="AdjustProjectReferenceVersionsTask"
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
+  <UsingTask
+    TaskName="PublishTask"
+    AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
+
+  <Target Name="SppPreparePublishNuGetDuringClean" BeforeTargets="_GetOutputItemsFromPack" DependsOnTargets="SppPreparePublishNuGet" Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false">
+  </Target>
+  <Target Name="SppPreparePublishNuGetDuringBuild" AfterTargets="Build" BeforeTargets="Pack" DependsOnTargets="SppPreparePublishNuGet" Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false" >
+  </Target>
+
+  <Target Name="SppPreparePublishNuGet">
+    <PreparePublishTask Condition="!$(DefineConstants.Contains('DISABLE_SPP'))"
+                 SolutionDir="$(SolutionDir)"
+                 PackageId="$(PackageId)"
+                 Version="$(Version)"
+                 VersioningMode="$(SppVersioningMode)"
+                 ProductionSource="$(SppProductionSource)"
+                 IntegrationSource="$(SppIntegrationSource)"
+                 DevelopmentSource="$(SppDevelopmentSource)"
+                 LocalSource="$(SppLocalSource)"
+                 AllowLocalSource="$(SppAllowLocalSource)"
+                 SourceName="$(SppSourceName)">
+      <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
+      <Output PropertyName="SppSource" TaskParameter="Source"/>
+      <Output PropertyName="SppSymbolsSource" TaskParameter="SymbolsSource"/>
+      <Output PropertyName="SppEnablePublish" TaskParameter="PublishPackages" Condition="'$(SppEnablePublish)'=='True'"/>
+    </PreparePublishTask>
+  </Target>
+
+  <Target Name="AdjustProjectReferenceVersions" BeforeTargets="GenerateNuspec">
+    <AdjustProjectReferenceVersionsTask ResolvedProjectReferences="@(_ResolvedProjectReferencePaths)" ProjectReferences="@(_ProjectReferencesWithVersions)" Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false">
+      <Output TaskParameter="AdjustedProjectReferences" ItemName="_NewProjectReferencesWithVersions" />
+    </AdjustProjectReferenceVersionsTask>
+
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Remove="@(_ProjectReferencesWithVersions)"/>
+      <_ProjectReferencesWithVersions Include ="@(_NewProjectReferencesWithVersions)"/>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="SppPublishNuGet" AfterTargets="Pack">
+    <PublishTask Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"
+                 SolutionDir="$(SolutionDir)"
+                 ProjectDir="$(MSBuildProjectDirectory)"
+                 PackageId="$(PackageId)"
+                 AssemblyName="$(AssemblyName)"
+                 Version="$(PackageVersion)"
+                 PackInputs="@(NuGetPackInput)"
+                 OutputPath="$(MSBuildProjectDirectory)/$(OutputPath)"
+                 PackageOutputPath="$(PackageOutputPath)"
+                 Source="$(SppSource)"
+                 SymbolsSource="$(SppSymbolsSource)"
+                 ApiKey="$(SppApiKey)"
+                 SymbolApiKey="$(SppSymbolApiKey)"
+                 PublishPackages="$(SppEnablePublish)"
+                 TimeoutInSeconds="$(SppTimeoutInSeconds)"
+                 NoServiceEndpoint="$(SppNoServiceEndpoint)"
+                 SkipDuplicate="$(SppSkipDuplicate)"
+                 CopyLocalSourcePdbToSymbolCache="$(SppCopyLocalSourcePdbToSymbolCache)"
+                 SymbolCacheDir="$(SppSymbolCacheDir)"
+                 PublishLogFormats="$(SppPublishLogFormats)"
+                 AllowLocalSource="$(SppAllowLocalSource)">
+      <Output ItemName="SppPackages" TaskParameter="PackagePaths"/>
+    </PublishTask>
+  </Target>
+</Project>
