@@ -30,7 +30,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [InlineData("Serilog", "2.7", false, "2.7.1")]
         public async Task GetLatestVersion_Then_ResultShouldBeExpectedResult(string packageId, string version, bool allowPrerelease, string expectedVersion)
         {
-            var result = await this.testee.GetLatestVersion(packageId, NuGetConstants.V3FeedUrl, NuGetVersion.Parse(version), allowPrerelease, New.Mock<ILogger>());
+            var result = await this.testee.GetLatestVersion(packageId, new[] { NuGetConstants.V3FeedUrl }, NuGetVersion.Parse(version), allowPrerelease, New.Mock<ILogger>());
 
             result.Should().Be(NuGetVersion.Parse(expectedVersion));
         }

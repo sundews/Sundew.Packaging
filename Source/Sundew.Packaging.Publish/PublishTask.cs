@@ -72,10 +72,10 @@ namespace Sundew.Packaging.Publish
             this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
 
-        /// <summary>Gets or sets the solution dir.</summary>
-        /// <value>The solution dir.</value>
+        /// <summary>Gets or sets the working directory.</summary>
+        /// <value>The working directory.</value>
         [Required]
-        public string? SolutionDir { get; set; }
+        public string? WorkingDirectory { get; set; }
 
         /// <summary>Gets or sets the project dir.</summary>
         /// <value>The project dir.</value>
@@ -202,7 +202,7 @@ namespace Sundew.Packaging.Publish
             var isLocalSource = source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
             if (this.PublishPackages)
             {
-                var workingDirectory = this.SolutionDir;
+                var workingDirectory = this.WorkingDirectory;
                 if (workingDirectory == UndefinedText)
                 {
                     workingDirectory = Path.GetDirectoryName(this.fileSystem.GetCurrentDirectory());

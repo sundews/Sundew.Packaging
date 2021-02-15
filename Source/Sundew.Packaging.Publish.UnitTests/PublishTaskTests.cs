@@ -61,7 +61,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                 Version = Version,
                 PublishPackages = true,
                 TimeoutInSeconds = TimeoutInSeconds,
-                SolutionDir = @"Any\Path",
+                WorkingDirectory = @"Any\LocalSourcePath",
             };
 
             this.fileSystem.Setup(x => x.FileExists(It.IsAny<string>())).Returns(true);

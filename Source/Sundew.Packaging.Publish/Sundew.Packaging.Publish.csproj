@@ -15,7 +15,7 @@
 - Publish prerelease package to local NuGet feed
 - Publish to official NuGet feed
 - Customizable publish for CI based on development, integration, production stages
-- Automated versioning of prereleases
+- Automated versioning of patch- and prereleases
 - Local debug support</Description>
     <RepositoryUrl>https://github.com/hugener/Sundew.Packaging.Publish</RepositoryUrl>
     <PackageReleaseNotes>3.0 - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update

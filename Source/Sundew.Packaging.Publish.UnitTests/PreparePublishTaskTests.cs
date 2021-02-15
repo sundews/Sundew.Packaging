@@ -10,7 +10,6 @@ namespace Sundew.Packaging.Publish.UnitTests
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Windows.Input;
     using FluentAssertions;
     using Moq;
     using NuGet.Common;
@@ -20,6 +19,8 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Sundew.Packaging.Publish;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
+    using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
     using Xunit;
     using BindingFlags = System.Reflection.BindingFlags;
 
@@ -39,39 +40,48 @@ namespace Sundew.Packaging.Publish.UnitTests
         };
 
         private readonly PreparePublishTask testee;
-        private readonly IAddLocalSourceCommand addLocalSourceCommand = New.Mock<IAddLocalSourceCommand>();
         private readonly IPackageExistsCommand packageExistsCommand = New.Mock<IPackageExistsCommand>();
         private readonly ILatestPackageVersionCommand latestPackageVersionCommand = New.Mock<ILatestPackageVersionCommand>();
         private readonly IDateTime dateTime = New.Mock<IDateTime>();
         private readonly ISettings settings = New.Mock<ISettings>();
-        private readonly NuGetVersion nuGetVersion = new(1, 0, 1);
+        private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
+        private readonly ISettingsFactory settingsFactory = New.Mock<ISettingsFactory>();
 
         public PreparePublishTaskTests()
         {
-            this.testee = new PreparePublishTask(this.addLocalSourceCommand, new PackageVersioner(this.dateTime, this.packageExistsCommand, this.latestPackageVersionCommand), New.Mock<ICommandLogger>())
+            this.testee = new PreparePublishTask(
+                this.settingsFactory,
+                this.fileSystem,
+                new PackageVersioner(this.dateTime, this.packageExistsCommand, this.latestPackageVersionCommand),
+                New.Mock<ICommandLogger>())
             {
-                Version = "1.0",
                 AllowLocalSource = true,
                 PackageId = APackageId,
+                SolutionDir = @"Any\LocalSourcePath",
             };
 
             this.dateTime.SetupGet(x => x.UtcTime).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
             this.latestPackageVersionCommand.Setup(
-                    x => x.GetLatestVersion(APackageId, It.IsAny<string>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<ILogger>()))
-                .ReturnsAsync<string, string, NuGetVersion, bool, ILogger, ILatestPackageVersionCommand, NuGetVersion?>(
-                    (_, sourceUri, _, allowPrerelease, _) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUri])));
-            this.addLocalSourceCommand.Setup(x => x.Add(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns<string, string, string>((_, _, localSource) => new LocalSource(localSource, this.settings));
+                    x => x.GetLatestVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<ILogger>()))
+                .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, ILogger, ILatestPackageVersionCommand, NuGetVersion?>(
+                    (_, sourceUris, _, allowPrerelease, _) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris.First()])));
+            this.settingsFactory.Setup(x => x.LoadDefaultSettings(It.IsAny<string>())).Returns(this.settings);
+            this.settingsFactory.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(New.Mock<ISettings>());
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6-pre-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-pre-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-pre-u20160108-173613")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2-pre-u20160108-173613")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1-pre-u20160108-173613")]
-        public void Execute_Then_PackageVersionShouldBeExpectedResult(VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-pre-u20160108-173613")]
+        public void Execute_Then_PackageVersionShouldBeExpectedResult(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
+            this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
@@ -85,13 +95,18 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6-pre-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-pre-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-pre-u20160108-173613")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2-pre-u20160108-173613")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1-pre-u20160108-173613")]
-        public void Execute_When_DefaultIsSet_Then_PackageVersionShouldBeExpectedPreVersion(VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-pre-u20160108-173613")]
+        public void Execute_When_DefaultIsSet_Then_PackageVersionShouldBeExpectedPreVersion(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
+            this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
@@ -108,13 +123,18 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1")]
-        public void Execute_When_SourceNameIsDefaultStable_Then_PackageVersionShouldBeTesteeVersion(VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.0")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1")]
+        public void Execute_When_SourceNameIsDefaultStable_Then_PackageVersionShouldBeTesteeVersion(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
+            this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
@@ -131,13 +151,18 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1")]
-        public void Execute_When_SourceNameIsLocalStable_Then_PackageVersionShouldBeTesteeVersion(VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.0")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1")]
+        public void Execute_When_SourceNameIsLocalStable_Then_PackageVersionShouldBeTesteeVersion(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
+            this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
@@ -153,13 +178,18 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6-pre-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-pre-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-pre-u20160108-173613")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2-pre-u20160108-173613")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1-pre-u20160108-173613")]
-        public void Execute_When_LocalPushSourceIsSet_Then_PushSourceShouldBeEqual(VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-pre-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-pre-u20160108-173613")]
+        public void Execute_When_LocalPushSourceIsSet_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
+            this.testee.Version = packageVersion;
             this.testee.VersioningMode = versioningMode.ToString();
             this.testee.LocalSource = @"c:\temp";
             this.packageExistsCommand.Setup(
@@ -174,15 +204,20 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1")]
-        public void Execute_When_ProductionPushSourceIsSetAndPushSourceSelectorMatches_Then_SourceShouldBeExpectedSource(VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.0")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1")]
+        public void Execute_When_ProductionPushSourceIsSetAndPushSourceSelectorMatches_Then_SourceShouldBeExpectedSource(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
             const string ExpectedPushSource = @"c:\temp\packages";
             const string ExpectedSymbolsPushSource = @"c:\temp\symbols";
+            this.testee.Version = packageVersion;
             this.testee.VersioningMode = versioningMode.ToString();
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
@@ -202,6 +237,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_DevelopmentSourceIsDisableAndOtherDidNotMatch_Then_IsPublishEnabledShouldBeFalse()
         {
+            this.testee.Version = "1.0";
             this.testee.ProductionSource = @"master|c:\temp\packages|c:\temp\symbols";
             this.testee.AllowLocalSource = false;
             this.testee.SourceName = "feature/featureX";
@@ -213,13 +249,18 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData(VersioningMode.AutomaticLatestPatch, false, "1.0.6-dev-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-dev-u20160108-173613")]
-        [InlineData(VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-dev-u20160108-173613")]
-        [InlineData(VersioningMode.AlwaysIncrementPatch, false, "1.0.2-dev-u20160108-173613")]
-        [InlineData(VersioningMode.NoChange, false, "1.0.1-dev-u20160108-173613")]
-        public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(VersioningMode versioningMode, bool stableReleaseExists, string expectedPackageVersion)
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-dev-u20160108-173613")]
+        public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedPackageVersion)
         {
+            this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
@@ -238,6 +279,110 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.testee.PackageVersion.Should().Be(expectedPackageVersion);
         }
 
+        [Theory]
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-New_Feature_WithNumber123-dev-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-New_Feature_WithNumber123-dev-u20160108-173613")]
+        public void Execute_When_DeveloperPushSourceIsSetWithPrefixAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedPackageVersion)
+        {
+            const string ExpectedPushSource = @"c:\dev\packages";
+            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            this.testee.Version = packageVersion;
+            this.packageExistsCommand.Setup(
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
+                .ReturnsAsync(stableReleaseExists);
+            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"/feature/(?<Prefix>.+)|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.SourceName = "/feature/New_Feature_WithNumber123";
+            this.testee.VersioningMode = versioningMode.ToString();
+
+            var result = this.testee.Execute();
+
+            result.Should().BeTrue();
+            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PackageVersion.Should().Be(expectedPackageVersion);
+        }
+
+        [Theory]
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-dev-u20160108-173613-New_Feature_WithNumber123")]
+        public void Execute_When_DeveloperPushSourceIsSetWithPostfixAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedPackageVersion)
+        {
+            this.testee.Version = packageVersion;
+            this.packageExistsCommand.Setup(
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
+                .ReturnsAsync(stableReleaseExists);
+            const string ExpectedPushSource = @"c:\dev\packages";
+            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"/feature/(?<Postfix>.+)|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.SourceName = "/feature/New_Feature_WithNumber123";
+            this.testee.VersioningMode = versioningMode.ToString();
+
+            var result = this.testee.Execute();
+
+            result.Should().BeTrue();
+            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PackageVersion.Should().Be(expectedPackageVersion);
+        }
+
+        [Theory]
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-TN12-dev-u20160108-173613-New_Feature_WithNumber123")]
+        public void Execute_When_DeveloperPushSourceIsSetWithPreAndPostfixAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedPackageVersion)
+        {
+            this.testee.Version = packageVersion;
+            this.packageExistsCommand.Setup(
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
+                .ReturnsAsync(stableReleaseExists);
+            const string ExpectedPushSource = @"c:\dev\packages";
+            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"/feature/(?<Prefix>TN\d\d)-(?<Postfix>.+)|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.SourceName = "/feature/TN12-New_Feature_WithNumber123";
+            this.testee.VersioningMode = versioningMode.ToString();
+
+            var result = this.testee.Execute();
+
+            result.Should().BeTrue();
+            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PackageVersion.Should().Be(expectedPackageVersion);
+        }
+
+        [Fact]
+        public void Execute_When_WorkingDirectoryIsUndefinedAndCurrentDirectoryIsARoot_Then_ArgumentExceptionShouldBeThrown()
+        {
+            this.fileSystem.Setup(x => x.GetCurrentDirectory()).Returns("c:\\");
+            this.testee.SolutionDir = "*Undefined*";
+
+            Action act = () => this.testee.Execute();
+
+            act.Should().ThrowExactly<ArgumentException>();
+        }
+
         private void ArrangeDefaultPushSource()
         {
             this.settings.Setup(x => x.GetSection(Source.ConfigText)).Returns(
@@ -247,7 +392,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                         {
                             Source.ConfigText,
                             new Dictionary<string, string>(),
-                            new List<SettingItem> { new AddItem(Source.DefaultPushSourceText, ExpectedDefaultPushSource) },
+                            new List<SettingItem> { new AddItem(SourceSelector.DefaultPushSourceText, ExpectedDefaultPushSource) },
                         }));
         }
     }

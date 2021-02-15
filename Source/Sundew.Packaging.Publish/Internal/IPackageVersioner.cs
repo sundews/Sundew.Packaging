@@ -7,11 +7,19 @@
 
 namespace Sundew.Packaging.Publish.Internal
 {
+    using System.Collections.Generic;
     using global::NuGet.Common;
     using global::NuGet.Versioning;
 
     internal interface IPackageVersioner
     {
-        SemanticVersion GetVersion(string packageId, NuGetVersion nuGetVersion, VersioningMode versioningMode, bool isStableRelease, Source source, ILogger logger);
+        SemanticVersion GetVersion(
+            string packageId,
+            NuGetVersion nuGetVersion,
+            VersioningMode versioningMode,
+            bool isStableRelease,
+            Source source,
+            IReadOnlyList<string> latestVersionSources,
+            ILogger logger);
     }
 }

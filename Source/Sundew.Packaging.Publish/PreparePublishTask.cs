@@ -25,19 +25,20 @@ namespace Sundew.Packaging.Publish
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
     public class PreparePublishTask : Task
     {
-        internal const string DefaultLocalSourceName = "Local (Sundew)";
+        internal const string DefaultLocalSourceName = "Local-Sundew";
         internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Assembly.GetExecutingAssembly().GetName().Name);
         internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
-        private readonly IAddLocalSourceCommand addLocalSourceCommand;
+        private readonly ISettingsFactory settingsFactory;
+        private readonly IFileSystem fileSystem;
+        private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
         private readonly IPackageVersioner packageVersioner;
         private readonly ICommandLogger commandLogger;
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
         public PreparePublishTask()
             : this(
-                new AddLocalSourceCommand(
-                    new FileSystem(),
-                    new SettingsFactory()),
+                new SettingsFactory(),
+                new FileSystem(),
                 new PackageVersioner(
                     new DateTimeProvider(),
                     new PackageExistsCommand(),
@@ -47,11 +48,14 @@ namespace Sundew.Packaging.Publish
         }
 
         internal PreparePublishTask(
-            IAddLocalSourceCommand addLocalSourceCommand,
+            ISettingsFactory settingsFactory,
+            IFileSystem fileSystem,
             IPackageVersioner packageVersioner,
             ICommandLogger? commandLogger)
         {
-            this.addLocalSourceCommand = addLocalSourceCommand;
+            this.settingsFactory = settingsFactory;
+            this.fileSystem = fileSystem;
+            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, this.settingsFactory);
             this.packageVersioner = packageVersioner;
             this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
@@ -71,6 +75,14 @@ namespace Sundew.Packaging.Publish
         [Required]
         public string? Version { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [allow default push source for getting latest version].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [allow default push source for getting latest version]; otherwise, <c>false</c>.
+        /// </value>
+        public bool AddDefaultPushSourceToLatestVersionSources { get; set; } = true;
+
         /// <summary>Gets or sets the versioning mode.</summary>
         /// <value>The versioning mode.</value>
         public string? VersioningMode { get; set; }
@@ -89,7 +101,7 @@ namespace Sundew.Packaging.Publish
 
         /// <summary>Gets or sets the production source.
         /// The production source is a string in the following format:
-        /// StageRegex|SourceUri|SymbolsSourceUri
+        /// StageRegex[>StageName]|SourceUri[|SymbolsSourceUri]
         /// The StageRegex is a regex that will be matched against the SourceName property and if a match occurs this source will be used to push the package.
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
@@ -98,7 +110,7 @@ namespace Sundew.Packaging.Publish
 
         /// <summary>Gets or sets the integration source.
         /// The integration source is a string in the following format:
-        /// StageRegex|SourceUri|SymbolsSourceUri
+        /// StageRegex[>StageName]|SourceUri[|SymbolsSourceUri]
         /// The StageRegex is a regex that will be matched against the SourceName property and if a match occurs this source will be used to push the package.
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
@@ -107,7 +119,7 @@ namespace Sundew.Packaging.Publish
 
         /// <summary>Gets or sets the development source.
         /// The development source is a string in the following format:
-        /// StageRegex|SourceUri|SymbolsSourceUri
+        /// StageRegex[>StageName]|SourceUri[|SymbolsSourceUri]
         /// The StageRegex is a regex that will be matched against the SourceName property and if a match occurs this source will be used to push the package.
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
@@ -122,6 +134,24 @@ namespace Sundew.Packaging.Publish
         /// <value>
         ///   <c>true</c> if [allow local source]; otherwise, <c>false</c>.</value>
         public bool AllowLocalSource { get; set; }
+
+        /// <summary>
+        /// Gets or sets the latest version sources.
+        /// Multiple sources must be specified with the pipe (|) character.
+        /// </summary>
+        /// <value>
+        /// The get latest version sources.
+        /// </value>
+        public string? LatestVersionSources { get; set; }
+
+        /// <summary>
+        /// Gets the working directory.
+        /// </summary>
+        /// <value>
+        /// The working directory.
+        /// </value>
+        [Output]
+        public string? WorkingDirectory { get; private set; }
 
         /// <summary>Gets the package version.</summary>
         /// <value>The package version.</value>
@@ -148,17 +178,21 @@ namespace Sundew.Packaging.Publish
         /// <returns>true, if successful.</returns>
         public override bool Execute()
         {
+            this.WorkingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
             var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
-            var localSource = this.addLocalSourceCommand.Add(this.SolutionDir!, localSourceName, this.LocalSource ?? DefaultLocalSource);
+            var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(this.WorkingDirectory, localSourceName, this.LocalSource ?? DefaultLocalSource);
 
             var source = SourceSelector.SelectSource(
                 this.SourceName,
                 this.ProductionSource,
                 this.IntegrationSource,
                 this.DevelopmentSource,
-                localSource.Path,
-                localSource.DefaultSettings,
+                nuGetSettings.LocalSourcePath,
+                nuGetSettings.DefaultSettings,
                 this.AllowLocalSource);
+
+            var latestVersionSources =
+                LatestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
 
             this.PublishPackages = source.IsEnabled;
             this.Source = source.Uri;
@@ -167,7 +201,7 @@ namespace Sundew.Packaging.Publish
             {
                 var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
                 this.VersioningMode?.TryParseEnum(out versioningMode, true);
-                this.PackageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, source.IsStableRelease, source, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
+                this.PackageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, source.IsStableRelease, source, latestVersionSources, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
 
                 return true;
             }

@@ -7,12 +7,13 @@
 
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using global::NuGet.Common;
     using global::NuGet.Versioning;
 
     internal interface ILatestPackageVersionCommand
     {
-        Task<NuGetVersion?> GetLatestVersion(string packageId, string sourceUri, NuGetVersion nuGetVersion, bool allowPrerelease, ILogger logger);
+        Task<NuGetVersion?> GetLatestVersion(string packageId, IReadOnlyList<string> sources, NuGetVersion nuGetVersion, bool allowPrerelease, ILogger logger);
     }
 }

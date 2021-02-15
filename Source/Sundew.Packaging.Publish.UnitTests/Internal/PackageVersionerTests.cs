@@ -32,21 +32,22 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         }
 
         [Theory]
-        [InlineData("1.0.1", VersioningMode.NoChange, "dev-u", "1.0.1-dev-u20160108-173613")]
-        [InlineData("2.0.0", VersioningMode.NoChange, "pre-u", "2.0.0-pre-u20160108-173613")]
-        [InlineData("3.0.2", VersioningMode.NoChange, "int-u", "3.0.2-int-u20160108-173613")]
-        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, "dev-u", "1.0.2-dev-u20160108-173613")]
-        [InlineData("2.0.0", VersioningMode.AlwaysIncrementPatch, "pre-u", "2.0.1-pre-u20160108-173613")]
-        [InlineData("3.0.2", VersioningMode.AlwaysIncrementPatch, "int-u", "3.0.3-int-u20160108-173613")]
-        [InlineData("3.0", VersioningMode.AlwaysIncrementPatch, "int-u", "3.0.1-int-u20160108-173613")]
-        public void GetVersion_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string prefix, string expectedResult)
+        [InlineData("1.0.1", VersioningMode.NoChange, "dev", "1.0.1-dev-u20160108-173613")]
+        [InlineData("2.0.0", VersioningMode.NoChange, "pre", "2.0.0-pre-u20160108-173613")]
+        [InlineData("3.0.2", VersioningMode.NoChange, "ci", "3.0.2-ci-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, "dev", "1.0.2-dev-u20160108-173613")]
+        [InlineData("2.0.0", VersioningMode.AlwaysIncrementPatch, "pre", "2.0.1-pre-u20160108-173613")]
+        [InlineData("3.0.2", VersioningMode.AlwaysIncrementPatch, "ci", "3.0.3-ci-u20160108-173613")]
+        [InlineData("3.0", VersioningMode.AlwaysIncrementPatch, "ci", "3.0.1-ci-u20160108-173613")]
+        public void GetVersion_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string expectedResult)
         {
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
                 false,
-                Source.Parse(AnyPushSource, prefix, false),
+                Source.Parse(AnyPushSource, stage, false),
+                new[] { AnyPushSource },
                 New.Mock<ILogger>());
 
             result.ToFullString().Should().Be(expectedResult);

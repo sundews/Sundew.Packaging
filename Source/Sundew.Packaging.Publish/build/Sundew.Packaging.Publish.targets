@@ -9,6 +9,7 @@
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppVersioningMode)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
   </PropertyGroup>
 
   <UsingTask
@@ -32,6 +33,8 @@
                  PackageId="$(PackageId)"
                  Version="$(Version)"
                  VersioningMode="$(SppVersioningMode)"
+                 LatestVersionSources="$(SppGetLatestVersionSources)"
+                 AddDefaultPushSourceToLatestVersionSources="$(SppAddDefaultPushSourceToLatestVersionSources)"
                  ProductionSource="$(SppProductionSource)"
                  IntegrationSource="$(SppIntegrationSource)"
                  DevelopmentSource="$(SppDevelopmentSource)"
@@ -40,6 +43,7 @@
                  SourceName="$(SppSourceName)">
       <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
       <Output PropertyName="SppSource" TaskParameter="Source"/>
+      <Output PropertyName="SppWorkingDirectory" TaskParameter="WorkingDirectory"/>
       <Output PropertyName="SppSymbolsSource" TaskParameter="SymbolsSource"/>
       <Output PropertyName="SppEnablePublish" TaskParameter="PublishPackages" Condition="'$(SppEnablePublish)'=='True'"/>
     </PreparePublishTask>
@@ -58,7 +62,7 @@
 
   <Target Name="SppPublishNuGet" AfterTargets="Pack">
     <PublishTask Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"
-                 SolutionDir="$(SolutionDir)"
+                 WorkingDirectory="$(SppWorkingDirectory)"
                  ProjectDir="$(MSBuildProjectDirectory)"
                  PackageId="$(PackageId)"
                  AssemblyName="$(AssemblyName)"

@@ -13,13 +13,16 @@ namespace Sundew.Packaging.Publish.Internal
 
     internal static class SourceSelector
     {
-        internal const string DevelopmentPackagePrefix = "dev-u";
-        internal const string IntegrationPackagePrefix = "int-u";
-        internal const string PrePackagePrefix = "pre-u";
+        internal const string DefaultPushSourceText = "defaultPushSource";
+        internal const string DefaultLocalPackagePrefix = "pre";
+        internal const string DefaultDevelopmentPackagePrefix = "dev";
+        internal const string DefaultIntegrationPackagePrefix = "ci";
         private const string DefaultSourceNameText = "default";
         private const string DefaultStableSourceNameText = "default-stable";
         private const string LocalStableSourceNameText = "local-stable";
         private const string NoDefaultPushSourceHasBeenConfiguredText = "No default push source has been configured.";
+        private const string PrefixGroupName = "Prefix";
+        private const string PostfixGroupName = "Postfix";
 
         public static Source SelectSource(
             string? sourceName,
@@ -36,7 +39,7 @@ namespace Sundew.Packaging.Publish.Internal
                 {
                     var defaultSource = defaultSettings.GetSection(Source.ConfigText)?.Items.OfType<AddItem>()
                         .FirstOrDefault(x =>
-                            x.Key.Equals(Source.DefaultPushSourceText, StringComparison.InvariantCultureIgnoreCase))?.Value;
+                            x.Key.Equals(DefaultPushSourceText, StringComparison.InvariantCultureIgnoreCase))?.Value;
                     if (defaultSource == null)
                     {
                         throw new InvalidOperationException(NoDefaultPushSourceHasBeenConfiguredText);
@@ -47,7 +50,7 @@ namespace Sundew.Packaging.Publish.Internal
                         return new Source(default, defaultSource, default, string.Empty, true);
                     }
 
-                    return new Source(default, defaultSource, default, PrePackagePrefix, false, true);
+                    return new Source(default, defaultSource, default, DefaultLocalPackagePrefix, false, true);
                 }
 
                 if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
@@ -58,18 +61,20 @@ namespace Sundew.Packaging.Publish.Internal
                 var sources = new[]
                 {
                     Source.Parse(productionSource, null, true),
-                    Source.Parse(integrationSource, IntegrationPackagePrefix, false),
-                    Source.Parse(developmentSource, DevelopmentPackagePrefix, false),
+                    Source.Parse(integrationSource, DefaultIntegrationPackagePrefix, false),
+                    Source.Parse(developmentSource, DefaultDevelopmentPackagePrefix, false),
                 };
 
-                var source = Array.Find(sources, x => x.StageRegex?.IsMatch(sourceName) == true);
+                var (source, match) = sources.Select(x => (source: x, match: x.StageRegex?.Match(sourceName))).FirstOrDefault(x => x.match?.Success ?? false);
                 if (!source.Equals(default))
                 {
-                    return source;
+                    var prefix = match?.Groups[PrefixGroupName].Value ?? string.Empty;
+                    var postfix = match?.Groups[PostfixGroupName].Value ?? string.Empty;
+                    return new Source(source, prefix, postfix);
                 }
             }
 
-            return new Source(null, localSource, default, PrePackagePrefix, false, true, allowLocalSource);
+            return new Source(null, localSource, default, DefaultLocalPackagePrefix, false, true, allowLocalSource);
         }
     }
 }

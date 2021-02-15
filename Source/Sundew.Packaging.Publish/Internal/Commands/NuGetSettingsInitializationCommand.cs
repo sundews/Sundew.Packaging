@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AddLocalSourceCommand.cs" company="Hukano">
+// <copyright file="NuGetSettingsInitializationCommand.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -7,7 +7,6 @@
 
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
-    using System;
     using System.IO;
     using System.Linq;
     using global::NuGet.Configuration;
@@ -15,23 +14,22 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
 
     /// <summary>Adds a local source to the specified NuGet.Config.</summary>
-    /// <seealso cref="IAddLocalSourceCommand" />
-    public class AddLocalSourceCommand : IAddLocalSourceCommand
+    /// <seealso cref="INuGetSettingsInitializationCommand" />
+    public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCommand
     {
         internal const string NuGetConfigFileName = "NuGet.Config";
         internal const string PackageSourcesText = "packageSources";
-        private const string UndefinedText = "*Undefined*";
 
         private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
 
-        /// <summary>Initializes a new instance of the <see cref="AddLocalSourceCommand"/> class.</summary>
-        public AddLocalSourceCommand()
+        /// <summary>Initializes a new instance of the <see cref="NuGetSettingsInitializationCommand"/> class.</summary>
+        public NuGetSettingsInitializationCommand()
             : this(new FileSystem(), new SettingsFactory())
         {
         }
 
-        internal AddLocalSourceCommand(IFileSystem fileSystem, ISettingsFactory settingsFactory)
+        internal NuGetSettingsInitializationCommand(IFileSystem fileSystem, ISettingsFactory settingsFactory)
         {
             this.fileSystem = fileSystem;
             this.settingsFactory = settingsFactory;
@@ -42,33 +40,22 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="localSourceName">The local source name.</param>
         /// <param name="localSource">The default local source.</param>
         /// <returns>The actual local source.</returns>
-        public LocalSource Add(string? workingDirectory, string localSourceName, string localSource)
+        public NuGetSettings Initialize(string workingDirectory, string localSourceName, string localSource)
         {
-            if (workingDirectory == UndefinedText)
-            {
-                workingDirectory = Path.GetDirectoryName(this.fileSystem.GetCurrentDirectory());
-            }
-
-            if (workingDirectory == null)
-            {
-                throw new ArgumentException("The working directory cannot be null.", nameof(workingDirectory));
-            }
-
-            var nugetConfigPath = Path.Combine(workingDirectory, NuGetConfigFileName);
             var defaultSettings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
             var packageSourcesSection = defaultSettings.GetSection(PackageSourcesText);
             var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == localSourceName);
             if (addItem == null)
             {
-                var settings = this.fileSystem.FileExists(nugetConfigPath)
+                var settings = this.fileSystem.FileExists(Path.Combine(workingDirectory, NuGetConfigFileName))
                     ? this.settingsFactory.LoadSpecificSettings(workingDirectory, NuGetConfigFileName)
                     : this.settingsFactory.Create(workingDirectory, NuGetConfigFileName, false);
                 settings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
                 settings.SaveToDisk();
-                return new LocalSource(localSource, defaultSettings);
+                return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
             }
 
-            return new LocalSource(addItem.Value, defaultSettings);
+            return new NuGetSettings(addItem.Value, defaultSettings, packageSourcesSection);
         }
     }
 }
