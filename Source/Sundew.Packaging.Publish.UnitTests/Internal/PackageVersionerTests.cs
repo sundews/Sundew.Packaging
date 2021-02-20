@@ -21,7 +21,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     public class PackageVersionerTests
     {
         private const string AnyPackageId = "Package.Id";
-        private const string AnyPushSource = @"Ignored|c:\temp\ignored";
+        private const string AnyPushSource = @"Ignored => c:\temp\ignored";
         private readonly IDateTime dateTime = New.Mock<IDateTime>();
         private readonly PackageVersioner testee;
 

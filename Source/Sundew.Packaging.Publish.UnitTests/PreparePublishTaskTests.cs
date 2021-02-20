@@ -15,6 +15,7 @@ namespace Sundew.Packaging.Publish.UnitTests
     using NuGet.Common;
     using NuGet.Configuration;
     using NuGet.Versioning;
+    using Sundew.Base.Text;
     using Sundew.Base.Time;
     using Sundew.Packaging.Publish;
     using Sundew.Packaging.Publish.Internal;
@@ -30,6 +31,8 @@ namespace Sundew.Packaging.Publish.UnitTests
         private const string LatestVersion = "1.0.5";
         private const string LatestPrereleaseVersion = "1.0.5-{0}-u20140101-101010";
         private const string ExpectedDefaultPushSource = "http://nuget.org";
+        private const string FallbackApiKey = "FallbackKey";
+        private const string FallbackSymbolsApiKey = "SymbolsFallbackKey";
         private static readonly Dictionary<string, string> UriPrereleasePrefixMap = new()
         {
             { @"c:\temp", "pre" },
@@ -223,7 +226,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
 
-            this.testee.ProductionSource = $"master|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.ProductionSource = $"master=>{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "master";
 
             var result = this.testee.Execute();
@@ -235,10 +238,10 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Fact]
-        public void Execute_When_DevelopmentSourceIsDisableAndOtherDidNotMatch_Then_IsPublishEnabledShouldBeFalse()
+        public void Execute_When_LocalSourceIsDisabledAndOthersDidNotMatch_Then_IsPublishEnabledShouldBeFalse()
         {
             this.testee.Version = "1.0";
-            this.testee.ProductionSource = @"master|c:\temp\packages|c:\temp\symbols";
+            this.testee.ProductionSource = @"master => c:\temp\packages|c:\temp\symbols";
             this.testee.AllowLocalSource = false;
             this.testee.SourceName = "feature/featureX";
 
@@ -246,6 +249,36 @@ namespace Sundew.Packaging.Publish.UnitTests
 
             result.Should().BeTrue();
             this.testee.PublishPackages.Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData("1ApiKey@", null, "1SymbolsApiKey@", null, "1ApiKey", "1SymbolsApiKey")]
+        [InlineData("@", null, "@", null, null, null)]
+        [InlineData("1ApiKey@", null, "@", FallbackSymbolsApiKey, "1ApiKey", null)]
+        [InlineData("1ApiKey@", null, "@", null, "1ApiKey", null)]
+        [InlineData("@", FallbackApiKey, "1SymbolsApiKey@", null, null, "1SymbolsApiKey")]
+        [InlineData("1ApiKey@", null, Strings.Empty, null, "1ApiKey", "1ApiKey")]
+        [InlineData(Strings.Empty, FallbackApiKey, "1SymbolsApiKey@", null, FallbackApiKey, "1SymbolsApiKey")]
+        public void Execute_When_SourceIsConfiguredWithApiKeys_Then_SourceApiKeyShouldBeExpected(
+            string apiKeySetup,
+            string fallbackApiKey,
+            string symbolsApiKeySetup,
+            string fallbackSymbolsApiKey,
+            string expectedApiKey,
+            string expectedSymbolsApiKey)
+        {
+            this.testee.Version = "1.0";
+            this.testee.ProductionSource = $@"master => {apiKeySetup}{ExpectedDefaultPushSource}|{symbolsApiKeySetup}{ExpectedDefaultPushSource}";
+            this.testee.SourceName = "master";
+            this.testee.ApiKey = fallbackApiKey;
+            this.testee.SymbolsApiKey = fallbackSymbolsApiKey;
+
+            var result = this.testee.Execute();
+
+            result.Should().BeTrue();
+            this.testee.PublishPackages.Should().BeTrue();
+            this.testee.SourceApiKey.Should().Be(expectedApiKey);
+            this.testee.SymbolsSourceApiKey.Should().Be(expectedSymbolsApiKey);
         }
 
         [Theory]
@@ -266,8 +299,8 @@ namespace Sundew.Packaging.Publish.UnitTests
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
-            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
-            this.testee.DevelopmentSource = $@"\w+|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.ProductionSource = "master => https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"\w+ => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/NewFeature";
             this.testee.VersioningMode = versioningMode.ToString();
 
@@ -297,8 +330,8 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<ILogger>()))
                 .ReturnsAsync(stableReleaseExists);
-            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
-            this.testee.DevelopmentSource = $@"/feature/(?<Prefix>.+)|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.ProductionSource = "master => https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"/feature/(?<Prefix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 
@@ -328,8 +361,8 @@ namespace Sundew.Packaging.Publish.UnitTests
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
-            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
-            this.testee.DevelopmentSource = $@"/feature/(?<Postfix>.+)|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.ProductionSource = "master => https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"/feature/(?<Postfix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 
@@ -359,8 +392,8 @@ namespace Sundew.Packaging.Publish.UnitTests
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
-            this.testee.ProductionSource = "master|https://production.com|https://production.com/symbols";
-            this.testee.DevelopmentSource = $@"/feature/(?<Prefix>TN\d\d)-(?<Postfix>.+)|{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.ProductionSource = "master => https://production.com|https://production.com/symbols";
+            this.testee.DevelopmentSource = $@"/feature/(?<Prefix>TN\d\d)-(?<Postfix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/TN12-New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 

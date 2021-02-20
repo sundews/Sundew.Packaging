@@ -38,13 +38,17 @@
                  ProductionSource="$(SppProductionSource)"
                  IntegrationSource="$(SppIntegrationSource)"
                  DevelopmentSource="$(SppDevelopmentSource)"
+                 ApiKey="$(SppApiKey)"
+                 SymbolsApiKey="$(SppSymbolsApiKey)"
                  LocalSource="$(SppLocalSource)"
                  AllowLocalSource="$(SppAllowLocalSource)"
                  SourceName="$(SppSourceName)">
+      <Output PropertyName="SppWorkingDirectory" TaskParameter="WorkingDirectory"/>
       <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
       <Output PropertyName="SppSource" TaskParameter="Source"/>
-      <Output PropertyName="SppWorkingDirectory" TaskParameter="WorkingDirectory"/>
+      <Output PropertyName="SppSourceApiKey" TaskParameter="SourceApiKey"/>
       <Output PropertyName="SppSymbolsSource" TaskParameter="SymbolsSource"/>
+      <Output PropertyName="SppSymbolsSourceApiKey" TaskParameter="SymbolsSourceApiKey"/>
       <Output PropertyName="SppEnablePublish" TaskParameter="PublishPackages" Condition="'$(SppEnablePublish)'=='True'"/>
     </PreparePublishTask>
   </Target>
@@ -72,8 +76,8 @@
                  PackageOutputPath="$(PackageOutputPath)"
                  Source="$(SppSource)"
                  SymbolsSource="$(SppSymbolsSource)"
-                 ApiKey="$(SppApiKey)"
-                 SymbolApiKey="$(SppSymbolApiKey)"
+                 ApiKey="$(SppSourceApiKey)"
+                 SymbolApiKey="$(SppSymbolsSourceApiKey)"
                  PublishPackages="$(SppEnablePublish)"
                  TimeoutInSeconds="$(SppTimeoutInSeconds)"
                  NoServiceEndpoint="$(SppNoServiceEndpoint)"

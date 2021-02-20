@@ -16,16 +16,18 @@ namespace Sundew.Packaging.Publish.Internal
         private const string StageRegexText = "StageRegex";
         private const string StageNameText = "StageName";
         private const string UriText = "Uri";
+        private const string ApiKeyText = "ApiKey";
+        private const string SymbolsApiKeyText = "SymbolsApiKey";
         private const string SymbolsUriText = "SymbolsUri";
-        private const string EscapedPipeText = "||";
-        private const string PipeText = "|";
-        private static readonly Regex SourceRegex = new Regex($@"(?:(?<StageRegex>(?:[^\|\s=]|\|\|)+)(?:=\>(?<StageName>[^\|\s]*))?\|)(?<Uri>[^\|\s]+)(?:\|(?<SymbolsUri>[^\|\s]+))?");
+        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s]+))(?:\|(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?");
 
-        public Source(Regex? stageRegex, string uri, string? symbolsUri, string? stage, bool isStableRelease, bool isFallback = false, bool isEnabled = true)
+        public Source(Regex? stageRegex, string uri, string? apiKey, string? symbolsUri, string? symbolsApiKey, string? stage, bool isStableRelease, bool isFallback = false, bool isEnabled = true)
         {
             this.StageRegex = stageRegex;
             this.Uri = uri;
+            this.ApiKey = apiKey;
             this.SymbolsUri = symbolsUri;
+            this.SymbolsApiKey = symbolsApiKey;
             this.Stage = stage;
             this.IsStableRelease = isStableRelease;
             this.IsFallback = isFallback;
@@ -35,7 +37,7 @@ namespace Sundew.Packaging.Publish.Internal
         }
 
         public Source(Source source, string packagePrefix, string packagePostfix)
-            : this(source.StageRegex, source.Uri, source.SymbolsUri, source.Stage, source.IsStableRelease, source.IsFallback, source.IsEnabled)
+            : this(source.StageRegex, source.Uri, source.ApiKey, source.SymbolsUri, source.SymbolsApiKey, source.Stage, source.IsStableRelease, source.IsFallback, source.IsEnabled)
         {
             this.PackagePrefix = packagePrefix;
             this.PackagePostfix = packagePostfix;
@@ -45,7 +47,11 @@ namespace Sundew.Packaging.Publish.Internal
 
         public string Uri { get; }
 
+        public string? ApiKey { get; }
+
         public string? SymbolsUri { get; }
+
+        public string? SymbolsApiKey { get; }
 
         public string? PackagePrefix { get; }
 
@@ -69,33 +75,49 @@ namespace Sundew.Packaging.Publish.Internal
             var match = SourceRegex.Match(pushSource);
             if (match.Success)
             {
-                var name = new Regex(match.Groups[StageRegexText].Value.Replace(EscapedPipeText, PipeText));
+                var name = new Regex(match.Groups[StageRegexText].Value);
                 var stageNameGroup = match.Groups[StageNameText];
+                string? apiKey = null;
+                var apiKeyGroup = match.Groups[ApiKeyText];
+                if (apiKeyGroup.Success)
+                {
+                    apiKey = apiKeyGroup.Value;
+                }
+
                 var uri = match.Groups[UriText].Value;
-                var symbolsUriGroup = match.Groups[SymbolsUriText];
-                var stage = defaultStage;
                 string? symbolsUri = null;
+                var symbolsUriGroup = match.Groups[SymbolsUriText];
                 if (symbolsUriGroup.Success)
                 {
                     symbolsUri = symbolsUriGroup.Value;
                 }
 
+                string? symbolsApiKey = null;
+                var symbolsApiKeyGroup = match.Groups[SymbolsApiKeyText];
+                if (symbolsApiKeyGroup.Success)
+                {
+                    symbolsApiKey = symbolsApiKeyGroup.Value;
+                }
+
+                var stage = defaultStage;
                 if (stageNameGroup.Success)
                 {
                     stage = stageNameGroup.Value;
                 }
 
-                return new Source(name, uri, symbolsUri, stage, isStableRelease);
+                return new Source(name, uri, apiKey, symbolsUri, symbolsApiKey, stage, isStableRelease);
             }
 
-            return new Source(default, pushSource, default, defaultStage, isStableRelease);
+            return new Source(default, pushSource, default, default, defaultStage, default, isStableRelease);
         }
 
         public bool Equals(Source other)
         {
             return Equals(this.StageRegex, other.StageRegex)
                    && this.Uri == other.Uri
+                   && this.ApiKey == other.ApiKey
                    && this.SymbolsUri == other.SymbolsUri
+                   && this.SymbolsApiKey == other.SymbolsApiKey
                    && this.PackagePrefix == other.PackagePrefix
                    && this.Stage == other.Stage
                    && this.PackagePostfix == other.PackagePostfix

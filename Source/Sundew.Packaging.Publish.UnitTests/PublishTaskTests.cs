@@ -134,7 +134,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         public void Execute_When_PackagePushLogFormatIsSet_Then_MessageShouldBeLoggedWithFormat()
         {
             this.testee.Source = "http://nuget.org";
-            this.testee.PublishLogFormats = "##vso[task.setvariable variable=package_{0}]{3}-{2}-{1}";
+            this.testee.PublishLogFormats = "##vso[task.setvariable variable=package_{0}]{2}-{3}-{1}";
 
             this.testee.Execute();
 

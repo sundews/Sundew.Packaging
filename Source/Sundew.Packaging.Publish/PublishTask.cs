@@ -202,17 +202,7 @@ namespace Sundew.Packaging.Publish
             var isLocalSource = source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
             if (this.PublishPackages)
             {
-                var workingDirectory = this.WorkingDirectory;
-                if (workingDirectory == UndefinedText)
-                {
-                    workingDirectory = Path.GetDirectoryName(this.fileSystem.GetCurrentDirectory());
-                }
-
-                if (workingDirectory == null)
-                {
-                    throw new ArgumentException("The working directory cannot be null.", nameof(workingDirectory));
-                }
-
+                var workingDirectory = this.WorkingDirectory!;
                 var settings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
                 if (isLocalSource)
                 {
@@ -248,7 +238,7 @@ namespace Sundew.Packaging.Publish
 
             if (source != null && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
             {
-                PublishLogger.Log(this.commandLogger, this.PublishLogFormats, this.PackageId!, this.Version!, source, packagePath);
+                PublishLogger.Log(this.commandLogger, this.PublishLogFormats, this.PackageId!, this.Version!, packagePath, source, this.ApiKey, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey);
             }
 
             var packagePathTaskItem = new TaskItem(packagePath);

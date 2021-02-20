@@ -14,28 +14,28 @@ namespace Sundew.Packaging.Publish.Internal
 
     internal static class PublishLogger
     {
-        public static void Log(ICommandLogger commandLogger, string packagePushLogFormats, string packageId, string version, string source, string packagePath)
+        public static void Log(ICommandLogger commandLogger, string packagePushLogFormats, string packageId, string version, string packagePath, string source, string? apiKey, string? symbolPackagePath, string? symbolsSource, string? symbolApiKey)
         {
-            const char semiColon = '|';
-            var lastWasSemiColon = false;
+            const char pipe = '|';
+            var lastWasPipe = false;
             var logFormats = packagePushLogFormats.Split(
                 (char character, int index) =>
                 {
-                    var wasSemiColon = lastWasSemiColon;
+                    var wasSemiColon = lastWasPipe;
                     if (wasSemiColon)
                     {
-                        lastWasSemiColon = false;
+                        lastWasPipe = false;
                     }
 
                     switch (character)
                     {
-                        case semiColon:
+                        case pipe:
                             if (wasSemiColon)
                             {
                                 return SplitAction.Include;
                             }
 
-                            lastWasSemiColon = true;
+                            lastWasPipe = true;
                             return SplitAction.Ignore;
                         default:
                             if (wasSemiColon)
@@ -49,7 +49,7 @@ namespace Sundew.Packaging.Publish.Internal
                 StringSplitOptions.RemoveEmptyEntries);
             foreach (var logFormat in logFormats)
             {
-                commandLogger.LogImportant(string.Format(CultureInfo.CurrentCulture, logFormat, packageId, version, source, packagePath));
+                commandLogger.LogImportant(string.Format(CultureInfo.CurrentCulture, logFormat, packageId, version, packagePath, source, apiKey, symbolPackagePath, symbolsSource, symbolApiKey));
             }
         }
     }

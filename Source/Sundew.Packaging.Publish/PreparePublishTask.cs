@@ -126,6 +126,22 @@ namespace Sundew.Packaging.Publish
         /// <value>The development source.</value>
         public string? DevelopmentSource { get; set; }
 
+        /// <summary>
+        /// Gets or sets the API key.
+        /// </summary>
+        /// <value>
+        /// The API key.
+        /// </value>
+        public string? ApiKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the symbols API key.
+        /// </summary>
+        /// <value>
+        /// The API key.
+        /// </value>
+        public string? SymbolsApiKey { get; set; }
+
         /// <summary>Gets or sets the local source.</summary>
         /// <value>The local source.</value>
         public string? LocalSource { get; set; }
@@ -174,6 +190,24 @@ namespace Sundew.Packaging.Publish
         [Output]
         public bool PublishPackages { get; private set; }
 
+        /// <summary>
+        /// Gets the API key.
+        /// </summary>
+        /// <value>
+        /// The API key.
+        /// </value>
+        [Output]
+        public string? SourceApiKey { get; private set; }
+
+        /// <summary>
+        /// Gets the symbols source API key.
+        /// </summary>
+        /// <value>
+        /// The symbols source API key.
+        /// </value>
+        [Output]
+        public string? SymbolsSourceApiKey { get; private set; }
+
         /// <summary>Must be implemented by derived class.</summary>
         /// <returns>true, if successful.</returns>
         public override bool Execute()
@@ -196,7 +230,9 @@ namespace Sundew.Packaging.Publish
 
             this.PublishPackages = source.IsEnabled;
             this.Source = source.Uri;
+            this.SourceApiKey = this.GetApiKey(source);
             this.SymbolsSource = source.SymbolsUri;
+            this.SymbolsSourceApiKey = this.GetSymbolsApiKey(source);
             if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
             {
                 var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
@@ -208,6 +244,26 @@ namespace Sundew.Packaging.Publish
 
             this.commandLogger.LogError($"Could not parse package version: {this.Version}");
             return false;
+        }
+
+        private string? GetApiKey(Source source)
+        {
+            if (source.ApiKey == string.Empty)
+            {
+                return null;
+            }
+
+            return source.ApiKey ?? this.ApiKey;
+        }
+
+        private string? GetSymbolsApiKey(Source source)
+        {
+            if (source.SymbolsApiKey == string.Empty)
+            {
+                return null;
+            }
+
+            return source.SymbolsApiKey ?? this.SymbolsApiKey ?? source.ApiKey ?? this.ApiKey;
         }
     }
 }
