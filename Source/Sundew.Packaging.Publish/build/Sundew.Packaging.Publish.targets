@@ -9,6 +9,7 @@
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <SppCommandPrefix Condition="'$(SppCommandPrefix)'==''">##</SppCommandPrefix>
     <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppVersioningMode)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
   </PropertyGroup>
 
@@ -85,7 +86,8 @@
                  CopyLocalSourcePdbToSymbolCache="$(SppCopyLocalSourcePdbToSymbolCache)"
                  SymbolCacheDir="$(SppSymbolCacheDir)"
                  PublishLogFormats="$(SppPublishLogFormats)"
-                 AllowLocalSource="$(SppAllowLocalSource)">
+                 AllowLocalSource="$(SppAllowLocalSource)"
+                 CommandPrefix="$(SppCommandPrefix)">
       <Output ItemName="SppPackages" TaskParameter="PackagePaths"/>
     </PublishTask>
   </Target>

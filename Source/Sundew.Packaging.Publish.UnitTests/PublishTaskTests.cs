@@ -133,8 +133,9 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_PackagePushLogFormatIsSet_Then_MessageShouldBeLoggedWithFormat()
         {
+            this.testee.CommandPrefix = "##";
             this.testee.Source = "http://nuget.org";
-            this.testee.PublishLogFormats = "##vso[task.setvariable variable=package_{0}]{2}-{3}-{1}";
+            this.testee.PublishLogFormats = "{0}vso[task.setvariable variable=package_{1}]{3}-{4}-{2}";
 
             this.testee.Execute();
 
@@ -153,7 +154,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
         {
             this.testee.Source = "http://nuget.org";
-            this.testee.PublishLogFormats = "{0}";
+            this.testee.PublishLogFormats = "{1}";
             this.testee.AllowLocalSource = false;
 
             this.testee.Execute();

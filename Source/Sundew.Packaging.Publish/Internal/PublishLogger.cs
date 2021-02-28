@@ -14,7 +14,7 @@ namespace Sundew.Packaging.Publish.Internal
 
     internal static class PublishLogger
     {
-        public static void Log(ICommandLogger commandLogger, string packagePushLogFormats, string packageId, string version, string packagePath, string source, string? apiKey, string? symbolPackagePath, string? symbolsSource, string? symbolApiKey)
+        public static void Log(ICommandLogger commandLogger, string packagePushLogFormats, string commandPrefix, string packageId, string version, string packagePath, string source, string? apiKey, string? symbolPackagePath, string? symbolsSource, string? symbolApiKey)
         {
             const char pipe = '|';
             var lastWasPipe = false;
@@ -49,7 +49,7 @@ namespace Sundew.Packaging.Publish.Internal
                 StringSplitOptions.RemoveEmptyEntries);
             foreach (var logFormat in logFormats)
             {
-                commandLogger.LogImportant(string.Format(CultureInfo.CurrentCulture, logFormat, packageId, version, packagePath, source, apiKey, symbolPackagePath, symbolsSource, symbolApiKey));
+                commandLogger.LogImportant(string.Format(CultureInfo.CurrentCulture, logFormat, commandPrefix, packageId, version, packagePath, source, apiKey, symbolPackagePath, symbolsSource, symbolApiKey));
             }
         }
     }

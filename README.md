@@ -143,15 +143,17 @@ Packages for the three sources above are versioned differently:
   - **AlwaysIncrementPatch** = increments the patch part with 1.
   - **NoChange** = does not change the version number.
 - **SppAllowLocalSource** = (default: true) specifies whether local source is allowed. Usefull for CI environments to disable local source if none of the stages where matched.
+- **SppCommandPrefix** = (default: **##**)
 - **SppPublishLogFormat** = (default: null) specifies a format with which packages to be pushed can be logged. Multiple log formats can be separated by |.
-  - **{0}** - The package id.
-  - **{1}** - The resulting package version
-  - **{2}** - The package path
-  - **{3}** - The selected package source
-  - **{4}** - The api key
-  - **{5}** - The symbol package path
-  - **{6}** - The selected symbol package source
-  - **{7}** - The symbol api key
+  - **{0}** - The value of SppCommandPrefix (Can be used to build commands on build servers)
+  - **{1}** - The package id.
+  - **{2}** - The resulting package version
+  - **{3}** - The package path
+  - **{4}** - The selected package source
+  - **{5}** - The api key
+  - **{6}** - The symbol package path
+  - **{7}** - The selected symbol package source
+  - **{8}** - The symbol api key
 
    Usefull for CI environments to extract information from the build. E.g. to set a build variable to the package source and path for pushing packages from the CI environment only.
 - **SppLatestVersionSources** = (default: null) A pipe (|) separated list of sources to query to find the latest version.

@@ -170,6 +170,10 @@ namespace Sundew.Packaging.Publish
         /// </value>
         public string? PublishLogFormats { get; set; }
 
+        /// <summary>Gets or sets the command prefix.</summary>
+        /// <value>The command prefix.</value>
+        public string? CommandPrefix { get; set; }
+
         /// <summary>Gets the package paths.</summary>
         /// <value>The package paths.</value>
         [Output]
@@ -238,7 +242,7 @@ namespace Sundew.Packaging.Publish
 
             if (source != null && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
             {
-                PublishLogger.Log(this.commandLogger, this.PublishLogFormats, this.PackageId!, this.Version!, packagePath, source, this.ApiKey, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey);
+                PublishLogger.Log(this.commandLogger,  this.PublishLogFormats, this.CommandPrefix ?? string.Empty, this.PackageId!, this.Version!, packagePath, source, this.ApiKey, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey);
             }
 
             var packagePathTaskItem = new TaskItem(packagePath);
