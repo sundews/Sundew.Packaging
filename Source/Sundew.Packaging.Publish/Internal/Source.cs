@@ -19,7 +19,7 @@ namespace Sundew.Packaging.Publish.Internal
         private const string ApiKeyText = "ApiKey";
         private const string SymbolsApiKeyText = "SymbolsApiKey";
         private const string SymbolsUriText = "SymbolsUri";
-        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s]+))(?:\|(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?");
+        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s]+))(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?");
 
         public Source(Regex? stageRegex, string uri, string? apiKey, string? symbolsUri, string? symbolsApiKey, string? stage, bool isStableRelease, bool isFallback = false, bool isEnabled = true)
         {

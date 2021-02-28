@@ -26,12 +26,19 @@ namespace Sundew.Packaging.Publish
     public class PreparePublishTask : Task
     {
         internal const string DefaultLocalSourceName = "Local-Sundew";
-        internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Assembly.GetExecutingAssembly().GetName().Name);
+        internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), GetFolderName(Assembly.GetExecutingAssembly().GetName().Name));
         internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
+        private const string MergedAssemblyEnding = ".m";
+
         private readonly ISettingsFactory settingsFactory;
+
         private readonly IFileSystem fileSystem;
+
         private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
+
         private readonly IPackageVersioner packageVersioner;
+        private readonly ILatestVersionSourcesCommand latestVersionSourcesCommand;
+
         private readonly ICommandLogger commandLogger;
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
@@ -57,6 +64,7 @@ namespace Sundew.Packaging.Publish
             this.fileSystem = fileSystem;
             this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, this.settingsFactory);
             this.packageVersioner = packageVersioner;
+            this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
             this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
 
@@ -226,7 +234,7 @@ namespace Sundew.Packaging.Publish
                 this.AllowLocalSource);
 
             var latestVersionSources =
-                LatestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
+                this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
 
             this.PublishPackages = source.IsEnabled;
             this.Source = source.Uri;
@@ -244,6 +252,16 @@ namespace Sundew.Packaging.Publish
 
             this.commandLogger.LogError($"Could not parse package version: {this.Version}");
             return false;
+        }
+
+        private static string GetFolderName(string name)
+        {
+            if (name.EndsWith(MergedAssemblyEnding))
+            {
+                return name.Substring(0, name.Length - MergedAssemblyEnding.Length);
+            }
+
+            return name;
         }
 
         private string? GetApiKey(Source source)

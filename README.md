@@ -60,17 +60,17 @@ To disable this option, define the constant: **SPP_DISABLE_COPY_LOCAL_SOURCE_PDB
 ## **4. CI builds**
 The difference to local builds is that CI builds are typically configuring a number of MSBuild properties on the build server
 
-### **4.1 Staging sources**
-Staging sources are used to determine the source for publishing packages.  
+### **4.1 Staging sources with Source Matchers**
+Source Matchers are used to determine the source for publishing packages.  
 The following stages are supported: **Production**, **Integration**, **Development**.
 
-The sources can be defined by settings the following MSBuild properties:
+The sources can be defined by setting the following MSBuild properties:
 - **SppProductionSource**
 - **SppIntegrationSource**
 - **SppDevelopmentSource**
 
 All three follow the format:
-**SourceMatcherRegex[=>StagingName]|SourceUri[|SymbolSourceUri]**.  
+**SourceMatcherRegex[ => StagingName]|[ApiKey@]SourceUri[|[SymbolApiKey@]SymbolSourceUri]**.  
 Escape | (pipes) with another pipe, if needed in the SourceMatcherRegex.
 
 The optional staging name in the can be used to override the default staging names.
@@ -135,10 +135,11 @@ Packages for the three sources above are versioned differently:
 - **SppTimeoutInSeconds** = sets the publish timeout in seconds (Default: 300)
 - **SppSkipDuplicate** = instructs to skip duplicate packages (Default: false)
 - **SppNoServiceEndpoint** = instructs not to append NuGet paths to publish url. (Default: false)
-- **SppApiKey** = specifies the NuGet api key
+- **SppApiKey** = specifies the NuGet api key (Fallback if not specified by source matcher)
 - **SppSymbolApiKey** = specifies the NuGet symbols api key
 - **SppVersioningMode** = specifies the mode for versioning prerelease versions:
   - **AutomaticLatestPatch** = (default) ignores the patch component of the current version and sets it to the latest matching (Major and Minor) package patch version incremented by 1. 
+  - **AutomaticLatestRevision** = ignores the revision component of the current version and sets it to the latest matching (Major and Minor and Patch) package revision version incremented by 1. 
   - **IncrementPatchIfStableExistForPrerelease** = increments the patch part with 1, if the stable version already exists.
   - **AlwaysIncrementPatch** = increments the patch part with 1.
   - **NoChange** = does not change the version number.
