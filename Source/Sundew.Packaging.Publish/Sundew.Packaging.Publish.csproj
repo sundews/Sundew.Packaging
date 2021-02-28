@@ -1,99 +1,100 @@
 ﻿<Project TreatAsLocalProperty="NodeReuse" Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
-    <NodeReuse>False</NodeReuse>
-    <LangVersion>9</LangVersion>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
-    <Owners>Kim Hugener-Ohlsen</Owners>
-    <Description>Automated NuGet package publisher:
+	<PropertyGroup>
+		<MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
+		<NodeReuse>False</NodeReuse>
+		<LangVersion>9</LangVersion>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<Authors>Kim Hugener-Ohlsen</Authors>
+		<Company>Hukano</Company>
+		<Owners>Kim Hugener-Ohlsen</Owners>
+		<Description>Automated NuGet package publisher:
 - Publish prerelease package to local NuGet feed
 - Publish to official NuGet feed
 - Customizable publish for CI based on development, integration, production stages
-- Automated versioning of patch- and prereleases
+- Automated versioning of patch-/revision- and prereleases
 - Local debug support</Description>
-    <RepositoryUrl>https://github.com/hugener/Sundew.Packaging.Publish</RepositoryUrl>
-    <PackageReleaseNotes>3.0 - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
+		<RepositoryUrl>https://github.com/hugener/Sundew.Packaging.Publish</RepositoryUrl>
+		<PackageReleaseNotes>4.0 - Added automatic revision increment, source matchers now supports custom prerelease stage and api key.
+3.0 - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
 2.0 - Added support for automatic prerelease patch increment
 1.0 - Initial release</PackageReleaseNotes>
-    <RepositoryType>git</RepositoryType>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Kim Hugener-Ohlsen</Copyright>
-    <Configurations>Debug;Release;Release-Stable</Configurations>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <PackageProjectUrl>https://github.com/hugener/Sundew.Packaging.Publish</PackageProjectUrl>
-  </PropertyGroup>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>Kim Hugener-Ohlsen</Copyright>
+		<Configurations>Debug;Release;Release-Stable</Configurations>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+		<DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+		<PackageProjectUrl>https://github.com/hugener/Sundew.Packaging.Publish</PackageProjectUrl>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
-    <SppSourceName>local-stable</SppSourceName>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
+		<SppSourceName>local-stable</SppSourceName>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.8.0" />
-    <PackageReference Include="NuGet.Commands" Version="5.8.1" />
-    <PackageReference Include="NuGet.Protocol" Version="5.8.1" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.321">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="6.0.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.8.0" />
+		<PackageReference Include="NuGet.Commands" Version="5.8.1" />
+		<PackageReference Include="NuGet.Protocol" Version="5.8.1" />
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.321">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Sundew.Base" Version="6.0.0" />
+		<PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove=".package\**" />
-    <EmbeddedResource Remove=".package\**" />
-    <None Remove=".package\**" />
-    <None Remove="tools\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove=".package\**" />
+		<EmbeddedResource Remove=".package\**" />
+		<None Remove=".package\**" />
+		<None Remove="tools\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="stylecop.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="stylecop.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="stylecop.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<AdditionalFiles Include="stylecop.json" />
+	</ItemGroup>
 
-  <Target Name="_DeletePackageDirectory" AfterTargets="PreBuildEvent">
-    <RemoveDir Directories=".package\tools" ContinueOnError="False" />
-  </Target>
+	<Target Name="_DeletePackageDirectory" AfterTargets="PreBuildEvent">
+		<RemoveDir Directories=".package\tools" ContinueOnError="False" />
+	</Target>
 
-  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
-    <PropertyGroup>
-      <NuspecProperties>$(NuspecProperties);company=$(Company);description=$(Description);copyright=$(Copyright);authors=$(Authors);version=$(PackageVersion);repositoryUrl=$(RepositoryUrl);releaseNotes=$(PackageReleaseNotes);repositoryType=$(RepositoryType);licenseExpression=$(PackageLicenseExpression);targetFramework=$(TargetFramework);configuration=$(Configuration);projectDir=$(MSBuildProjectDirectory);outputPath=$(OutputPath)</NuspecProperties>
-    </PropertyGroup>
-  </Target>
+	<Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
+		<PropertyGroup>
+			<NuspecProperties>$(NuspecProperties);company=$(Company);description=$(Description);copyright=$(Copyright);authors=$(Authors);version=$(PackageVersion);repositoryUrl=$(RepositoryUrl);releaseNotes=$(PackageReleaseNotes);repositoryType=$(RepositoryType);licenseExpression=$(PackageLicenseExpression);targetFramework=$(TargetFramework);configuration=$(Configuration);projectDir=$(MSBuildProjectDirectory);outputPath=$(OutputPath)</NuspecProperties>
+		</PropertyGroup>
+	</Target>
 
-  <Target Name="_CopyPackageFiles" AfterTargets="PostBuildEvent">
-    <ItemGroup>
-      <OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
-      <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\net5.0\runtimes\**\*.*" />
-      <TargetsFiles Include="build\Sundew.Packaging.Publish.targets" />
-    </ItemGroup>
+	<Target Name="_CopyPackageFiles" AfterTargets="PostBuildEvent">
+		<ItemGroup>
+			<OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
+			<RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\net5.0\runtimes\**\*.*" />
+			<TargetsFiles Include="build\Sundew.Packaging.Publish.targets" />
+		</ItemGroup>
 
-    <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'.package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'.package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Copy SourceFiles="@(TargetsFiles)" DestinationFiles="@(TargetsFiles->'.package\build\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
-  </Target>
+		<Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'.package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+		<Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'.package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+		<Copy SourceFiles="@(TargetsFiles)" DestinationFiles="@(TargetsFiles->'.package\build\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+		<Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
+	</Target>
 
-  <Target Name="_CopySelf" BeforeTargets="Clean;Build">
-    <ItemGroup>
-      <OutputSelfFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
-    </ItemGroup>
+	<Target Name="_CopySelf" BeforeTargets="_GetOutputItemsFromPack" AfterTargets="Build">
+		<ItemGroup>
+			<OutputSelfFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
+		</ItemGroup>
 
-    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-  </Target>
+		<Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+	</Target>
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" />
+	<Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" />
 </Project>

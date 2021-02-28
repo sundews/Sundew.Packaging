@@ -20,7 +20,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 
     internal class LatestPackageVersionCommand : ILatestPackageVersionCommand
     {
-        public async Task<NuGetVersion?> GetLatestVersion(string packageId, IReadOnlyList<string> sources, NuGetVersion nuGetVersion, bool allowPrerelease, ILogger logger)
+        public async Task<NuGetVersion?> GetLatestMajorMinorVersion(string packageId, IReadOnlyList<string> sources, NuGetVersion nuGetVersion, bool includePatchInMatch, bool allowPrerelease, ILogger logger)
         {
             return (await sources.SelectAsync(async sourceUri =>
                 {
@@ -38,6 +38,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 .FirstOrDefault(x =>
                     x.Major == nuGetVersion.Major
                     && x.Minor == nuGetVersion.Minor
+                    && (x.Patch == nuGetVersion.Patch || !includePatchInMatch)
                     && (!x.IsPrerelease || (allowPrerelease && x.IsPrerelease)));
         }
     }

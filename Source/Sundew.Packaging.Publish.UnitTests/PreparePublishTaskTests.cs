@@ -64,10 +64,11 @@ namespace Sundew.Packaging.Publish.UnitTests
             };
 
             this.dateTime.SetupGet(x => x.UtcTime).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
+            this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
             this.latestPackageVersionCommand.Setup(
-                    x => x.GetLatestVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<ILogger>()))
-                .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, ILogger, ILatestPackageVersionCommand, NuGetVersion?>(
-                    (_, sourceUris, _, allowPrerelease, _) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris.First()])));
+                    x => x.GetLatestMajorMinorVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<ILogger>()))
+                .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, bool, ILogger, ILatestPackageVersionCommand, NuGetVersion?>(
+                    (_, sourceUris, _, _, allowPrerelease, _) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris.First()])));
             this.settingsFactory.Setup(x => x.LoadDefaultSettings(It.IsAny<string>())).Returns(this.settings);
             this.settingsFactory.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(New.Mock<ISettings>());
         }
@@ -126,6 +127,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
+        [InlineData("1.0.1.1", VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
         [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6")]
         [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.0")]
         [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0")]
@@ -268,7 +270,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             string expectedSymbolsApiKey)
         {
             this.testee.Version = "1.0";
-            this.testee.ProductionSource = $@"master => {apiKeySetup}{ExpectedDefaultPushSource}|{symbolsApiKeySetup}{ExpectedDefaultPushSource}";
+            this.testee.ProductionSource = $@"master => {apiKeySetup}{ExpectedDefaultPushSource} | {symbolsApiKeySetup}{ExpectedDefaultPushSource}";
             this.testee.SourceName = "master";
             this.testee.ApiKey = fallbackApiKey;
             this.testee.SymbolsApiKey = fallbackSymbolsApiKey;
@@ -299,7 +301,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
-            this.testee.ProductionSource = "master => https://production.com|https://production.com/symbols";
+            this.testee.ProductionSource = "master => https://production.com | https://production.com/symbols";
             this.testee.DevelopmentSource = $@"\w+ => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
             this.testee.SourceName = "/feature/NewFeature";
             this.testee.VersioningMode = versioningMode.ToString();
