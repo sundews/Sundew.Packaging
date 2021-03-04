@@ -7,6 +7,7 @@
 
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using global::NuGet.Commands;
     using global::NuGet.Common;
@@ -48,7 +49,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             await PushRunner.Run(
                 settings,
                 packageSourceProvider,
-                packagePath,
+                new List<string> { packagePath },
                 source,
                 apiKey,
                 symbolsSource,
@@ -61,12 +62,12 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 logger);
 
             commandLogger.LogImportant($"Successfully pushed package to: {source}");
-            if (!string.IsNullOrEmpty(symbolPackagePath) && !string.IsNullOrEmpty(symbolsSource))
+            if (!string.IsNullOrEmpty(symbolPackagePath) && symbolPackagePath != null && !string.IsNullOrEmpty(symbolsSource))
             {
                 await PushRunner.Run(
                     settings,
                     packageSourceProvider,
-                    symbolPackagePath,
+                    new List<string> { symbolPackagePath },
                     symbolsSource,
                     symbolApiKey,
                     null,

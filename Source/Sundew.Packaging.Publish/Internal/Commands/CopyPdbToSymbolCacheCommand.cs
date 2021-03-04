@@ -26,8 +26,8 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         private const string ConfigText = "config";
         private const string ConfiguredSymbolCacheDirText = "symbolCacheDir";
         private const string PdbIdPostFixText = "ffffffff";
-        private const string SbpFileExtensionText = ".sbp";
-        private const string SbpFileExtensionPatternText = "*.sbp";
+        private const string SppFileExtensionText = ".spp";
+        private const string SppFileExtensionPatternText = "*.spp";
         private readonly IFileSystem fileSystem;
 
         /// <summary>Initializes a new instance of the <see cref="CopyPdbToSymbolCacheCommand"/> class.</summary>
@@ -58,11 +58,11 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             var packageSymbolCacheDirectory = Path.Combine(symbolCacheDirectoryPath, Path.GetFileName(pdbFilePath));
             if (this.fileSystem.DirectoryExists(packageSymbolCacheDirectory))
             {
-                foreach (var spbFilePath in this.fileSystem.EnumerableFiles(packageSymbolCacheDirectory, SbpFileExtensionPatternText, SearchOption.AllDirectories))
+                foreach (var spbFilePath in this.fileSystem.EnumerableFiles(packageSymbolCacheDirectory, SppFileExtensionPatternText, SearchOption.AllDirectories))
                 {
-                    var spbDirectoryPath = Path.GetDirectoryName(spbFilePath);
-                    this.fileSystem.DeleteDirectory(spbDirectoryPath, true);
-                    commandLogger.LogMessage($"Deleted pdb directory: {spbDirectoryPath}.");
+                    var sppDirectoryPath = Path.GetDirectoryName(spbFilePath);
+                    this.fileSystem.DeleteDirectory(sppDirectoryPath, true);
+                    commandLogger.LogMessage($"Deleted pdb directory: {sppDirectoryPath}.");
                 }
             }
 
@@ -73,7 +73,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 var outputPath = Path.Combine(symbolCacheDirectoryPath, pdbFileName, debugId, pdbFileName);
                 var pdbDirectoryPath = Path.GetDirectoryName(outputPath);
                 this.fileSystem.CreateDirectory(pdbDirectoryPath);
-                this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SbpFileExtensionText), string.Empty);
+                this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SppFileExtensionText), string.Empty);
                 this.fileSystem.Copy(pdbFilePath, outputPath, true);
                 commandLogger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
             }

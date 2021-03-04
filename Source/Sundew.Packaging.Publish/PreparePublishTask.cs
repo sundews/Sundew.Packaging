@@ -185,7 +185,21 @@ namespace Sundew.Packaging.Publish
         /// <summary>Gets the source.</summary>
         /// <value>The source.</value>
         [Output]
-        public string? Source { get; private set; }
+        public string? PushSource { get; private set; }
+
+        /// <summary>
+        /// Gets the feed source.
+        /// </summary>
+        /// <value>
+        /// The feed source.
+        /// </value>
+        [Output]
+        public string? FeedSource { get; private set; }
+
+        /// <summary>Gets the stage.</summary>
+        /// <value>The stage.</value>
+        [Output]
+        public string? Stage { get; private set; }
 
         /// <summary>Gets the symbols source.</summary>
         /// <value>The symbols source.</value>
@@ -237,7 +251,9 @@ namespace Sundew.Packaging.Publish
                 this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
 
             this.PublishPackages = source.IsEnabled;
-            this.Source = source.Uri;
+            this.PushSource = source.Uri;
+            this.FeedSource = source.LatestVersionUri;
+            this.Stage = source.Stage;
             this.SourceApiKey = this.GetApiKey(source);
             this.SymbolsSource = source.SymbolsUri;
             this.SymbolsSourceApiKey = this.GetSymbolsApiKey(source);

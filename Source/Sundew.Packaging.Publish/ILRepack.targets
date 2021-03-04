@@ -8,8 +8,6 @@
       <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
       <InputAssemblies Remove="$(OutputPath)**\Microsoft.Build*.dll" />
       <InputAssemblies Remove="$(OutputPath)**\System*.dll" />
-      <InputAssemblies Remove="$(OutputPath)**\NuGet*.dll" />
-      <InputAssemblies Remove="$(OutputPath)**\Newtonsoft.Json.dll" />
     </ItemGroup>
 
     <ILRepack
@@ -20,6 +18,5 @@
            TargetKind="Dll"
            LibraryPath="$(OutputPath)"
            OutputFile="$(OutputPath)\$(AssemblyName).m.dll" />
-
   </Target>
 </Project>

@@ -26,6 +26,8 @@ namespace Sundew.Packaging.Publish.Internal.IO
 
         void WriteAllText(string path, string contents);
 
+        void AppendAllText(string path, string contents);
+
         string ReadAllText(string path);
 
         byte[] ReadAllBytes(string path);

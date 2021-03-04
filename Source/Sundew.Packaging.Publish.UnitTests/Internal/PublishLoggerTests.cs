@@ -29,8 +29,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         [InlineData("||", new[] { "|" })]
         [InlineData("T|", new[] { "T" })]
         [InlineData("T||", new[] { "T|", })]
-        [InlineData("{0}vso[task.setvariable package_{1}={1}]{3}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg" })]
-        [InlineData("{0}vso[task.setvariable package_{1}={1}]{3}|##vso[task.setvariable source_{1}={1}]{4}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
+        [InlineData("{10}vso[task.setvariable package_{0}={0}]{2}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg" })]
+        [InlineData("{10}vso[task.setvariable package_{0}={0}]{2}|##vso[task.setvariable source_{0}={0}]{4}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
         [InlineData("MessageWithSemiColon||ShouldNotSplitWhenEscaped", new[] { @"MessageWithSemiColon|ShouldNotSplitWhenEscaped" })]
         [InlineData("1|2|3", new[] { @"1", "2", "3" })]
         public void Log_Then_ActualMessageShouldBeExpectedResult(string packagePushFormats, string[] expectedResult)
@@ -39,7 +39,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             var actualMessages = new List<string>();
             commandLogger.Setup(x => x.LogImportant(It.IsAny<string>())).Callback<string>(x => actualMessages.Add(x));
 
-            PublishLogger.Log(commandLogger, packagePushFormats, "##", ExpectedPackageId, ExpectedVersion, PackagePath, Source, null, null, null, null);
+            PublishLogger.Log(commandLogger, packagePushFormats, ExpectedPackageId, ExpectedVersion, PackagePath, string.Empty, Source, null, Source, null, null, string.Empty, "##");
 
             actualMessages.Should().Equal(expectedResult);
         }

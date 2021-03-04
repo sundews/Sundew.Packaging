@@ -31,7 +31,6 @@ namespace Sundew.Packaging.Publish
         private const string NupkgFileExtension = ".nupkg";
         private const string PackagePathPackagePathDoesNotExistFormat = "The package path: {0} does not exist.";
         private const string PdbFileExtension = ".pdb";
-        private const string UndefinedText = "*Undefined*";
 
         private readonly IPushPackageCommand pushPackageCommand;
         private readonly ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand;
@@ -40,6 +39,7 @@ namespace Sundew.Packaging.Publish
         private readonly ISettingsFactory settingsFactory;
         private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand;
         private readonly ICommandLogger commandLogger;
+        private readonly IAppendPublishFileLogCommand appendPublishFileLogCommand;
 
         /// <summary>Initializes a new instance of the <see cref="PublishTask"/> class.</summary>
         public PublishTask()
@@ -70,6 +70,7 @@ namespace Sundew.Packaging.Publish
             this.settingsFactory = settingsFactory;
             this.persistNuGetVersionCommand = persistNuGetVersionCommand;
             this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
+            this.appendPublishFileLogCommand = new AppendPublishFileLogCommand(this.fileSystem);
         }
 
         /// <summary>Gets or sets the working directory.</summary>
@@ -112,10 +113,19 @@ namespace Sundew.Packaging.Publish
         [Required]
         public string? Version { get; set; }
 
-        /// <summary>Gets or sets the source.</summary>
+        /// <summary>Gets or sets the push source.</summary>
         /// <value>The source.</value>
         [Required]
-        public string? Source { get; set; }
+        public string? PushSource { get; set; }
+
+        /// <summary>Gets or sets the feed source.</summary>
+        /// <value>The feed source.</value>
+        [Required]
+        public string? FeedSource { get; set; }
+
+        /// <summary>Gets or sets the stage.</summary>
+        /// <value>The stage.</value>
+        public string? Stage { get; set; }
 
         /// <summary>Gets or sets the symbols source.</summary>
         /// <value>The symbols source.</value>
@@ -170,9 +180,17 @@ namespace Sundew.Packaging.Publish
         /// </value>
         public string? PublishLogFormats { get; set; }
 
-        /// <summary>Gets or sets the command prefix.</summary>
-        /// <value>The command prefix.</value>
-        public string? CommandPrefix { get; set; }
+        /// <summary>
+        /// Gets or sets the publish file log formats.
+        /// </summary>
+        /// <value>
+        /// The publish file log formats.
+        /// </value>
+        public string? AppendPublishFileLogFormats { get; set; }
+
+        /// <summary>Gets or sets the parameter.</summary>
+        /// <value>The parameter.</value>
+        public string? Parameter { get; set; }
 
         /// <summary>Gets the package paths.</summary>
         /// <value>The package paths.</value>
@@ -202,7 +220,7 @@ namespace Sundew.Packaging.Publish
                 }
             }
 
-            var source = this.Source;
+            var source = this.PushSource;
             var isLocalSource = source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
             if (this.PublishPackages)
             {
@@ -242,11 +260,16 @@ namespace Sundew.Packaging.Publish
 
             if (source != null && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
             {
-                PublishLogger.Log(this.commandLogger,  this.PublishLogFormats, this.CommandPrefix ?? string.Empty, this.PackageId!, this.Version!, packagePath, source, this.ApiKey, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey);
+                PublishLogger.Log(this.commandLogger,  this.PublishLogFormats, this.PackageId!, this.Version!, packagePath, this.Stage!, source, this.ApiKey, this.FeedSource!, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey, this.Parameter ?? string.Empty);
+            }
+
+            if (source != null && this.AppendPublishFileLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+            {
+                this.appendPublishFileLogCommand.Append(this.WorkingDirectory!, this.AppendPublishFileLogFormats, this.PackageId!, this.Version!, packagePath, this.Stage!, source, this.ApiKey, this.FeedSource!, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey, this.Parameter ?? string.Empty, this.commandLogger);
             }
 
             var packagePathTaskItem = new TaskItem(packagePath);
-            packagePathTaskItem.SetMetadata(PackageSourceText, this.Source);
+            packagePathTaskItem.SetMetadata(PackageSourceText, this.PushSource);
             packagePathTaskItem.SetMetadata(PublishedText, this.PublishPackages.ToString(CultureInfo.InvariantCulture));
             packagePathTaskItem.SetMetadata(IsSymbolText, false.ToString(CultureInfo.InvariantCulture));
             this.PackagePaths = new ITaskItem[symbolPackagePath != null ? 2 : 1];

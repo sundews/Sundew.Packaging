@@ -89,7 +89,7 @@ namespace Sundew.Packaging.Publish.Internal
                 return semanticVersion;
             }
 
-            var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, semanticVersion, source.Uri, logger);
+            var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, semanticVersion, source.LatestVersionUri, logger);
             packageExistsTask.Wait();
             return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(source));
         }

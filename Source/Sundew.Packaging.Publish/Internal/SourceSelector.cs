@@ -47,20 +47,20 @@ namespace Sundew.Packaging.Publish.Internal
 
                     if (sourceName.Equals(DefaultStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        return new Source(default, defaultSource, default, default, default, string.Empty, true);
+                        return new Source(default, defaultSource, default, default, default, string.Empty, true, defaultSource);
                     }
 
-                    return new Source(default, defaultSource, default, default, default, DefaultLocalPackageStage, false, true);
+                    return new Source(default, defaultSource, default, default, default, DefaultLocalPackageStage, false, defaultSource, true);
                 }
 
                 if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return new Source(default, localSource, default, default, default, string.Empty, true);
+                    return new Source(default, localSource, default, default, default, string.Empty, true, localSource);
                 }
 
                 var sources = new[]
                 {
-                    Source.Parse(productionSource, null, true),
+                    Source.Parse(productionSource, string.Empty, true),
                     Source.Parse(integrationSource, DefaultIntegrationPackageStage, false),
                     Source.Parse(developmentSource, DefaultDevelopmentPackageStage, false),
                 };
@@ -74,7 +74,7 @@ namespace Sundew.Packaging.Publish.Internal
                 }
             }
 
-            return new Source(null, localSource, default, default, default, DefaultLocalPackageStage, false, true, allowLocalSource);
+            return new Source(null, localSource, default, default, default, DefaultLocalPackageStage, false, localSource, true, allowLocalSource);
         }
     }
 }

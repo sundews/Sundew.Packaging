@@ -39,9 +39,9 @@
 	<ItemGroup>
 		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.8.0" />
-		<PackageReference Include="NuGet.Commands" Version="5.8.1" />
-		<PackageReference Include="NuGet.Protocol" Version="5.8.1" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" />
+		<PackageReference Include="NuGet.Commands" Version="5.9.0" />
+		<PackageReference Include="NuGet.Protocol" Version="5.9.0" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.321">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -77,7 +77,7 @@
 
 	<Target Name="_CopyPackageFiles" AfterTargets="PostBuildEvent">
 		<ItemGroup>
-			<OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
+			<OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\System*.dll" />
 			<RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\net5.0\runtimes\**\*.*" />
 			<TargetsFiles Include="build\Sundew.Packaging.Publish.targets" />
 		</ItemGroup>

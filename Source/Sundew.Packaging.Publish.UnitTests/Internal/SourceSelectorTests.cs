@@ -17,6 +17,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     public class SourceSelectorTests
     {
         private const string ExpectedUri = @"https://uri.com";
+        private const string ExpectedLatestUri = @"https://uri.com/packages";
         private const string ExpectedSymbolUri = @"https://uri.com/symbols";
 
         [Theory]
@@ -65,25 +66,43 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         }
 
         [Theory]
-        [InlineData(@"refs/heads/release/(?<Postfix>.+)#int=>https://uri.com|https://uri.com/symbols", null, ExpectedSymbolUri, null, Strings.Empty, "int", "branch")]
-        [InlineData(@"refs/heads/release/(?<Prefix>.+)#int=>https://uri.com|https://uri.com/symbols", null, ExpectedSymbolUri, null, "branch", "int", Strings.Empty)]
-        [InlineData(@"refs/heads/release/.+#int=>https://uri.com|https://uri.com/symbols", null, ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
-        [InlineData(@".+#int=>https://uri.com|https://uri.com/symbols", null, ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
-        [InlineData(@".+#=>https://uri.com|https://uri.com/symbols", null, ExpectedSymbolUri, null, Strings.Empty, Strings.Empty, Strings.Empty)]
-        [InlineData(@".+=>https://uri.com|https://uri.com/symbols", null, ExpectedSymbolUri, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
-        [InlineData(@".+=>https://uri.com|", null, null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
-        [InlineData(@".+=>https://uri.com", null, null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
-        [InlineData(@"refs/heads/release/(?<Postfix>.+)#int=>1A-K@https://uri.com|https://uri.com/symbols", "1A-K", ExpectedSymbolUri, null, Strings.Empty, "int", "branch")]
-        [InlineData(@"refs/heads/release/(?<Prefix>.+)#int=>1A-K@https://uri.com|https://uri.com/symbols", "1A-K", ExpectedSymbolUri, null, "branch", "int", Strings.Empty)]
-        [InlineData(@"refs/heads/release/.+#int=>1A-K@https://uri.com|2A-K@https://uri.com/symbols", "1A-K", ExpectedSymbolUri, "2A-K", Strings.Empty, "int", Strings.Empty)]
-        [InlineData(@".+#int=>1A-K@https://uri.com|https://uri.com/symbols", "1A-K", ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
-        [InlineData(@".+#=>1A-K@https://uri.com|2A-K@https://uri.com/symbols", "1A-K", ExpectedSymbolUri, "2A-K", Strings.Empty, Strings.Empty, Strings.Empty)]
-        [InlineData(@".+=>1A-K@https://uri.com|https://uri.com/symbols", "1A-K", ExpectedSymbolUri, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
-        [InlineData(@".+=>1A-K@https://uri.com|@https://uri.com/symbols", "1A-K", ExpectedSymbolUri, Strings.Empty, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
-        [InlineData(@".+=>1A-K@https://uri.com|", "1A-K", null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
-        [InlineData(@".+=>1A-K@https://uri.com", "1A-K", null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@"refs/heads/release/(?<Postfix>.+)#int=>https://uri.com|https://uri.com/symbols", ExpectedUri, null, ExpectedSymbolUri, null, Strings.Empty, "int", "branch")]
+        [InlineData(@"refs/heads/release/(?<Prefix>.+)#int=>https://uri.com|https://uri.com/symbols", ExpectedUri, null, ExpectedSymbolUri, null, "branch", "int", Strings.Empty)]
+        [InlineData(@"refs/heads/release/.+#int=>https://uri.com|https://uri.com/symbols", ExpectedUri, null, ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#int=>https://uri.com|https://uri.com/symbols", ExpectedUri, null, ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#=>https://uri.com|https://uri.com/symbols", ExpectedUri, null, ExpectedSymbolUri, null, Strings.Empty, Strings.Empty, Strings.Empty)]
+        [InlineData(@".+=>https://uri.com|https://uri.com/symbols", ExpectedUri, null, ExpectedSymbolUri, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>https://uri.com|", ExpectedUri, null, null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>https://uri.com", ExpectedUri, null, null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@"refs/heads/release/(?<Postfix>.+)#int=>1A-K@https://uri.com|https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, null, Strings.Empty, "int", "branch")]
+        [InlineData(@"refs/heads/release/(?<Prefix>.+)#int=>1A-K@https://uri.com|https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, null, "branch", "int", Strings.Empty)]
+        [InlineData(@"refs/heads/release/.+#int=>1A-K@https://uri.com|2A-K@https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, "2A-K", Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#int=>1A-K@https://uri.com|https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#=>1A-K@https://uri.com|2A-K@https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, "2A-K", Strings.Empty, Strings.Empty, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com|https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com|@https://uri.com/symbols", ExpectedUri, "1A-K", ExpectedSymbolUri, Strings.Empty, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com|", ExpectedUri, "1A-K", null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com", ExpectedUri, "1A-K", null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@"refs/heads/release/(?<Postfix>.+)#int=>https://uri.com {https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, null, ExpectedSymbolUri, null, Strings.Empty, "int", "branch")]
+        [InlineData(@"refs/heads/release/(?<Prefix>.+)#int=>https://uri.com{https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, null, ExpectedSymbolUri, null, "branch", "int", Strings.Empty)]
+        [InlineData(@"refs/heads/release/.+#int=>https://uri.com {https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, null, ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#int=>https://uri.com {https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, null, ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#=>https://uri.com{https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, null, ExpectedSymbolUri, null, Strings.Empty, Strings.Empty, Strings.Empty)]
+        [InlineData(@".+=>https://uri.com{https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, null, ExpectedSymbolUri, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>https://uri.com {https://uri.com/packages}|", ExpectedLatestUri, null, null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>https://uri.com{https://uri.com/packages}", ExpectedLatestUri, null, null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@"refs/heads/release/(?<Postfix>.+)#int=>1A-K@https://uri.com {https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, null, Strings.Empty, "int", "branch")]
+        [InlineData(@"refs/heads/release/(?<Prefix>.+)#int=>1A-K@https://uri.com{https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, null, "branch", "int", Strings.Empty)]
+        [InlineData(@"refs/heads/release/.+#int=>1A-K@https://uri.com {https://uri.com/packages}|2A-K@https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, "2A-K", Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#int=>1A-K@https://uri.com{https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, null, Strings.Empty, "int", Strings.Empty)]
+        [InlineData(@".+#=>1A-K@https://uri.com {https://uri.com/packages}|2A-K@https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, "2A-K", Strings.Empty, Strings.Empty, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com{https://uri.com/packages}|https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com {https://uri.com/packages}|@https://uri.com/symbols", ExpectedLatestUri, "1A-K", ExpectedSymbolUri, Strings.Empty, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com{https://uri.com/packages}|", ExpectedLatestUri, "1A-K", null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
+        [InlineData(@".+=>1A-K@https://uri.com {https://uri.com/packages}", ExpectedLatestUri, "1A-K", null, null, Strings.Empty, SourceSelector.DefaultIntegrationPackageStage, Strings.Empty)]
         public void SelectSource_When_MatchingIntegrationSourceAndSourceDoesNotContainSpace_Then_ResultShouldBeAsExpected(
             string source,
+            string expectedGetLatestVersionUri,
             string expectedSourceApiKey,
             string expectedSymbolUri,
             string expectedSymbolSourceApiKey,
@@ -101,6 +120,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 false);
 
             result.Uri.Should().Be(ExpectedUri);
+            result.LatestVersionUri.Should().Be(expectedGetLatestVersionUri);
             result.SymbolsUri.Should().Be(expectedSymbolUri);
             result.PackagePrefix.Should().Be(expectedPackagePrefix);
             result.Stage.Should().Be(expectedStage);

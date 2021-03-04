@@ -9,7 +9,6 @@
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
-    <SppCommandPrefix Condition="'$(SppCommandPrefix)'==''">##</SppCommandPrefix>
     <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppVersioningMode)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
   </PropertyGroup>
 
@@ -44,12 +43,14 @@
                  LocalSource="$(SppLocalSource)"
                  AllowLocalSource="$(SppAllowLocalSource)"
                  SourceName="$(SppSourceName)">
-      <Output PropertyName="SppWorkingDirectory" TaskParameter="WorkingDirectory"/>
+      <Output PropertyName="_SppWorkingDirectory" TaskParameter="WorkingDirectory"/>
       <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
-      <Output PropertyName="SppSource" TaskParameter="Source"/>
-      <Output PropertyName="SppSourceApiKey" TaskParameter="SourceApiKey"/>
-      <Output PropertyName="SppSymbolsSource" TaskParameter="SymbolsSource"/>
-      <Output PropertyName="SppSymbolsSourceApiKey" TaskParameter="SymbolsSourceApiKey"/>
+      <Output PropertyName="_SppPushSource" TaskParameter="PushSource"/>
+      <Output PropertyName="_SppFeedSource" TaskParameter="FeedSource"/>
+      <Output PropertyName="_SppPushSourceApiKey" TaskParameter="SourceApiKey"/>
+      <Output PropertyName="_SppStage" TaskParameter="Stage"/>
+      <Output PropertyName="_SppSymbolsSource" TaskParameter="SymbolsSource"/>
+      <Output PropertyName="_SppSymbolsSourceApiKey" TaskParameter="SymbolsSourceApiKey"/>
       <Output PropertyName="SppEnablePublish" TaskParameter="PublishPackages" Condition="'$(SppEnablePublish)'=='True'"/>
     </PreparePublishTask>
   </Target>
@@ -67,7 +68,7 @@
 
   <Target Name="SppPublishNuGet" AfterTargets="Pack">
     <PublishTask Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND $(DesignTimeBuild) != true AND $(BuildingProject) != false"
-                 WorkingDirectory="$(SppWorkingDirectory)"
+                 WorkingDirectory="$(_SppWorkingDirectory)"
                  ProjectDir="$(MSBuildProjectDirectory)"
                  PackageId="$(PackageId)"
                  AssemblyName="$(AssemblyName)"
@@ -75,10 +76,12 @@
                  PackInputs="@(NuGetPackInput)"
                  OutputPath="$(MSBuildProjectDirectory)/$(OutputPath)"
                  PackageOutputPath="$(PackageOutputPath)"
-                 Source="$(SppSource)"
-                 SymbolsSource="$(SppSymbolsSource)"
-                 ApiKey="$(SppSourceApiKey)"
-                 SymbolApiKey="$(SppSymbolsSourceApiKey)"
+                 PushSource="$(_SppPushSource)"
+                 FeedSource="$(_SppFeedSource)"
+                 Stage="$(_SppStage)"
+                 SymbolsSource="$(_SppSymbolsSource)"
+                 ApiKey="$(_SppPushSourceApiKey)"
+                 SymbolApiKey="$(_SppSymbolsSourceApiKey)"
                  PublishPackages="$(SppEnablePublish)"
                  TimeoutInSeconds="$(SppTimeoutInSeconds)"
                  NoServiceEndpoint="$(SppNoServiceEndpoint)"
@@ -86,8 +89,9 @@
                  CopyLocalSourcePdbToSymbolCache="$(SppCopyLocalSourcePdbToSymbolCache)"
                  SymbolCacheDir="$(SppSymbolCacheDir)"
                  PublishLogFormats="$(SppPublishLogFormats)"
+                 AppendPublishFileLogFormats="$(SppAppendPublishFileLogFormats)"
                  AllowLocalSource="$(SppAllowLocalSource)"
-                 CommandPrefix="$(SppCommandPrefix)">
+                 Parameter="$(SppParameter)">
       <Output ItemName="SppPackages" TaskParameter="PackagePaths"/>
     </PublishTask>
   </Target>

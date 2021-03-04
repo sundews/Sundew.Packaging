@@ -14,15 +14,30 @@ namespace Sundew.Packaging.Publish.Internal
 
     internal static class PublishLogger
     {
-        public static void Log(ICommandLogger commandLogger, string packagePushLogFormats, string commandPrefix, string packageId, string version, string packagePath, string source, string? apiKey, string? symbolPackagePath, string? symbolsSource, string? symbolApiKey)
+        private const string DoubleQuotes = @"""";
+
+        public static void Log(
+            ICommandLogger commandLogger,
+            string packagePushLogFormats,
+            string packageId,
+            string version,
+            string packagePath,
+            string stage,
+            string source,
+            string? apiKey,
+            string feedSource,
+            string? symbolPackagePath,
+            string? symbolsSource,
+            string? symbolApiKey,
+            string parameter)
         {
             const char pipe = '|';
             var lastWasPipe = false;
             var logFormats = packagePushLogFormats.Split(
                 (char character, int index) =>
                 {
-                    var wasSemiColon = lastWasPipe;
-                    if (wasSemiColon)
+                    var wasPipe = lastWasPipe;
+                    if (wasPipe)
                     {
                         lastWasPipe = false;
                     }
@@ -30,7 +45,7 @@ namespace Sundew.Packaging.Publish.Internal
                     switch (character)
                     {
                         case pipe:
-                            if (wasSemiColon)
+                            if (wasPipe)
                             {
                                 return SplitAction.Include;
                             }
@@ -38,7 +53,7 @@ namespace Sundew.Packaging.Publish.Internal
                             lastWasPipe = true;
                             return SplitAction.Ignore;
                         default:
-                            if (wasSemiColon)
+                            if (wasPipe)
                             {
                                 return SplitAction.SplitAndInclude;
                             }
@@ -49,8 +64,25 @@ namespace Sundew.Packaging.Publish.Internal
                 StringSplitOptions.RemoveEmptyEntries);
             foreach (var logFormat in logFormats)
             {
-                commandLogger.LogImportant(string.Format(CultureInfo.CurrentCulture, logFormat, commandPrefix, packageId, version, packagePath, source, apiKey, symbolPackagePath, symbolsSource, symbolApiKey));
+                commandLogger.LogImportant(Format(logFormat, packageId, version, packagePath, stage, source, apiKey, feedSource, symbolPackagePath, symbolsSource, symbolApiKey, parameter));
             }
+        }
+
+        internal static string Format(
+            string logFormat,
+            string packageId,
+            string version,
+            string packagePath,
+            string stage,
+            string source,
+            string? apiKey,
+            string feedSource,
+            string? symbolPackagePath,
+            string? symbolsSource,
+            string? symbolApiKey,
+            string parameter)
+        {
+            return string.Format(CultureInfo.CurrentCulture, logFormat, packageId, version, packagePath, stage, source, apiKey, feedSource, symbolPackagePath, symbolsSource, symbolApiKey, parameter, DoubleQuotes);
         }
     }
 }

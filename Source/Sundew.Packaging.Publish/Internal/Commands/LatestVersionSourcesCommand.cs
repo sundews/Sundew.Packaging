@@ -26,9 +26,9 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         public IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, Source source, NuGetSettings nuGetSettings, bool addDefaultPushSource)
         {
             var latestVersionSources = new List<string>();
-            if (!string.IsNullOrEmpty(source.Uri) && this.IsRemoteSourceOrDoesLocalSourceExists(source.Uri))
+            if (!string.IsNullOrEmpty(source.LatestVersionUri) && this.IsRemoteSourceOrDoesLocalSourceExists(source.LatestVersionUri))
             {
-                latestVersionSources.Add(source.Uri);
+                latestVersionSources.Add(source.LatestVersionUri);
             }
 
             var defaultPushSource = new PackageSourceProvider(nuGetSettings.DefaultSettings).DefaultPushSource;

@@ -94,7 +94,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(PreparePublishTask.DefaultLocalSource);
+            this.testee.PushSource.Should().Be(PreparePublishTask.DefaultLocalSource);
             this.testee.PackageVersion.Should().Be(expectedVersion);
         }
 
@@ -121,7 +121,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedDefaultPushSource);
+            this.testee.PushSource.Should().Be(ExpectedDefaultPushSource);
             this.testee.SymbolsSource.Should().BeNull();
             this.testee.PackageVersion.Should().Be(expectedVersion);
         }
@@ -150,7 +150,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedDefaultPushSource);
+            this.testee.PushSource.Should().Be(ExpectedDefaultPushSource);
             this.testee.SymbolsSource.Should().BeNull();
             this.testee.PackageVersion.Should().Be(expectedVersion);
         }
@@ -177,7 +177,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(PreparePublishTask.DefaultLocalSource);
+            this.testee.PushSource.Should().Be(PreparePublishTask.DefaultLocalSource);
             this.testee.SymbolsSource.Should().BeNull();
             this.testee.PackageVersion.Should().Be(expectedVersion);
         }
@@ -204,7 +204,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(this.testee.LocalSource);
+            this.testee.PushSource.Should().Be(this.testee.LocalSource);
             this.testee.PackageVersion.Should().Be(expectedVersion);
         }
 
@@ -234,7 +234,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.PushSource.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(expectedVersion);
         }
@@ -309,7 +309,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.PushSource.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(expectedPackageVersion);
         }
@@ -340,7 +340,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.PushSource.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(expectedPackageVersion);
         }
@@ -371,7 +371,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.PushSource.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(expectedPackageVersion);
         }
@@ -402,7 +402,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.Source.Should().Be(ExpectedPushSource);
+            this.testee.PushSource.Should().Be(ExpectedPushSource);
             this.testee.SymbolsSource.Should().Be(ExpectedSymbolsPushSource);
             this.testee.PackageVersion.Should().Be(expectedPackageVersion);
         }
