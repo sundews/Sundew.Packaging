@@ -12,19 +12,27 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.Linq;
     using global::NuGet.Common;
     using global::NuGet.Configuration;
+    using Sundew.Packaging.Publish.Internal.IO;
 
-    internal static class LatestVersionSourcesCommand
+    internal class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
     {
-        public static IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, Source source, NuGetSettings nuGetSettings, bool addDefaultPushSource)
+        private readonly IFileSystem fileSystem;
+
+        public LatestVersionSourcesCommand(IFileSystem fileSystem)
+        {
+            this.fileSystem = fileSystem;
+        }
+
+        public IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, Source source, NuGetSettings nuGetSettings, bool addDefaultPushSource)
         {
             var latestVersionSources = new List<string>();
-            if (!string.IsNullOrEmpty(source.Uri))
+            if (!string.IsNullOrEmpty(source.LatestVersionUri) && this.IsRemoteSourceOrDoesLocalSourceExists(source.LatestVersionUri))
             {
-                latestVersionSources.Add(source.Uri);
+                latestVersionSources.Add(source.LatestVersionUri);
             }
 
             var defaultPushSource = new PackageSourceProvider(nuGetSettings.DefaultSettings).DefaultPushSource;
-            if (addDefaultPushSource && !string.IsNullOrEmpty(defaultPushSource))
+            if (addDefaultPushSource && !string.IsNullOrEmpty(defaultPushSource) && this.IsRemoteSourceOrDoesLocalSourceExists(defaultPushSource))
             {
                 latestVersionSources.Add(defaultPushSource);
             }
@@ -48,6 +56,11 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 .Where(x => !string.IsNullOrEmpty(x));
             latestVersionSources.AddRange(sources);
             return latestVersionSources.Distinct().ToList();
+        }
+
+        private bool IsRemoteSourceOrDoesLocalSourceExists(string sourceUri)
+        {
+            return !UriUtility.TryCreateSourceUri(sourceUri, UriKind.Absolute).IsFile || this.fileSystem.DirectoryExists(sourceUri);
         }
     }
 }

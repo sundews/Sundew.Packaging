@@ -26,12 +26,19 @@ namespace Sundew.Packaging.Publish
     public class PreparePublishTask : Task
     {
         internal const string DefaultLocalSourceName = "Local-Sundew";
-        internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Assembly.GetExecutingAssembly().GetName().Name);
+        internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), GetFolderName(Assembly.GetExecutingAssembly().GetName().Name));
         internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
+        private const string MergedAssemblyEnding = ".m";
+
         private readonly ISettingsFactory settingsFactory;
+
         private readonly IFileSystem fileSystem;
+
         private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
+
         private readonly IPackageVersioner packageVersioner;
+        private readonly ILatestVersionSourcesCommand latestVersionSourcesCommand;
+
         private readonly ICommandLogger commandLogger;
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
@@ -57,6 +64,7 @@ namespace Sundew.Packaging.Publish
             this.fileSystem = fileSystem;
             this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, this.settingsFactory);
             this.packageVersioner = packageVersioner;
+            this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
             this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
 
@@ -126,6 +134,22 @@ namespace Sundew.Packaging.Publish
         /// <value>The development source.</value>
         public string? DevelopmentSource { get; set; }
 
+        /// <summary>
+        /// Gets or sets the API key.
+        /// </summary>
+        /// <value>
+        /// The API key.
+        /// </value>
+        public string? ApiKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the symbols API key.
+        /// </summary>
+        /// <value>
+        /// The API key.
+        /// </value>
+        public string? SymbolsApiKey { get; set; }
+
         /// <summary>Gets or sets the local source.</summary>
         /// <value>The local source.</value>
         public string? LocalSource { get; set; }
@@ -161,7 +185,21 @@ namespace Sundew.Packaging.Publish
         /// <summary>Gets the source.</summary>
         /// <value>The source.</value>
         [Output]
-        public string? Source { get; private set; }
+        public string? PushSource { get; private set; }
+
+        /// <summary>
+        /// Gets the feed source.
+        /// </summary>
+        /// <value>
+        /// The feed source.
+        /// </value>
+        [Output]
+        public string? FeedSource { get; private set; }
+
+        /// <summary>Gets the stage.</summary>
+        /// <value>The stage.</value>
+        [Output]
+        public string? Stage { get; private set; }
 
         /// <summary>Gets the symbols source.</summary>
         /// <value>The symbols source.</value>
@@ -173,6 +211,24 @@ namespace Sundew.Packaging.Publish
         ///   <c>true</c> if this instance is publish enabled; otherwise, <c>false</c>.</value>
         [Output]
         public bool PublishPackages { get; private set; }
+
+        /// <summary>
+        /// Gets the API key.
+        /// </summary>
+        /// <value>
+        /// The API key.
+        /// </value>
+        [Output]
+        public string? SourceApiKey { get; private set; }
+
+        /// <summary>
+        /// Gets the symbols source API key.
+        /// </summary>
+        /// <value>
+        /// The symbols source API key.
+        /// </value>
+        [Output]
+        public string? SymbolsSourceApiKey { get; private set; }
 
         /// <summary>Must be implemented by derived class.</summary>
         /// <returns>true, if successful.</returns>
@@ -192,11 +248,15 @@ namespace Sundew.Packaging.Publish
                 this.AllowLocalSource);
 
             var latestVersionSources =
-                LatestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
+                this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
 
             this.PublishPackages = source.IsEnabled;
-            this.Source = source.Uri;
+            this.PushSource = source.Uri;
+            this.FeedSource = source.LatestVersionUri;
+            this.Stage = source.Stage;
+            this.SourceApiKey = this.GetApiKey(source);
             this.SymbolsSource = source.SymbolsUri;
+            this.SymbolsSourceApiKey = this.GetSymbolsApiKey(source);
             if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
             {
                 var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
@@ -208,6 +268,36 @@ namespace Sundew.Packaging.Publish
 
             this.commandLogger.LogError($"Could not parse package version: {this.Version}");
             return false;
+        }
+
+        private static string GetFolderName(string name)
+        {
+            if (name.EndsWith(MergedAssemblyEnding))
+            {
+                return name.Substring(0, name.Length - MergedAssemblyEnding.Length);
+            }
+
+            return name;
+        }
+
+        private string? GetApiKey(Source source)
+        {
+            if (source.ApiKey == string.Empty)
+            {
+                return null;
+            }
+
+            return source.ApiKey ?? this.ApiKey;
+        }
+
+        private string? GetSymbolsApiKey(Source source)
+        {
+            if (source.SymbolsApiKey == string.Empty)
+            {
+                return null;
+            }
+
+            return source.SymbolsApiKey ?? this.SymbolsApiKey ?? source.ApiKey ?? this.ApiKey;
         }
     }
 }

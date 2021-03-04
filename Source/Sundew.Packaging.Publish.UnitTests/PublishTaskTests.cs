@@ -70,24 +70,24 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_SourceIsLocalFile_Then_CopyPackageToLocalSourceCommandShouldBeExecuted()
         {
-            this.testee.Source = @"c:\temp\packages";
+            this.testee.PushSource = @"c:\temp\packages";
 
             this.testee.Execute();
 
-            this.copyPackageToLocalSourceCommand.Verify(x => x.Add(ExpectedPackageId, ExpectedPackagePath, this.testee.Source, false, It.IsAny<ICommandLogger>()), Times.Once);
+            this.copyPackageToLocalSourceCommand.Verify(x => x.Add(ExpectedPackageId, ExpectedPackagePath, this.testee.PushSource, false, It.IsAny<ICommandLogger>()), Times.Once);
         }
 
         [Fact]
         public void Execute_When_SourceIsRemote_Then_PushPackageCommandShouldBeExecuted()
         {
-            this.testee.Source = "http://nuget.org";
+            this.testee.PushSource = "http://nuget.org";
 
             this.testee.Execute();
 
             this.pushPackageCommand.Verify(
                 x => x.PushAsync(
                 ExpectedPackagePath,
-                this.testee.Source,
+                this.testee.PushSource,
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -105,7 +105,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         public void Execute_When_SourceIsLocalAndCopyPdbToSymbolCacheIsSet_Then_PushPackageCommandShouldBeExecuted()
         {
             this.testee.PackInputs = new ITaskItem[] { new TaskItem(ExpectedPdbPath) };
-            this.testee.Source = @"c:\temp\packages";
+            this.testee.PushSource = @"c:\temp\packages";
             this.testee.SymbolCacheDir = @"c:\temp\symbol-cache";
             this.testee.CopyLocalSourcePdbToSymbolCache = true;
 
@@ -133,12 +133,13 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_PackagePushLogFormatIsSet_Then_MessageShouldBeLoggedWithFormat()
         {
-            this.testee.Source = "http://nuget.org";
-            this.testee.PublishLogFormats = "##vso[task.setvariable variable=package_{0}]{3}-{2}-{1}";
+            this.testee.Parameter = "##";
+            this.testee.PushSource = "http://nuget.org";
+            this.testee.PublishLogFormats = "{10}vso[task.setvariable variable=package_{0}]{2}-{4}-{1}";
 
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogImportant($"##vso[task.setvariable variable=package_{ExpectedPackageId}]{ExpectedPackagePath}-{this.testee.Source}-{Version}"), Times.Once);
+            this.commandLogger.Verify(x => x.LogImportant($"##vso[task.setvariable variable=package_{ExpectedPackageId}]{ExpectedPackagePath}-{this.testee.PushSource}-{Version}"), Times.Once);
         }
 
         [Fact]
@@ -150,9 +151,9 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Fact]
-        public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
+        public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeEnabled()
         {
-            this.testee.Source = "http://nuget.org";
+            this.testee.PushSource = "http://nuget.org";
             this.testee.PublishLogFormats = "{0}";
             this.testee.AllowLocalSource = false;
 
@@ -161,10 +162,24 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.commandLogger.Verify(x => x.LogImportant(ExpectedPackageId), Times.Once);
         }
 
+        [Theory]
+        [InlineData("{0} > file.txt", ExpectedPackageId, "file.txt")]
+        [InlineData("{0}  > file.txt", ExpectedPackageId + " ", "file.txt")]
+        public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_AppendPublishPackageLoggingShouldBeEnabled(string appendPublishFileLogFormats, string expectedContext, string expectedFile)
+        {
+            this.testee.PushSource = "http://nuget.org";
+            this.testee.AppendPublishFileLogFormats = appendPublishFileLogFormats;
+            this.testee.AllowLocalSource = false;
+
+            this.testee.Execute();
+
+            this.fileSystem.Verify(x => x.AppendAllText(It.Is<string>(x => x.EndsWith(expectedFile)), expectedContext), Times.Once);
+        }
+
         [Fact]
         public void Execute_When_SourceIsLocalAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
         {
-            this.testee.Source = @"c:\temp\packages";
+            this.testee.PushSource = @"c:\temp\packages";
             this.testee.PublishLogFormats = "{0}";
             this.testee.AllowLocalSource = false;
 

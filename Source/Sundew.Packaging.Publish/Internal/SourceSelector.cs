@@ -14,9 +14,9 @@ namespace Sundew.Packaging.Publish.Internal
     internal static class SourceSelector
     {
         internal const string DefaultPushSourceText = "defaultPushSource";
-        internal const string DefaultLocalPackagePrefix = "pre";
-        internal const string DefaultDevelopmentPackagePrefix = "dev";
-        internal const string DefaultIntegrationPackagePrefix = "ci";
+        internal const string DefaultLocalPackageStage = "pre";
+        internal const string DefaultDevelopmentPackageStage = "dev";
+        internal const string DefaultIntegrationPackageStage = "ci";
         private const string DefaultSourceNameText = "default";
         private const string DefaultStableSourceNameText = "default-stable";
         private const string LocalStableSourceNameText = "local-stable";
@@ -47,22 +47,22 @@ namespace Sundew.Packaging.Publish.Internal
 
                     if (sourceName.Equals(DefaultStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        return new Source(default, defaultSource, default, string.Empty, true);
+                        return new Source(default, defaultSource, default, default, default, string.Empty, true, defaultSource);
                     }
 
-                    return new Source(default, defaultSource, default, DefaultLocalPackagePrefix, false, true);
+                    return new Source(default, defaultSource, default, default, default, DefaultLocalPackageStage, false, defaultSource, true);
                 }
 
                 if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return new Source(default, localSource, default, string.Empty, true);
+                    return new Source(default, localSource, default, default, default, string.Empty, true, localSource);
                 }
 
                 var sources = new[]
                 {
-                    Source.Parse(productionSource, null, true),
-                    Source.Parse(integrationSource, DefaultIntegrationPackagePrefix, false),
-                    Source.Parse(developmentSource, DefaultDevelopmentPackagePrefix, false),
+                    Source.Parse(productionSource, string.Empty, true),
+                    Source.Parse(integrationSource, DefaultIntegrationPackageStage, false),
+                    Source.Parse(developmentSource, DefaultDevelopmentPackageStage, false),
                 };
 
                 var (source, match) = sources.Select(x => (source: x, match: x.StageRegex?.Match(sourceName))).FirstOrDefault(x => x.match?.Success ?? false);
@@ -74,7 +74,7 @@ namespace Sundew.Packaging.Publish.Internal
                 }
             }
 
-            return new Source(null, localSource, default, DefaultLocalPackagePrefix, false, true, allowLocalSource);
+            return new Source(null, localSource, default, default, default, DefaultLocalPackageStage, false, localSource, true, allowLocalSource);
         }
     }
 }

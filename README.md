@@ -60,18 +60,17 @@ To disable this option, define the constant: **SPP_DISABLE_COPY_LOCAL_SOURCE_PDB
 ## **4. CI builds**
 The difference to local builds is that CI builds are typically configuring a number of MSBuild properties on the build server
 
-### **4.1 Staging sources**
-Staging sources are used to determine the source for publishing packages.  
+### **4.1 Staging sources with Source Matchers**
+Source Matchers are used to determine the source for publishing packages.  
 The following stages are supported: **Production**, **Integration**, **Development**.
 
-The sources can be defined by settings the following MSBuild properties:
+The sources can be defined by setting the following MSBuild properties:
 - **SppProductionSource**
 - **SppIntegrationSource**
 - **SppDevelopmentSource**
 
 All three follow the format:
-**SourceMatcherRegex[=>StagingName]|SourceUri[|SymbolSourceUri]**.  
-Escape | (pipes) with another pipe, if needed in the SourceMatcherRegex.
+**SourceMatcherRegex\[ => StagingName\] | \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
 
 The optional staging name in the can be used to override the default staging names.
 
@@ -132,26 +131,42 @@ Packages for the three sources above are versioned differently:
 
 ## **5. Additional MSBuild info**
 ### **5.1 Additional MSBuild properties**
-- **SppTimeoutInSeconds** = sets the publish timeout in seconds (Default: 300)
-- **SppSkipDuplicate** = instructs to skip duplicate packages (Default: false)
-- **SppNoServiceEndpoint** = instructs not to append NuGet paths to publish url. (Default: false)
-- **SppApiKey** = specifies the NuGet api key
-- **SppSymbolApiKey** = specifies the NuGet symbols api key
+- **SppTimeoutInSeconds** = (default: **300**) sets the publish timeout in seconds
+- **SppSkipDuplicate** = (default: **false**) instructs to skip duplicate packages 
+- **SppNoServiceEndpoint** = (default: **false**) instructs not to append NuGet paths to publish url.
+- **SppApiKey** = (default: **null**) specifies the NuGet api key (Fallback if not specified by source matcher)
+- **SppSymbolApiKey** = (default: **null**) specifies the NuGet symbols api key
 - **SppVersioningMode** = specifies the mode for versioning prerelease versions:
   - **AutomaticLatestPatch** = (default) ignores the patch component of the current version and sets it to the latest matching (Major and Minor) package patch version incremented by 1. 
+  - **AutomaticLatestRevision** = ignores the revision component of the current version and sets it to the latest matching (Major and Minor and Patch) package revision version incremented by 1. 
   - **IncrementPatchIfStableExistForPrerelease** = increments the patch part with 1, if the stable version already exists.
   - **AlwaysIncrementPatch** = increments the patch part with 1.
   - **NoChange** = does not change the version number.
-- **SppAllowLocalSource** = (default: true) specifies whether local source is allowed. Usefull for CI environments to disable local source if none of the stages where matched.
-- **SppPublishLogFormat** = (default: null) specifies a format with which packages to be pushed can be logged. Multiple log formats can be separated by |.
+- **SppAllowLocalSource** = (default: **true**) specifies whether local source is allowed. Usefull for CI environments to disable local source if none of the stages where matched.
+- **SppParameter** = (default: **empty**)
+- **SppPublishLogFormat** = (default: **null**) specifies a format with which packages to be pushed can be logged. Multiple formats can be separated by |.
   - **{0}** - The package id.
   - **{1}** - The resulting package version
-  - **{2}** - The selected package source
-  - **{3}** - The package path
-  
-   Usefull for CI environments to extract information from the build. E.g. to set a build variable to the package source and path for pushing packages from the CI environment only.
-- **SppLatestVersionSources** = (default: null) A pipe (|) separated list of sources to query to find the latest version.
-- **SppAddDefaultPushSourceToLatestVersionSources** = (default: true) Adds the default push source to SppLatestVersionSources.
+  - **{2}** - The package path
+  - **{3}** - The selected stage
+  - **{4}** - The selected push source
+  - **{5}** - The api key
+  - **{6}** - The selected feed source
+  - **{7}** - The symbol package path
+  - **{8}** - The selected symbol package source
+  - **{9}** - The symbol api key
+  - **{10}** - The value of the SppParameter MSBuild property
+  - **{11}** - Double quotes
+
+   Usefull for CI environments to extract information from the build. E.g. to set a build variable to the select push source and path for pushing packages from the CI environment only.
+
+- **SppAppendPublishFileLogFormat** (default: **null**) similar to SppPublishLogFormat, but takes values in the format: **Format > filename.ext** and always appends. Multiple formats can be separated by |.  
+  - Supports the same values as **SppPublishLogFormat**.  
+  - Relative paths use the working directory  
+  - The space between **Format** and **>** is ignored, to include spaces at the end, add additional ones.
+
+- **SppLatestVersionSources** = (default: **null**) A pipe (|) separated list of sources to query to find the latest version.
+- **SppAddDefaultPushSourceToLatestVersionSources** = (default: **true**) Adds the default push source to SppLatestVersionSources.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:  
@@ -168,7 +183,7 @@ The combination of build output and disabling publication allows to override the
 ## **7. Updating packages**
 * Use the standard NuGet client
 
-Performing package updates in large repositories can take a long time with the default NuGet client. As an alternative check out the Sundew.Packaging.Update tool:
-* Sundew.Packaging.Update (SDK-Style projects only) - https://github.com/hugener/Sundew.Packaging.Update
+Performing package updates in large repositories can take a long time with the default NuGet client. As an alternative check out Sundew.Packaging.Tool:
+* Sundew.Packaging.Tool (SDK-Style projects only) - https://github.com/hugener/Sundew.Packaging.Tool
 
-dotnet tool install -g Sundew.Packaging.Update
+dotnet tool install -g Sundew.Packaging.Tool

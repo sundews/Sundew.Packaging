@@ -20,7 +20,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         private const string APdbFilePathPdbText = "A_PDB_file_path.pdb";
         private const string ASymbolCacheDirectoryPathText = "A_symbol_cache_path";
         private const string PdbId = "AB8B0DC75B5744449D425DA7B2A42E98ffffffff";
-        private static readonly string ExpectedSbpFilePath = Path.Combine(ASymbolCacheDirectoryPathText, APdbFilePathPdbText, PdbId, ".sbp");
+        private static readonly string ExpectedSppFilePath = Path.Combine(ASymbolCacheDirectoryPathText, APdbFilePathPdbText, PdbId, ".spp");
         private static readonly string ExpectedDestinationPdbPathText = Path.Combine(ASymbolCacheDirectoryPathText, APdbFilePathPdbText, PdbId, APdbFilePathPdbText);
         private readonly IFileSystem fileSystem;
         private readonly ICommandLogger commandLogger;
@@ -47,9 +47,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [Fact]
         public void AddAndCleanCache_When_SbpFileExists_Then_FileSystemDeleteDirectoryShouldBeCalled()
         {
-            var expectedSbpDirectoryPath = Path.GetDirectoryName(ExpectedSbpFilePath)!;
+            var expectedSbpDirectoryPath = Path.GetDirectoryName(ExpectedSppFilePath)!;
             this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
-            this.fileSystem.Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new[] { ExpectedSbpFilePath });
+            this.fileSystem.Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new[] { ExpectedSppFilePath });
 
             this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings, this.commandLogger);
 
@@ -60,11 +60,11 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         public void AddAndCleanCache_Then_SbpFileShouldBeWrittenToSymbolCacheDirectory()
         {
             this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
-            this.fileSystem.Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new[] { ExpectedSbpFilePath });
+            this.fileSystem.Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new[] { ExpectedSppFilePath });
 
             this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings, this.commandLogger);
 
-            this.fileSystem.Verify(x => x.WriteAllText(ExpectedSbpFilePath, string.Empty), Times.Once);
+            this.fileSystem.Verify(x => x.WriteAllText(ExpectedSppFilePath, string.Empty), Times.Once);
         }
 
         private static byte[] GetBytes(Stream stream)

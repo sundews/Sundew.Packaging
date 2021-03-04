@@ -8,6 +8,7 @@
 namespace Sundew.Packaging.Publish.UnitTests.Internal
 {
     using System;
+    using System.Collections.Generic;
     using FluentAssertions;
     using Moq;
     using NuGet.Common;
@@ -21,13 +22,15 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     public class PackageVersionerTests
     {
         private const string AnyPackageId = "Package.Id";
-        private const string AnyPushSource = @"Ignored|c:\temp\ignored";
+        private const string AnyPushSource = @"Ignored => c:\temp\ignored";
         private readonly IDateTime dateTime = New.Mock<IDateTime>();
         private readonly PackageVersioner testee;
+        private readonly ILatestPackageVersionCommand latestPackageVersionCommand;
 
         public PackageVersionerTests()
         {
-            this.testee = new PackageVersioner(this.dateTime, New.Mock<IPackageExistsCommand>(), New.Mock<ILatestPackageVersionCommand>());
+            this.latestPackageVersionCommand = New.Mock<ILatestPackageVersionCommand>();
+            this.testee = new PackageVersioner(this.dateTime, New.Mock<IPackageExistsCommand>(), this.latestPackageVersionCommand);
             this.dateTime.SetupGet(x => x.UtcTime).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
         }
 
@@ -47,6 +50,64 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 versioningMode,
                 false,
                 Source.Parse(AnyPushSource, stage, false),
+                new[] { AnyPushSource },
+                New.Mock<ILogger>());
+
+            result.ToFullString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", null, "3.0.0-ci-u20160108-173613")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", "3.0.2", "3.0.3-ci-u20160108-173613")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", null, "3.0.1-ci-u20160108-173613")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "ci", "3.0.2", "3.0.2.1-ci-u20160108-173613")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.10", "3.0.1.11-ci-u20160108-173613")]
+        public void GetVersion_When_UsingAutomaticVersioning_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string? latestVersion, string expectedResult)
+        {
+            this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
+                    AnyPackageId,
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<NuGetVersion>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<ILogger>()))
+                .ReturnsAsync(latestVersion == null ? null : NuGetVersion.Parse(latestVersion));
+
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse(versionNumber),
+                versioningMode,
+                false,
+                Source.Parse(AnyPushSource, stage, false),
+                new[] { AnyPushSource },
+                New.Mock<ILogger>());
+
+            result.ToFullString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, null, "3.0.0")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "3.0.2", "3.0.3")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, null, "3.0.1")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "3.0.3", "3.0.3.1")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "3.0.1.10", "3.0.1.11")]
+        public void GetVersion_When_UsingAutomaticVersioningAndIsStable_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string? latestVersion, string expectedResult)
+        {
+            this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
+                    AnyPackageId,
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<NuGetVersion>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<ILogger>()))
+                .ReturnsAsync(latestVersion == null ? null : NuGetVersion.Parse(latestVersion));
+
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse(versionNumber),
+                versioningMode,
+                true,
+                Source.Parse(AnyPushSource, "ci", false),
                 new[] { AnyPushSource },
                 New.Mock<ILogger>());
 

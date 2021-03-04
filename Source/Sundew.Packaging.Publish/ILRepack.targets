@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="ILRepacker" BeforeTargets="PostBuildEvent" AfterTargets="Build">
+  <Target Name="ILRepacker" AfterTargets="_CopyPackageFiles">
 
     <ItemGroup>
       <InputAssemblies Include="$(OutputPath)**\*.dll" />
@@ -8,7 +8,6 @@
       <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
       <InputAssemblies Remove="$(OutputPath)**\Microsoft.Build*.dll" />
       <InputAssemblies Remove="$(OutputPath)**\System*.dll" />
-      <InputAssemblies Remove="$(OutputPath)**\NuGet*.dll" />
     </ItemGroup>
 
     <ILRepack
@@ -19,6 +18,5 @@
            TargetKind="Dll"
            LibraryPath="$(OutputPath)"
            OutputFile="$(OutputPath)\$(AssemblyName).m.dll" />
-
   </Target>
 </Project>

@@ -22,6 +22,11 @@ namespace Sundew.Packaging.Publish.Internal.IO
             File.WriteAllText(path, contents);
         }
 
+        public void AppendAllText(string path, string contents)
+        {
+            File.AppendAllText(path, contents);
+        }
+
         public string ReadAllText(string path)
         {
             return File.ReadAllText(path);

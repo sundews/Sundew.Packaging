@@ -26,11 +26,13 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         }
 
         [Theory]
-        [InlineData("Serilog", "2.7", true, "2.7.2-dev-01041")]
-        [InlineData("Serilog", "2.7", false, "2.7.1")]
-        public async Task GetLatestVersion_Then_ResultShouldBeExpectedResult(string packageId, string version, bool allowPrerelease, string expectedVersion)
+        [InlineData("Serilog", "2.7", true, false, "2.7.2-dev-01041")]
+        [InlineData("Serilog", "2.7", false, false, "2.7.1")]
+        [InlineData("Serilog", "2.2", false, false, "2.2.1")]
+        [InlineData("Serilog", "2.2.0", false, true, "2.2.0")]
+        public async Task GetLatestVersion_Then_ResultShouldBeExpectedResult(string packageId, string version, bool allowPrerelease, bool includePatchInMatch, string expectedVersion)
         {
-            var result = await this.testee.GetLatestVersion(packageId, new[] { NuGetConstants.V3FeedUrl }, NuGetVersion.Parse(version), allowPrerelease, New.Mock<ILogger>());
+            var result = await this.testee.GetLatestMajorMinorVersion(packageId, new[] { NuGetConstants.V3FeedUrl }, NuGetVersion.Parse(version), includePatchInMatch, allowPrerelease, New.Mock<ILogger>());
 
             result.Should().Be(NuGetVersion.Parse(expectedVersion));
         }

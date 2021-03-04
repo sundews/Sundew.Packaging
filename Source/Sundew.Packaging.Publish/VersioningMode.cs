@@ -13,6 +13,9 @@ namespace Sundew.Packaging.Publish
         /// <summary>Specifies that the patch component of the version number is set to the latest incremented by 1.</summary>
         AutomaticLatestPatch,
 
+        /// <summary>Specifies that the revision component of the version number is set to the latest incremented by 1.</summary>
+        AutomaticLatestRevision,
+
         /// <summary>Specifies that stable builds are left as is and the patch component of the version number is incremented by 1 for prerelease, if the stable version exists.</summary>
         IncrementPatchIfStableExistForPrerelease,
 
