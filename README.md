@@ -104,7 +104,7 @@ The staging name can be used to change how NuGet clients sort prereleases.
 **SppDevelopmentSource** = .+**=>pre**|http://nuget-server.com/development  
 
 ### **4.3 Suggested versioning scheme**
-**Git flow**
+**GitHub flow/Git flow**
 | **Build** | Branch type     | Release     | Versioning                                       | Release mode              |
 | --------- | --------------- | ----------- | ------------------------------------------------ | ------------------------- |
 | CI        | main            | stable      | &lt;Major.Minor.*&gt;                            | Push to Production NuGet  |
@@ -181,9 +181,16 @@ The items contains the following information:
 The combination of build output and disabling publication allows to override the publish functionality. By creating a MSBuild target, which runs after the **SppPublishNuGet** target and that consumes the **SppPackages** TaskItems, it is possible to create a custom way of publishing packages. This could be usefull for some CI setups where the build itself is not responsible for publishing packages, but rather to instruct the CI, which packages should be published and where. 
 
 ## **7. Updating packages**
-* Use the standard NuGet client
+- Use the standard NuGet client
 
 Performing package updates in large repositories can take a long time with the default NuGet client. As an alternative check out Sundew.Packaging.Tool:
-* Sundew.Packaging.Tool (SDK-Style projects only) - https://github.com/hugener/Sundew.Packaging.Tool
+- Sundew.Packaging.Tool (SDK-Style projects only) - https://github.com/hugener/Sundew.Packaging.Tool
 
 dotnet tool install -g Sundew.Packaging.Tool
+
+## **8. Samples**
+The projects listed at the link below use Sundew.Packaging.Publish to automate publishing packages for various stages and tag stable versions in git:  
+https://github.com/hugener/builds
+
+- [GitHub actions sample](https://github.com/hugener/Sundew.TextView.ApplicationFramework/blob/master/.github/workflows/dotnet.yml)  
+- [Azure Pipeline sample](https://github.com/hugener/Sundew.Generator/blob/main/azure-pipelines.yml)
