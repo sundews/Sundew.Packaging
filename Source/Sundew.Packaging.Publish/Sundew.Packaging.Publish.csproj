@@ -18,10 +18,11 @@
 - Automated versioning of patch-/revision- and prereleases
 - Local debug support</Description>
 		<RepositoryUrl>https://github.com/hugener/Sundew.Packaging.Publish</RepositoryUrl>
-		<PackageReleaseNotes>4.0 - Added automatic revision increment, source matchers now supports custom prerelease stage and api key.
-3.0 - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
-2.0 - Added support for automatic prerelease patch increment
-1.0 - Initial release</PackageReleaseNotes>
+		<PackageReleaseNotes>5.x - Changed default prerelease format and prod stage name for ProductionSource
+4.x - Added automatic revision increment, source matchers now supports custom prerelease- stage, format and api key.
+3.x - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
+2.x - Added support for automatic prerelease patch increment
+1.x - Initial release</PackageReleaseNotes>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Copyright>Kim Hugener-Ohlsen</Copyright>

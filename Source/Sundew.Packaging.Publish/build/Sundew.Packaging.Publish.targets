@@ -9,7 +9,7 @@
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
-    <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppVersioningMode)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
+    <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppAddDefaultPushSourceToLatestVersionSources)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
   </PropertyGroup>
 
   <UsingTask
@@ -33,7 +33,7 @@
                  PackageId="$(PackageId)"
                  Version="$(Version)"
                  VersioningMode="$(SppVersioningMode)"
-                 LatestVersionSources="$(SppGetLatestVersionSources)"
+                 LatestVersionSources="$(SppLatestVersionSources)"
                  AddDefaultPushSourceToLatestVersionSources="$(SppAddDefaultPushSourceToLatestVersionSources)"
                  ProductionSource="$(SppProductionSource)"
                  IntegrationSource="$(SppIntegrationSource)"
@@ -42,7 +42,9 @@
                  SymbolsApiKey="$(SppSymbolsApiKey)"
                  LocalSource="$(SppLocalSource)"
                  AllowLocalSource="$(SppAllowLocalSource)"
-                 SourceName="$(SppSourceName)">
+                 SourceName="$(SppSourceName)"
+                 PrereleaseFormat="$(SppPrereleaseFormat)"
+                 Parameter="$(SppParameter)">
       <Output PropertyName="_SppWorkingDirectory" TaskParameter="WorkingDirectory"/>
       <Output PropertyName="PackageVersion" TaskParameter="PackageVersion"/>
       <Output PropertyName="_SppPushSource" TaskParameter="PushSource"/>

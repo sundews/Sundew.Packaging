@@ -169,6 +169,18 @@ namespace Sundew.Packaging.Publish
         public string? LatestVersionSources { get; set; }
 
         /// <summary>
+        /// Gets or sets the prerelease format.
+        /// </summary>
+        /// <value>
+        /// The prerelease format.
+        /// </value>
+        public string? PrereleaseFormat { get; set; }
+
+        /// <summary>Gets or sets the parameter.</summary>
+        /// <value>The parameter.</value>
+        public string? Parameter { get; set; }
+
+        /// <summary>
         /// Gets the working directory.
         /// </summary>
         /// <value>
@@ -238,30 +250,31 @@ namespace Sundew.Packaging.Publish
             var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
             var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(this.WorkingDirectory, localSourceName, this.LocalSource ?? DefaultLocalSource);
 
-            var source = SourceSelector.SelectSource(
+            var selectedSource = SourceSelector.SelectSource(
                 this.SourceName,
                 this.ProductionSource,
                 this.IntegrationSource,
                 this.DevelopmentSource,
                 nuGetSettings.LocalSourcePath,
+                this.PrereleaseFormat,
                 nuGetSettings.DefaultSettings,
                 this.AllowLocalSource);
 
             var latestVersionSources =
-                this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, source, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
+                this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, selectedSource, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
 
-            this.PublishPackages = source.IsEnabled;
-            this.PushSource = source.Uri;
-            this.FeedSource = source.LatestVersionUri;
-            this.Stage = source.Stage;
-            this.SourceApiKey = this.GetApiKey(source);
-            this.SymbolsSource = source.SymbolsUri;
-            this.SymbolsSourceApiKey = this.GetSymbolsApiKey(source);
+            this.PublishPackages = selectedSource.IsEnabled;
+            this.PushSource = selectedSource.Uri;
+            this.FeedSource = selectedSource.FeedSource;
+            this.Stage = selectedSource.Stage;
+            this.SourceApiKey = this.GetApiKey(selectedSource);
+            this.SymbolsSource = selectedSource.SymbolsUri;
+            this.SymbolsSourceApiKey = this.GetSymbolsApiKey(selectedSource);
             if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
             {
                 var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
                 this.VersioningMode?.TryParseEnum(out versioningMode, true);
-                this.PackageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, source.IsStableRelease, source, latestVersionSources, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
+                this.PackageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, selectedSource, latestVersionSources, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
 
                 return true;
             }

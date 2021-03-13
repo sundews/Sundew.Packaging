@@ -35,33 +35,33 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         }
 
         [Theory]
-        [InlineData("1.0.1", VersioningMode.NoChange, "dev", "1.0.1-dev-u20160108-173613")]
-        [InlineData("2.0.0", VersioningMode.NoChange, "pre", "2.0.0-pre-u20160108-173613")]
-        [InlineData("3.0.2", VersioningMode.NoChange, "ci", "3.0.2-ci-u20160108-173613")]
-        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, "dev", "1.0.2-dev-u20160108-173613")]
-        [InlineData("2.0.0", VersioningMode.AlwaysIncrementPatch, "pre", "2.0.1-pre-u20160108-173613")]
-        [InlineData("3.0.2", VersioningMode.AlwaysIncrementPatch, "ci", "3.0.3-ci-u20160108-173613")]
-        [InlineData("3.0", VersioningMode.AlwaysIncrementPatch, "ci", "3.0.1-ci-u20160108-173613")]
+        [InlineData("1.0.1", VersioningMode.NoChange, "dev", "1.0.1-u20160108-173613-dev")]
+        [InlineData("2.0.0", VersioningMode.NoChange, "pre", "2.0.0-u20160108-173613-pre")]
+        [InlineData("3.0.2", VersioningMode.NoChange, "ci", "3.0.2-u20160108-173613-ci")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, "dev", "1.0.2-u20160108-173613-dev")]
+        [InlineData("2.0.0", VersioningMode.AlwaysIncrementPatch, "pre", "2.0.1-u20160108-173613-pre")]
+        [InlineData("3.0.2", VersioningMode.AlwaysIncrementPatch, "ci", "3.0.3-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AlwaysIncrementPatch, "ci", "3.0.1-u20160108-173613-ci")]
         public void GetVersion_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string expectedResult)
         {
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
-                false,
-                Source.Parse(AnyPushSource, stage, false),
+                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null)!),
                 new[] { AnyPushSource },
+                string.Empty,
                 New.Mock<ILogger>());
 
             result.ToFullString().Should().Be(expectedResult);
         }
 
         [Theory]
-        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", null, "3.0.0-ci-u20160108-173613")]
-        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", "3.0.2", "3.0.3-ci-u20160108-173613")]
-        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", null, "3.0.1-ci-u20160108-173613")]
-        [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "ci", "3.0.2", "3.0.2.1-ci-u20160108-173613")]
-        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.10", "3.0.1.11-ci-u20160108-173613")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", null, "3.0.0-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", "3.0.2", "3.0.3-u20160108-173613-ci")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", null, "3.0.1-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "ci", "3.0.2", "3.0.2.1-u20160108-173613-ci")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.10", "3.0.1.11-u20160108-173613-ci")]
         public void GetVersion_When_UsingAutomaticVersioning_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string? latestVersion, string expectedResult)
         {
             this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
@@ -77,9 +77,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
-                false,
-                Source.Parse(AnyPushSource, stage, false),
+                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null)!),
                 new[] { AnyPushSource },
+                string.Empty,
                 New.Mock<ILogger>());
 
             result.ToFullString().Should().Be(expectedResult);
@@ -106,9 +106,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
-                true,
-                Source.Parse(AnyPushSource, "ci", false),
+                new SelectedSource(Source.Parse(AnyPushSource, "ci", true, null, null)!),
                 new[] { AnyPushSource },
+                string.Empty,
                 New.Mock<ILogger>());
 
             result.ToFullString().Should().Be(expectedResult);

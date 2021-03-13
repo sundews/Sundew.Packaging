@@ -17,9 +17,9 @@ namespace Sundew.Packaging.Publish.Internal
             string packageId,
             NuGetVersion nuGetVersion,
             VersioningMode versioningMode,
-            bool isStableRelease,
-            Source source,
+            SelectedSource selectedSource,
             IReadOnlyList<string> latestVersionSources,
+            string parameter,
             ILogger logger);
     }
 }

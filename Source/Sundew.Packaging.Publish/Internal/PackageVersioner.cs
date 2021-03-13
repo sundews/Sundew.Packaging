@@ -29,20 +29,27 @@ namespace Sundew.Packaging.Publish.Internal
             this.latestPackageVersionCommand = latestPackageVersionCommand;
         }
 
-        public SemanticVersion GetVersion(string packageId, NuGetVersion nuGetVersion, VersioningMode versioningMode, bool isStableRelease, Source source, IReadOnlyList<string> latestVersionSources, ILogger logger)
+        public SemanticVersion GetVersion(
+            string packageId,
+            NuGetVersion nuGetVersion,
+            VersioningMode versioningMode,
+            SelectedSource selectedSource,
+            IReadOnlyList<string> latestVersionSources,
+            string parameter,
+            ILogger logger)
         {
             return versioningMode switch
             {
-                VersioningMode.AutomaticLatestPatch => this.GetAutomaticLatestPatchVersion(packageId, nuGetVersion, isStableRelease, source, latestVersionSources, logger),
-                VersioningMode.AutomaticLatestRevision => this.GetAutomaticLatestRevisionVersion(packageId, nuGetVersion, isStableRelease, source, latestVersionSources, logger),
-                VersioningMode.IncrementPatchIfStableExistForPrerelease => this.GetIncrementPatchIfStableExistForPrereleaseVersion(packageId, nuGetVersion, isStableRelease, source, logger),
-                VersioningMode.AlwaysIncrementPatch => this.GetIncrementPatchVersion(nuGetVersion, isStableRelease, source),
-                VersioningMode.NoChange => this.GetNoChangeVersion(nuGetVersion, isStableRelease, source),
+                VersioningMode.AutomaticLatestPatch => this.GetAutomaticLatestPatchVersion(packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
+                VersioningMode.AutomaticLatestRevision => this.GetAutomaticLatestRevisionVersion(packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
+                VersioningMode.IncrementPatchIfStableExistForPrerelease => this.GetIncrementPatchIfStableExistForPrereleaseVersion(packageId, nuGetVersion, selectedSource, parameter, logger),
+                VersioningMode.AlwaysIncrementPatch => this.GetIncrementPatchVersion(nuGetVersion, selectedSource, parameter),
+                VersioningMode.NoChange => this.GetNoChangeVersion(nuGetVersion, selectedSource, parameter),
                 _ => throw new ArgumentOutOfRangeException(nameof(versioningMode), versioningMode, $"Unsupported versioning mode: {versioningMode}"),
             };
         }
 
-        private SemanticVersion GetAutomaticLatestPatchVersion(string packageId, NuGetVersion semanticVersion, bool isStableRelease, Source source, IReadOnlyList<string> latestVersionSources, ILogger logger)
+        private SemanticVersion GetAutomaticLatestPatchVersion(string packageId, NuGetVersion semanticVersion, SelectedSource selectedSource, IReadOnlyList<string> latestVersionSources, string parameter, ILogger logger)
         {
             var latestVersionTask = this.latestPackageVersionCommand.GetLatestMajorMinorVersion(packageId, latestVersionSources, semanticVersion, false, false, logger);
             latestVersionTask.Wait();
@@ -54,15 +61,15 @@ namespace Sundew.Packaging.Publish.Internal
                 latestVersion = semanticVersion;
             }
 
-            if (isStableRelease)
+            if (selectedSource.IsStableRelease)
             {
                 return new SemanticVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement);
             }
 
-            return new SemanticVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(source));
+            return new SemanticVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(selectedSource, parameter));
         }
 
-        private SemanticVersion GetAutomaticLatestRevisionVersion(string packageId, NuGetVersion semanticVersion, bool isStableRelease, Source source, IReadOnlyList<string> latestVersionSources, ILogger logger)
+        private SemanticVersion GetAutomaticLatestRevisionVersion(string packageId, NuGetVersion semanticVersion, SelectedSource selectedSource, IReadOnlyList<string> latestVersionSources, string parameter, ILogger logger)
         {
             var latestVersionTask = this.latestPackageVersionCommand.GetLatestMajorMinorVersion(packageId, latestVersionSources, semanticVersion, true, false, logger);
             latestVersionTask.Wait();
@@ -74,68 +81,69 @@ namespace Sundew.Packaging.Publish.Internal
                 latestVersion = semanticVersion;
             }
 
-            if (isStableRelease)
+            if (selectedSource.IsStableRelease)
             {
                 return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement);
             }
 
-            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, this.GetPrereleasePostfix(source), null);
+            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, this.GetPrereleasePostfix(selectedSource, parameter), null);
         }
 
-        private SemanticVersion GetIncrementPatchIfStableExistForPrereleaseVersion(string packageId, SemanticVersion semanticVersion, bool isStableRelease, Source source, ILogger logger)
+        private SemanticVersion GetIncrementPatchIfStableExistForPrereleaseVersion(string packageId, SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter, ILogger logger)
         {
-            if (isStableRelease)
+            if (selectedSource.IsStableRelease)
             {
                 return semanticVersion;
             }
 
-            var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, semanticVersion, source.LatestVersionUri, logger);
+            var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, semanticVersion, selectedSource.FeedSource, logger);
             packageExistsTask.Wait();
-            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(source));
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(selectedSource, parameter));
         }
 
-        private SemanticVersion GetIncrementPatchVersion(SemanticVersion semanticVersion, bool isStableRelease, Source source)
+        private SemanticVersion GetIncrementPatchVersion(SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter)
         {
-            if (isStableRelease)
+            if (selectedSource.IsStableRelease)
             {
                 return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1);
             }
 
-            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, this.GetPrereleasePostfix(source));
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, this.GetPrereleasePostfix(selectedSource, parameter));
         }
 
-        private SemanticVersion GetNoChangeVersion(SemanticVersion semanticVersion, bool isStableRelease, Source source)
+        private SemanticVersion GetNoChangeVersion(SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter)
         {
-            if (isStableRelease)
+            if (selectedSource.IsStableRelease)
             {
                 return semanticVersion;
             }
 
-            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, this.GetPrereleasePostfix(source));
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, this.GetPrereleasePostfix(selectedSource, parameter));
         }
 
-        private string GetPrereleasePostfix(Source source)
+        private string GetPrereleasePostfix(SelectedSource selectedSource, string parameter)
         {
-            var stringBuilder = new StringBuilder();
-            if (!string.IsNullOrEmpty(source.PackagePrefix))
+            if (!string.IsNullOrEmpty(selectedSource.PrereleaseFormat) && selectedSource.PrereleaseFormat != null)
             {
-                stringBuilder.Append(source.PackagePrefix);
-                stringBuilder.Append('-');
+                return string.Format(selectedSource.PrereleaseFormat, selectedSource.Stage, this.dateTime.UtcTime.ToString(PrereleasePackageDateTimeFormat), this.dateTime.UtcTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, parameter).Trim('-');
             }
 
-            if (!string.IsNullOrEmpty(source.Stage))
+            var stringBuilder = new StringBuilder();
+            if (!string.IsNullOrEmpty(selectedSource.PackagePrefix))
             {
-                stringBuilder.Append(source.Stage);
-                stringBuilder.Append('-');
+                stringBuilder.Append(selectedSource.PackagePrefix).Append('-');
             }
 
             stringBuilder.Append('u');
             stringBuilder.Append(this.dateTime.UtcTime.ToString(PrereleasePackageDateTimeFormat));
-
-            if (!string.IsNullOrEmpty(source.PackagePostfix))
+            if (!string.IsNullOrEmpty(selectedSource.Stage))
             {
-                stringBuilder.Append('-');
-                stringBuilder.Append(source.PackagePostfix);
+                stringBuilder.Append('-').Append(selectedSource.Stage);
+            }
+
+            if (!string.IsNullOrEmpty(selectedSource.PackagePostfix))
+            {
+                stringBuilder.Append('-').Append(selectedSource.PackagePostfix);
             }
 
             return stringBuilder.ToString();

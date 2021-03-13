@@ -8,6 +8,7 @@
 namespace Sundew.Packaging.Publish.Internal
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using global::NuGet.Configuration;
 
@@ -17,6 +18,7 @@ namespace Sundew.Packaging.Publish.Internal
         internal const string DefaultLocalPackageStage = "pre";
         internal const string DefaultDevelopmentPackageStage = "dev";
         internal const string DefaultIntegrationPackageStage = "ci";
+        internal const string DefaultProductionPackageStage = "prod";
         private const string DefaultSourceNameText = "default";
         private const string DefaultStableSourceNameText = "default-stable";
         private const string LocalStableSourceNameText = "local-stable";
@@ -24,12 +26,13 @@ namespace Sundew.Packaging.Publish.Internal
         private const string PrefixGroupName = "Prefix";
         private const string PostfixGroupName = "Postfix";
 
-        public static Source SelectSource(
+        public static SelectedSource SelectSource(
             string? sourceName,
             string? productionSource,
             string? integrationSource,
             string? developmentSource,
             string localSource,
+            string? fallbackPrereleaseFormat,
             ISettings defaultSettings,
             bool allowLocalSource)
         {
@@ -47,34 +50,46 @@ namespace Sundew.Packaging.Publish.Internal
 
                     if (sourceName.Equals(DefaultStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        return new Source(default, defaultSource, default, default, default, string.Empty, true, defaultSource);
+                        return new SelectedSource(new Source(default, defaultSource, default, default, default, DefaultProductionPackageStage, true, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>()));
                     }
 
-                    return new Source(default, defaultSource, default, default, default, DefaultLocalPackageStage, false, defaultSource, true);
+                    return new SelectedSource(new Source(default, defaultSource, default, default, default, DefaultLocalPackageStage, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), true));
                 }
 
                 if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return new Source(default, localSource, default, default, default, string.Empty, true, localSource);
+                    return new SelectedSource(new Source(default, localSource, default, default, default, DefaultProductionPackageStage, true, localSource, fallbackPrereleaseFormat, Array.Empty<string>()));
                 }
 
-                var sources = new[]
-                {
-                    Source.Parse(productionSource, string.Empty, true),
-                    Source.Parse(integrationSource, DefaultIntegrationPackageStage, false),
-                    Source.Parse(developmentSource, DefaultDevelopmentPackageStage, false),
-                };
+                var production = Source.Parse(productionSource, DefaultProductionPackageStage, true, null, null);
+                var integrationFeedSources = new List<string>();
+                TryAddFeedSource(integrationFeedSources, production);
 
-                var (source, match) = sources.Select(x => (source: x, match: x.StageRegex?.Match(sourceName))).FirstOrDefault(x => x.match?.Success ?? false);
-                if (!source.Equals(default))
+                var integration = Source.Parse(integrationSource, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, integrationFeedSources);
+                var developmentFeedSources = integrationFeedSources.ToList();
+                TryAddFeedSource(developmentFeedSources, integration);
+
+                var development = Source.Parse(developmentSource, DefaultDevelopmentPackageStage, false, fallbackPrereleaseFormat, developmentFeedSources);
+                var sources = new[] { production, integration, development };
+
+                var (source, match) = sources.Select(x => (source: x, match: x?.StageRegex?.Match(sourceName))).FirstOrDefault(x => x.match?.Success ?? false);
+                if (source != null)
                 {
                     var prefix = match?.Groups[PrefixGroupName].Value ?? string.Empty;
                     var postfix = match?.Groups[PostfixGroupName].Value ?? string.Empty;
-                    return new Source(source, prefix, postfix);
+                    return new SelectedSource(source, prefix, postfix);
                 }
             }
 
-            return new Source(null, localSource, default, default, default, DefaultLocalPackageStage, false, localSource, true, allowLocalSource);
+            return new SelectedSource(new Source(null, localSource, default, default, default, DefaultLocalPackageStage, false, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), true, allowLocalSource));
+        }
+
+        private static void TryAddFeedSource(List<string> feedSources, Source? source)
+        {
+            if (source != null && !string.IsNullOrEmpty(source.FeedSource))
+            {
+                feedSources.Add(source.FeedSource);
+            }
         }
     }
 }

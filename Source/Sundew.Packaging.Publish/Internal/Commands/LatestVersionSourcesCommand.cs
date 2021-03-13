@@ -23,12 +23,17 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             this.fileSystem = fileSystem;
         }
 
-        public IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, Source source, NuGetSettings nuGetSettings, bool addDefaultPushSource)
+        public IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, SelectedSource selectedSource, NuGetSettings nuGetSettings, bool addDefaultPushSource)
         {
             var latestVersionSources = new List<string>();
-            if (!string.IsNullOrEmpty(source.LatestVersionUri) && this.IsRemoteSourceOrDoesLocalSourceExists(source.LatestVersionUri))
+            this.TryAddFeedSource(latestVersionSources, selectedSource.FeedSource);
+
+            if (selectedSource.AdditionalFeedSources != null)
             {
-                latestVersionSources.Add(source.LatestVersionUri);
+                foreach (var additionalFeedSource in selectedSource.AdditionalFeedSources)
+                {
+                    this.TryAddFeedSource(latestVersionSources, additionalFeedSource);
+                }
             }
 
             var defaultPushSource = new PackageSourceProvider(nuGetSettings.DefaultSettings).DefaultPushSource;
@@ -56,6 +61,14 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 .Where(x => !string.IsNullOrEmpty(x));
             latestVersionSources.AddRange(sources);
             return latestVersionSources.Distinct().ToList();
+        }
+
+        private void TryAddFeedSource(List<string> latestVersionSources, string sourceUri)
+        {
+            if (!string.IsNullOrEmpty(sourceUri) && this.IsRemoteSourceOrDoesLocalSourceExists(sourceUri))
+            {
+                latestVersionSources.Add(sourceUri);
+            }
         }
 
         private bool IsRemoteSourceOrDoesLocalSourceExists(string sourceUri)

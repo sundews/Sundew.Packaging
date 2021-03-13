@@ -7,10 +7,10 @@
 
 namespace Sundew.Packaging.Publish.Internal
 {
-    using System;
+    using System.Collections.Generic;
     using System.Text.RegularExpressions;
 
-    internal readonly struct Source : IEquatable<Source>
+    internal record Source
     {
         internal const string ConfigText = "config";
         private const string StageRegexText = "StageRegex";
@@ -19,10 +19,23 @@ namespace Sundew.Packaging.Publish.Internal
         private const string ApiKeyText = "ApiKey";
         private const string SymbolsApiKeyText = "SymbolsApiKey";
         private const string SymbolsUriText = "SymbolsUri";
-        private const string LatestVersionUriText = "LatestVersionUri";
-        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<LatestVersionUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?");
+        private const string FeedUriText = "FeedUri";
+        private const string PrereleasFormatText = "PrereleaseFormat";
+        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?");
 
-        public Source(Regex? stageRegex, string uri, string? apiKey, string? symbolsUri, string? symbolsApiKey, string stage, bool isStableRelease, string latestVersionUri, bool isFallback = false, bool isEnabled = true)
+        public Source(
+            Regex? stageRegex,
+            string uri,
+            string? apiKey,
+            string? symbolsUri,
+            string? symbolsApiKey,
+            string stage,
+            bool isStableRelease,
+            string feedSource,
+            string? prereleaseFormat,
+            IReadOnlyList<string>? additionalFeedSources,
+            bool isFallback = false,
+            bool isEnabled = true)
         {
             this.StageRegex = stageRegex;
             this.Uri = uri;
@@ -31,25 +44,22 @@ namespace Sundew.Packaging.Publish.Internal
             this.SymbolsApiKey = symbolsApiKey;
             this.Stage = stage;
             this.IsStableRelease = isStableRelease;
-            this.LatestVersionUri = latestVersionUri;
+            this.FeedSource = feedSource;
+            this.PrereleaseFormat = prereleaseFormat;
+            this.AdditionalFeedSources = additionalFeedSources;
             this.IsFallback = isFallback;
             this.IsEnabled = isEnabled;
-            this.PackagePrefix = string.Empty;
-            this.PackagePostfix = string.Empty;
-        }
-
-        public Source(Source source, string packagePrefix, string packagePostfix)
-            : this(source.StageRegex, source.Uri, source.ApiKey, source.SymbolsUri, source.SymbolsApiKey, source.Stage, source.IsStableRelease, source.LatestVersionUri, source.IsFallback, source.IsEnabled)
-        {
-            this.PackagePrefix = packagePrefix;
-            this.PackagePostfix = packagePostfix;
         }
 
         public Regex? StageRegex { get; }
 
         public string Uri { get; }
 
-        public string LatestVersionUri { get; }
+        public string FeedSource { get; }
+
+        public string? PrereleaseFormat { get; }
+
+        public IReadOnlyList<string>? AdditionalFeedSources { get; }
 
         public string? ApiKey { get; }
 
@@ -57,11 +67,7 @@ namespace Sundew.Packaging.Publish.Internal
 
         public string? SymbolsApiKey { get; }
 
-        public string? PackagePrefix { get; }
-
         public string Stage { get; }
-
-        public string? PackagePostfix { get; }
 
         public bool IsStableRelease { get; }
 
@@ -69,14 +75,14 @@ namespace Sundew.Packaging.Publish.Internal
 
         public bool IsEnabled { get; }
 
-        public static Source Parse(string? pushSource, string defaultStage, bool isStableRelease)
+        public static Source? Parse(string? sourceText, string defaultStage, bool isStableRelease, string? fallbackPrereleaseFormat, IReadOnlyList<string>? feedSources)
         {
-            if (pushSource == null || string.IsNullOrEmpty(pushSource))
+            if (sourceText == null || string.IsNullOrEmpty(sourceText))
             {
                 return default;
             }
 
-            var match = SourceRegex.Match(pushSource);
+            var match = SourceRegex.Match(sourceText);
             if (match.Success)
             {
                 var name = new Regex(match.Groups[StageRegexText].Value);
@@ -109,32 +115,24 @@ namespace Sundew.Packaging.Publish.Internal
                     stage = stageNameGroup.Value;
                 }
 
-                var latestVersionUri = uri;
-                var latestVersionUriGroup = match.Groups[LatestVersionUriText];
-                if (latestVersionUriGroup.Success)
+                var feedUri = uri;
+                var feedUriGroup = match.Groups[FeedUriText];
+                if (feedUriGroup.Success)
                 {
-                    latestVersionUri = latestVersionUriGroup.Value;
+                    feedUri = feedUriGroup.Value;
                 }
 
-                return new Source(name, uri, apiKey, symbolsUri, symbolsApiKey, stage, isStableRelease, latestVersionUri);
+                var prereleaseFormat = fallbackPrereleaseFormat;
+                var prereleaseFormatGroup = match.Groups[PrereleasFormatText];
+                if (prereleaseFormatGroup.Success)
+                {
+                    prereleaseFormat = prereleaseFormatGroup.Value;
+                }
+
+                return new Source(name, uri, apiKey, symbolsUri, symbolsApiKey, stage, isStableRelease, feedUri, prereleaseFormat, feedSources);
             }
 
-            return new Source(default, pushSource, default, default, default, defaultStage, isStableRelease, pushSource);
-        }
-
-        public bool Equals(Source other)
-        {
-            return Equals(this.StageRegex, other.StageRegex)
-                   && this.Uri == other.Uri
-                   && this.ApiKey == other.ApiKey
-                   && this.SymbolsUri == other.SymbolsUri
-                   && this.SymbolsApiKey == other.SymbolsApiKey
-                   && this.PackagePrefix == other.PackagePrefix
-                   && this.Stage == other.Stage
-                   && this.PackagePostfix == other.PackagePostfix
-                   && this.IsStableRelease == other.IsStableRelease
-                   && this.IsFallback == other.IsFallback
-                   && this.IsEnabled == other.IsEnabled;
+            return default;
         }
     }
 }

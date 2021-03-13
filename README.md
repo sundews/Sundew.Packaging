@@ -48,7 +48,7 @@ For this to work, the default push source must be configured in NuGet.config: ht
 For example it would be possible to create additional build configurations within the csproj (Release-Stable, Prerelease), which would set the **SppSourceName** property accordingly.
 
 ### **3.6 Versioning**
-Local source packages are per default versioned as prerelease package and will have a postfix appended to the configured version number: **pre-u&lt;UTC-TIMESTAMP&gt;**
+Local source packages are per default versioned as prerelease package and will have a postfix appended to the configured version number: **u&lt;UTC-TIMESTAMP&gt;-pre**
 
 ### **3.7 Debugging support**
 Local builds by default output .pdb files to the default symbol cache directory **%LocalAppData%\Temp\SymbolCache)**.
@@ -70,18 +70,27 @@ The sources can be defined by setting the following MSBuild properties:
 - **SppDevelopmentSource**
 
 All three follow the format:
-**SourceMatcherRegex\[ => StagingName\] | \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
+**SourceMatcherRegex\[ #StagingName\]\[ $PrereleaseVersionFormat\]=> \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
 
-The optional staging name in the can be used to override the default staging names.
+**StagingName** can be used to override the default staging names.  
+**PrereleaseVersionFormat** can be used to change how the prerelease part of the version is created:
+  - **{0}** - Staging name
+  - **{1}** - DateTime.UtcNow formatted as yyyyMMdd-HHmmss
+  - **{2}** - DateTime.UtcNow
+  - **{3}** - Prefix (The value of the optional Prefix group in the SourceMatcherRegex)
+  - **{4}** - Postfix (The value of the optional Postfix group in the SourceMatcherRegex)
+  - **{5}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
+
+Leading and trailing dashes "-" will be trimmed.
 
 #### **4.1.1 Source selection**
 The source selecting is made in combination of the SourceMatcherRegex and the **SppSourceName** MSBuild property.  
 The regexes will be evaluated in the order as listed above.
 
 The SourceMatcherRegex can be used to match the current branch (must be passed into MSBuild via build server) to decide which source to publish to and map to a staging name for the version prefix. The regex also supports two groups (Prefix and Postfix), which if found will be included in the prerelease version according to the following format:
-**[&lt;Prefix&gt;-]&lt;StagingName&gt;-u&lt;UTC-TIMESTAMP&gt;[-&lt;Postfix&gt;]**.
+**[&lt;Prefix&gt;-]u&lt;UTC-TIMESTAMP&gt;-&lt;StagingName&gt;[-&lt;Postfix&gt;]**.
 
-Note that using the prefix breaks how NuGet clients may automatically find the latest version based on Staging name and timestamp.
+Note that using the prefix may break how NuGet clients may automatically find the latest version based on Staging name and timestamp.
 
 #### **4.1.3 Sample set up:**
 **SppSourceName** = vcs branch (e.g. master, develop, feature/&lt;FEATURE-NAME&gt;, release/&lt;VERSION-NUMBER&gt;)  
@@ -96,7 +105,8 @@ The staging names are prepended to the prerelease version to allow differentiati
 
 **Local** => pre  
 **Development** => dev  
-**Integration** => ci (continous integration, "int" would break finding the latest version)  
+**Integration** => ci 
+**Production** => prod (Not included in actual version)
 
 The staging name can be used to change how NuGet clients sort prereleases.  
 **Example:**  All prerelease use **pre**.  
@@ -108,24 +118,24 @@ The staging name can be used to change how NuGet clients sort prereleases.
 | **Build** | Branch type     | Release     | Versioning                                       | Release mode              |
 | --------- | --------------- | ----------- | ------------------------------------------------ | ------------------------- |
 | CI        | main            | stable      | &lt;Major.Minor.*&gt;                            | Push to Production NuGet  |
-|           | release         | integration | &lt;Major.Minor.*&gt;-ci-u&lt;UTC-TIMESTAMP&gt;  | Push to Integration NuGet |
-|           | feature/develop | developer   | &lt;Major.Minor.*&gt;-dev-u&lt;UTC-TIMESTAMP&gt; | Push to Development NuGet |
-|           | PR              | -           | &lt;Major.Minor.*&gt;-dev-u&lt;UTC-TIMESTAMP&gt; | -                         |
-| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;-pre-u&lt;UTC-TIMESTAMP&gt; | Push to local NuGet       |
+|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-ci   | Push to Integration NuGet |
+|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev  | Push to Development NuGet |
+|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev  | -                         |
+| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-pre  | Push to local NuGet       |
 
 **Trunk based development**
 | **Build** | Branch type | Release     | Versioning                                        | Release mode              |
 | --------- | ----------- | ----------- | ------------------------------------------------- | ------------------------- |
 | CI        | release     | stable      | &lt;Major.Minor.*&gt;                             | Push to Production NuGet  |
-|           | main        | integration | &lt;Major.Minor.*&gt;-ci-u&lt;UTC-TIMESTAMP&gt;   | Push to Integration NuGet |
-|           | feature     | developer   | &lt;Major.Minor.*&gt;-dev-u&lt;UTC-TIMESTAMP&gt;  | Push to Development NuGet |
-|           | PR          | -           | &lt;Major.Minor.*&gt;-dev-u&lt;UTC-TIMESTAMP&gt;  | -                         |
-| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;-pre-u&lt;UTC-TIMESTAMP&gt;  | Push to local NuGet       |
+|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-ci    | Push to Integration NuGet |
+|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev   | Push to Development NuGet |
+|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev   | -                         |
+| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-pre   | Push to local NuGet       |
 
 Packages for the three sources above are versioned differently:  
 **SppProductionSource** = Stable - The version number defined in the **Version** MSBuild property *.  
-**SppIntegrationSource** = Prerelease - Adds the stage name **ci-u&lt;UTC-TIMESTAMP&gt;** to the configured version number *.  
-**SppDevelopmentSource** = Prerelease - Adds the stage name **dev-u&lt;UTC-TIMESTAMP&gt;** to the configured version number *.
+**SppIntegrationSource** = Prerelease - Adds the stage name **u&lt;UTC-TIMESTAMP&gt;-ci** to the configured version number *.  
+**SppDevelopmentSource** = Prerelease - Adds the stage name **u&lt;UTC-TIMESTAMP&gt;-dev** to the configured version number *.
 
 *) The patch component  depends on the **SppVersioningMode** MSBuild property
 
@@ -167,6 +177,7 @@ Packages for the three sources above are versioned differently:
 
 - **SppLatestVersionSources** = (default: **null**) A pipe (|) separated list of sources to query to find the latest version.
 - **SppAddDefaultPushSourceToLatestVersionSources** = (default: **true**) Adds the default push source to SppLatestVersionSources.
+- **SppPrereleaseFormat** = (default: **null**) Sets the fallback prerelease format for prerelease source if not specified in the Source Matcher.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:  
@@ -184,7 +195,7 @@ The combination of build output and disabling publication allows to override the
 - Use the standard NuGet client
 
 Performing package updates in large repositories can take a long time with the default NuGet client. As an alternative check out Sundew.Packaging.Tool:
-- Sundew.Packaging.Tool (SDK-Style projects only) - https://github.com/hugener/Sundew.Packaging.Tool
+- Sundew.Packaging.Tool (PackageReference only) - https://github.com/hugener/Sundew.Packaging.Tool
 
 dotnet tool install -g Sundew.Packaging.Tool
 

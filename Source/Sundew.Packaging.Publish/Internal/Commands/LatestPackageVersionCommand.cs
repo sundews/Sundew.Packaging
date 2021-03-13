@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using global::NuGet.Common;
@@ -17,11 +18,16 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using global::NuGet.Protocol.Core.Types;
     using global::NuGet.Versioning;
     using Sundew.Base.Collections;
+    using Sundew.Base.Text;
 
     internal class LatestPackageVersionCommand : ILatestPackageVersionCommand
     {
+        private const string Separator = ", ";
+        private const string DeterminingLatestVersionFromSources = "Determining latest version from sources: ";
+
         public async Task<NuGetVersion?> GetLatestMajorMinorVersion(string packageId, IReadOnlyList<string> sources, NuGetVersion nuGetVersion, bool includePatchInMatch, bool allowPrerelease, ILogger logger)
         {
+            logger.LogInformation(sources.AggregateToStringBuilder(new StringBuilder(DeterminingLatestVersionFromSources), (builder, s) => builder.Append(s).Append(Separator), builder => builder.ToStringFromEnd(Separator.Length)));
             return (await sources.SelectAsync(async sourceUri =>
                 {
                     PackageSource packageSource = new(sourceUri);
