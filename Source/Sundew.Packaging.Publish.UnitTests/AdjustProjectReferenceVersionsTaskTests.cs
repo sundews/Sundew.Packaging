@@ -14,9 +14,9 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Microsoft.Build.Utilities;
     using Moq;
     using Sundew.Packaging.Publish;
-    using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
     using Xunit;
+    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
 
     public class AdjustProjectReferenceVersionsTaskTests
     {
@@ -25,13 +25,13 @@ namespace Sundew.Packaging.Publish.UnitTests
         private const string AProjectVersion = "3.0.0";
         private readonly AdjustProjectReferenceVersionsTask testee;
         private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
-        private readonly ICommandLogger commandLogger = New.Mock<ICommandLogger>();
-        private readonly TaskItem dllTaskItem = new TaskItem(DllPath, new Dictionary<string, string> { { AdjustProjectReferenceVersionsTask.MSBuildSourceProjectFileName, ProjectReference } });
-        private readonly TaskItem projectReferenceItem = new TaskItem(ProjectReference, new Dictionary<string, string> { { AdjustProjectReferenceVersionsTask.ProjectVersionName, AProjectVersion } });
+        private readonly ILogger logger = New.Mock<ILogger>();
+        private readonly TaskItem dllTaskItem = new(DllPath, new Dictionary<string, string> { { AdjustProjectReferenceVersionsTask.MSBuildSourceProjectFileName, ProjectReference } });
+        private readonly TaskItem projectReferenceItem = new(ProjectReference, new Dictionary<string, string> { { AdjustProjectReferenceVersionsTask.ProjectVersionName, AProjectVersion } });
 
         public AdjustProjectReferenceVersionsTaskTests()
         {
-            this.testee = new AdjustProjectReferenceVersionsTask(this.fileSystem, this.commandLogger);
+            this.testee = new AdjustProjectReferenceVersionsTask(this.fileSystem, this.logger);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.testee.Execute();
 
             this.testee.AdjustedProjectReferences.FirstOrDefault()!.GetMetadata(AdjustProjectReferenceVersionsTask.ProjectVersionName).Should().Be(expectedVersion);
-            this.commandLogger.Verify(x => x.LogInfo(It.IsAny<string>()), Times.Once);
+            this.logger.Verify(x => x.LogInfo(It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -59,7 +59,8 @@ namespace Sundew.Packaging.Publish.UnitTests
 
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogInfo(It.IsAny<string>()), Times.Never);
+            this.logger.Verify(x => x.LogInfo(It.Is<string>(x => x.StartsWith("Replaced version: "))), Times.Never);
+            this.logger.Verify(x => x.LogInfo(It.Is<string>(x => x.StartsWith("SPP Version file not found or empty: "))), Times.Once);
         }
     }
 }

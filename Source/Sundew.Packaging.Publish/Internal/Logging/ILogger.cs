@@ -1,14 +1,14 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ICommandLogger.cs" company="Hukano">
+// <copyright file="ILogger.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal.Commands
+namespace Sundew.Packaging.Publish.Internal.Logging
 {
     /// <summary>Inteface for implementing a command logger.</summary>
-    public interface ICommandLogger
+    public interface ILogger
     {
         /// <summary>Logs the important.</summary>
         /// <param name="message">The message.</param>

@@ -1,4 +1,4 @@
-﻿<Project TreatAsLocalProperty="NodeReuse" Sdk="Microsoft.NET.Sdk">
+﻿<Project TreatAsLocalProperty="NodeReuse" Sdk="Microsoft.NET.Sdk" >
 
 	<PropertyGroup>
 		<MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
@@ -80,7 +80,7 @@
 		<ItemGroup>
 			<OutputFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\System*.dll" />
 			<RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\net5.0\runtimes\**\*.*" />
-			<TargetsFiles Include="build\Sundew.Packaging.Publish.targets" />
+			<TargetsFiles Include="build\*.*" />
 		</ItemGroup>
 
 		<Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'.package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
@@ -89,13 +89,18 @@
 		<Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
 	</Target>
 
-	<Target Name="_CopySelf" BeforeTargets="_GetOutputItemsFromPack" AfterTargets="Build">
-		<ItemGroup>
-			<OutputSelfFiles Include="$(OutputPath)\$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
-		</ItemGroup>
+  <ItemGroup>
+    <OutputSelfFiles Include="$(OutputPath)$(AssemblyName).m.dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
+  </ItemGroup>
 
-		<Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+  <ItemGroup>
+    <None Include="build\SppGetBuildDateTime.proj" />
+  </ItemGroup>
+	
+  <Target Name="_CopySelf" BeforeTargets="SppInitialize">
+    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
 	</Target>
 
-	<Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" />
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" />
+
 </Project>

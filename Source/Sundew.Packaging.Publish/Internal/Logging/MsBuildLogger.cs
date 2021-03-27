@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MsBuildCommandLogger.cs" company="Hukano">
+// <copyright file="MsBuildLogger.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -11,11 +11,11 @@ namespace Sundew.Packaging.Publish.Internal.Logging
     using Microsoft.Build.Utilities;
     using Sundew.Packaging.Publish.Internal.Commands;
 
-    internal class MsBuildCommandLogger : ICommandLogger
+    internal class MsBuildLogger : ILogger
     {
         private readonly TaskLoggingHelper taskLoggingHelper;
 
-        public MsBuildCommandLogger(TaskLoggingHelper taskLoggingHelper)
+        public MsBuildLogger(TaskLoggingHelper taskLoggingHelper)
         {
             this.taskLoggingHelper = taskLoggingHelper;
         }

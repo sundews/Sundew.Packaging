@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 {
     using System.IO;
     using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Publish.Internal.Logging;
 
     /// <summary>Adds a NuGet package to an offline feed.</summary>
     /// <seealso cref="ICopyPackageToLocalSourceCommand" />
@@ -27,14 +28,18 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             this.fileSystem = fileSystem;
         }
 
-        /// <summary>Adds the asynchronous.</summary>
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
         /// <param name="packageId">The package id.</param>
         /// <param name="packagePath">The package path.</param>
         /// <param name="source">The source.</param>
         /// <param name="skipDuplicate">Skips duplicate packages.</param>
-        /// <param name="commandLogger">The command logger.</param>
-        /// <returns>The destination path.</returns>
-        public string Add(string packageId, string packagePath, string source, bool skipDuplicate, ICommandLogger commandLogger)
+        /// <param name="logger">The logger.</param>
+        /// <returns>
+        /// The destination path.
+        /// </returns>
+        public string Add(string packageId, string packagePath, string source, bool skipDuplicate, ILogger logger)
         {
             source = Path.Combine(source, packageId);
             if (!this.fileSystem.DirectoryExists(source))
@@ -44,7 +49,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 
             var destinationPath = Path.Combine(source, Path.GetFileName(packagePath));
             this.fileSystem.Copy(packagePath, destinationPath, !skipDuplicate);
-            commandLogger.LogImportant($"Successfully copied package to: {destinationPath}");
+            logger.LogImportant($"Successfully copied package to: {destinationPath}");
             return destinationPath;
         }
     }

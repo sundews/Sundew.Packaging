@@ -11,34 +11,35 @@ namespace Sundew.Packaging.Publish.Internal.Logging
     using global::NuGet.Common;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
+    using Sundew.Packaging.Publish.Internal.Commands;
 
     internal class NuGetToMsBuildLoggerAdapter : global::NuGet.Common.ILogger
     {
-        private readonly TaskLoggingHelper log;
+        private readonly ILogger log;
 
-        public NuGetToMsBuildLoggerAdapter(TaskLoggingHelper log)
+        public NuGetToMsBuildLoggerAdapter(ILogger log)
         {
             this.log = log;
         }
 
         public void LogDebug(string data)
         {
-            this.log.LogMessage(MessageImportance.Low, $"SPP:NuGet Debug: {data}");
+            this.log.LogMessage($"SPP:NuGet Debug: {data}");
         }
 
         public void LogVerbose(string data)
         {
-            this.log.LogMessage(MessageImportance.Low, $"SPP:NuGet Verbose: {data}");
+            this.log.LogMessage($"SPP:NuGet Verbose: {data}");
         }
 
         public void LogInformation(string data)
         {
-            this.log.LogMessage(MessageImportance.Normal, $"SPP:NuGet Information: {data}");
+            this.log.LogInfo($"SPP:NuGet Information: {data}");
         }
 
         public void LogMinimal(string data)
         {
-            this.log.LogMessage(MessageImportance.High, $"SPP:NuGet Minimal: {data}");
+            this.log.LogImportant($"SPP:NuGet Minimal: {data}");
         }
 
         public void LogWarning(string data)
@@ -53,7 +54,7 @@ namespace Sundew.Packaging.Publish.Internal.Logging
 
         public void LogInformationSummary(string data)
         {
-            this.log.LogMessage(MessageImportance.Normal, $"SPP:NuGet Summary: {data}");
+            this.log.LogInfo($"SPP:NuGet Summary: {data}");
         }
 
         public void Log(LogLevel level, string data)

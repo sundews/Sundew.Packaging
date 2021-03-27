@@ -17,6 +17,11 @@ namespace Sundew.Packaging.Publish.Internal.IO
             return File.Exists(path);
         }
 
+        public void DeleteFile(string path)
+        {
+            File.Delete(path);
+        }
+
         public void WriteAllText(string path, string contents)
         {
             File.WriteAllText(path, contents);

@@ -7,6 +7,8 @@
 
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
+    using Sundew.Packaging.Publish.Internal.Logging;
+
     internal interface IAppendPublishFileLogCommand
     {
         /// <summary>
@@ -15,31 +17,19 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="workingDirectory">The output directory.</param>
         /// <param name="packagePushFileAppendFormats">The package push file append formats.</param>
         /// <param name="packageId">The package identifier.</param>
-        /// <param name="version">The version.</param>
         /// <param name="packagePath">The package path.</param>
-        /// <param name="stage">The stage.</param>
-        /// <param name="source">The source.</param>
-        /// <param name="apiKey">The API key.</param>
-        /// <param name="feedSource">The feed source.</param>
         /// <param name="symbolPackagePath">The symbol package path.</param>
-        /// <param name="symbolsSource">The symbols source.</param>
-        /// <param name="symbolApiKey">The symbol API key.</param>
+        /// <param name="publishInfo">The publish information.</param>
         /// <param name="parameter">The parameter.</param>
-        /// <param name="commandLogger">The command logger.</param>
+        /// <param name="logger">The logger.</param>
         void Append(
             string workingDirectory,
             string packagePushFileAppendFormats,
             string packageId,
-            string version,
             string packagePath,
-            string stage,
-            string source,
-            string? apiKey,
-            string feedSource,
             string? symbolPackagePath,
-            string? symbolsSource,
-            string? symbolApiKey,
+            PublishInfo publishInfo,
             string parameter,
-            ICommandLogger commandLogger);
+            ILogger logger);
     }
 }

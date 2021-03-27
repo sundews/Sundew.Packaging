@@ -8,6 +8,7 @@
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.IO;
     using System.Linq;
@@ -15,6 +16,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.Text;
     using global::NuGet.Configuration;
     using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Publish.Internal.Logging;
 
     /// <summary>
     /// Copies the specified pdb file to the symbol cache.
@@ -41,12 +43,14 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             this.fileSystem = fileSystem;
         }
 
-        /// <summary>Adds the specified PDB file path.</summary>
-        /// <param name="pdbFilePath">The PDB file path.</param>
+        /// <summary>
+        /// Adds the specified PDB file path.
+        /// </summary>
+        /// <param name="pdbFilePaths">The PDB file paths.</param>
         /// <param name="symbolCacheDirectoryPath">The symbol cache directory path.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="commandLogger">The command logger.</param>
-        public void AddAndCleanCache(string pdbFilePath, string? symbolCacheDirectoryPath, ISettings settings, ICommandLogger commandLogger)
+        /// <param name="logger">The logger.</param>
+        public void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings, ILogger logger)
         {
             if (symbolCacheDirectoryPath == null || string.IsNullOrEmpty(symbolCacheDirectoryPath))
             {
@@ -55,31 +59,37 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                         x.Key.Equals(ConfiguredSymbolCacheDirText, StringComparison.InvariantCultureIgnoreCase))?.Value ?? DefaultSymbolCachePath;
             }
 
-            var packageSymbolCacheDirectory = Path.Combine(symbolCacheDirectoryPath, Path.GetFileName(pdbFilePath));
-            if (this.fileSystem.DirectoryExists(packageSymbolCacheDirectory))
+            foreach (var pdbFilePath in pdbFilePaths)
             {
-                foreach (var spbFilePath in this.fileSystem.EnumerableFiles(packageSymbolCacheDirectory, SppFileExtensionPatternText, SearchOption.AllDirectories))
+                var packageSymbolCacheDirectory = Path.Combine(symbolCacheDirectoryPath, Path.GetFileName(pdbFilePath));
+                if (this.fileSystem.DirectoryExists(packageSymbolCacheDirectory))
                 {
-                    var sppDirectoryPath = Path.GetDirectoryName(spbFilePath);
-                    this.fileSystem.DeleteDirectory(sppDirectoryPath, true);
-                    commandLogger.LogMessage($"Deleted pdb directory: {sppDirectoryPath}.");
+                    foreach (var sppFilePath in this.fileSystem.EnumerableFiles(packageSymbolCacheDirectory, SppFileExtensionPatternText, SearchOption.AllDirectories))
+                    {
+                        var sppDirectoryPath = Path.GetDirectoryName(sppFilePath);
+                        this.fileSystem.DeleteDirectory(sppDirectoryPath, true);
+                        logger.LogMessage($"Deleted pdb directory: {sppDirectoryPath}.");
+                    }
                 }
             }
 
-            try
+            foreach (var pdbFilePath in pdbFilePaths)
             {
-                var debugId = GetDebugIdDirectoryName(this.GetDebugId(pdbFilePath));
-                var pdbFileName = Path.GetFileName(pdbFilePath);
-                var outputPath = Path.Combine(symbolCacheDirectoryPath, pdbFileName, debugId, pdbFileName);
-                var pdbDirectoryPath = Path.GetDirectoryName(outputPath);
-                this.fileSystem.CreateDirectory(pdbDirectoryPath);
-                this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SppFileExtensionText), string.Empty);
-                this.fileSystem.Copy(pdbFilePath, outputPath, true);
-                commandLogger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
-            }
-            catch (BadImageFormatException)
-            {
-                commandLogger.LogWarning("Pdb could not be copied to symbol cache. Only portable pdbs are supported.");
+                try
+                {
+                    var debugId = GetDebugIdDirectoryName(this.GetDebugId(pdbFilePath));
+                    var pdbFileName = Path.GetFileName(pdbFilePath);
+                    var outputPath = Path.Combine(symbolCacheDirectoryPath, pdbFileName, debugId, pdbFileName);
+                    var pdbDirectoryPath = Path.GetDirectoryName(outputPath);
+                    this.fileSystem.CreateDirectory(pdbDirectoryPath);
+                    this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SppFileExtensionText), string.Empty);
+                    this.fileSystem.Copy(pdbFilePath, outputPath, true);
+                    logger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
+                }
+                catch (BadImageFormatException)
+                {
+                    logger.LogWarning("Pdb could not be copied to symbol cache. Only portable pdbs are supported.");
+                }
             }
         }
 

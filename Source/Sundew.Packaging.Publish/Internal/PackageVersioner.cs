@@ -12,19 +12,16 @@ namespace Sundew.Packaging.Publish.Internal
     using System.Text;
     using global::NuGet.Common;
     using global::NuGet.Versioning;
-    using Sundew.Base.Time;
     using Sundew.Packaging.Publish.Internal.Commands;
 
     internal class PackageVersioner : IPackageVersioner
     {
         internal const string PrereleasePackageDateTimeFormat = "yyyyMMdd-HHmmss";
-        private readonly IDateTime dateTime;
         private readonly IPackageExistsCommand packageExistsCommand;
         private readonly ILatestPackageVersionCommand latestPackageVersionCommand;
 
-        public PackageVersioner(IDateTime dateTime, IPackageExistsCommand packageExistsCommand, ILatestPackageVersionCommand latestPackageVersionCommand)
+        public PackageVersioner(IPackageExistsCommand packageExistsCommand, ILatestPackageVersionCommand latestPackageVersionCommand)
         {
-            this.dateTime = dateTime;
             this.packageExistsCommand = packageExistsCommand;
             this.latestPackageVersionCommand = latestPackageVersionCommand;
         }
@@ -35,21 +32,29 @@ namespace Sundew.Packaging.Publish.Internal
             VersioningMode versioningMode,
             SelectedSource selectedSource,
             IReadOnlyList<string> latestVersionSources,
+            DateTime buildDateTime,
             string parameter,
             ILogger logger)
         {
             return versioningMode switch
             {
-                VersioningMode.AutomaticLatestPatch => this.GetAutomaticLatestPatchVersion(packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
-                VersioningMode.AutomaticLatestRevision => this.GetAutomaticLatestRevisionVersion(packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
-                VersioningMode.IncrementPatchIfStableExistForPrerelease => this.GetIncrementPatchIfStableExistForPrereleaseVersion(packageId, nuGetVersion, selectedSource, parameter, logger),
-                VersioningMode.AlwaysIncrementPatch => this.GetIncrementPatchVersion(nuGetVersion, selectedSource, parameter),
-                VersioningMode.NoChange => this.GetNoChangeVersion(nuGetVersion, selectedSource, parameter),
+                VersioningMode.AutomaticLatestPatch => this.GetAutomaticLatestPatchVersion(buildDateTime, packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
+                VersioningMode.AutomaticLatestRevision => this.GetAutomaticLatestRevisionVersion(buildDateTime, packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
+                VersioningMode.IncrementPatchIfStableExistForPrerelease => this.GetIncrementPatchIfStableExistForPrereleaseVersion(buildDateTime, packageId, nuGetVersion, selectedSource, parameter, logger),
+                VersioningMode.AlwaysIncrementPatch => this.GetIncrementPatchVersion(buildDateTime, nuGetVersion, selectedSource, parameter),
+                VersioningMode.NoChange => this.GetNoChangeVersion(buildDateTime, nuGetVersion, selectedSource, parameter),
                 _ => throw new ArgumentOutOfRangeException(nameof(versioningMode), versioningMode, $"Unsupported versioning mode: {versioningMode}"),
             };
         }
 
-        private SemanticVersion GetAutomaticLatestPatchVersion(string packageId, NuGetVersion semanticVersion, SelectedSource selectedSource, IReadOnlyList<string> latestVersionSources, string parameter, ILogger logger)
+        private SemanticVersion GetAutomaticLatestPatchVersion(
+            DateTime buildDateTime,
+            string packageId,
+            NuGetVersion semanticVersion,
+            SelectedSource selectedSource,
+            IReadOnlyList<string> latestVersionSources,
+            string parameter,
+            ILogger logger)
         {
             var latestVersionTask = this.latestPackageVersionCommand.GetLatestMajorMinorVersion(packageId, latestVersionSources, semanticVersion, false, false, logger);
             latestVersionTask.Wait();
@@ -66,10 +71,17 @@ namespace Sundew.Packaging.Publish.Internal
                 return new SemanticVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement);
             }
 
-            return new SemanticVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(selectedSource, parameter));
+            return new SemanticVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, parameter));
         }
 
-        private SemanticVersion GetAutomaticLatestRevisionVersion(string packageId, NuGetVersion semanticVersion, SelectedSource selectedSource, IReadOnlyList<string> latestVersionSources, string parameter, ILogger logger)
+        private SemanticVersion GetAutomaticLatestRevisionVersion(
+            DateTime buildDateTime,
+            string packageId,
+            NuGetVersion semanticVersion,
+            SelectedSource selectedSource,
+            IReadOnlyList<string> latestVersionSources,
+            string parameter,
+            ILogger logger)
         {
             var latestVersionTask = this.latestPackageVersionCommand.GetLatestMajorMinorVersion(packageId, latestVersionSources, semanticVersion, true, false, logger);
             latestVersionTask.Wait();
@@ -86,10 +98,16 @@ namespace Sundew.Packaging.Publish.Internal
                 return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement);
             }
 
-            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, this.GetPrereleasePostfix(selectedSource, parameter), null);
+            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, parameter), null);
         }
 
-        private SemanticVersion GetIncrementPatchIfStableExistForPrereleaseVersion(string packageId, SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter, ILogger logger)
+        private SemanticVersion GetIncrementPatchIfStableExistForPrereleaseVersion(
+            DateTime buildDateTime,
+            string packageId,
+            SemanticVersion semanticVersion,
+            SelectedSource selectedSource,
+            string parameter,
+            ILogger logger)
         {
             if (selectedSource.IsStableRelease)
             {
@@ -98,34 +116,34 @@ namespace Sundew.Packaging.Publish.Internal
 
             var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, semanticVersion, selectedSource.FeedSource, logger);
             packageExistsTask.Wait();
-            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(selectedSource, parameter));
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(buildDateTime, selectedSource, parameter));
         }
 
-        private SemanticVersion GetIncrementPatchVersion(SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter)
+        private SemanticVersion GetIncrementPatchVersion(DateTime buildDateTime, SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter)
         {
             if (selectedSource.IsStableRelease)
             {
                 return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1);
             }
 
-            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, this.GetPrereleasePostfix(selectedSource, parameter));
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch + 1, this.GetPrereleasePostfix(buildDateTime, selectedSource, parameter));
         }
 
-        private SemanticVersion GetNoChangeVersion(SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter)
+        private SemanticVersion GetNoChangeVersion(DateTime buildDateTime, SemanticVersion semanticVersion, SelectedSource selectedSource, string parameter)
         {
             if (selectedSource.IsStableRelease)
             {
                 return semanticVersion;
             }
 
-            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, this.GetPrereleasePostfix(selectedSource, parameter));
+            return new SemanticVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, this.GetPrereleasePostfix(buildDateTime, selectedSource, parameter));
         }
 
-        private string GetPrereleasePostfix(SelectedSource selectedSource, string parameter)
+        private string GetPrereleasePostfix(DateTime dateTime, SelectedSource selectedSource, string parameter)
         {
             if (!string.IsNullOrEmpty(selectedSource.PrereleaseFormat) && selectedSource.PrereleaseFormat != null)
             {
-                return string.Format(selectedSource.PrereleaseFormat, selectedSource.Stage, this.dateTime.UtcTime.ToString(PrereleasePackageDateTimeFormat), this.dateTime.UtcTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, parameter).Trim('-');
+                return string.Format(selectedSource.PrereleaseFormat, selectedSource.Stage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, parameter).Trim('-');
             }
 
             var stringBuilder = new StringBuilder();
@@ -135,7 +153,7 @@ namespace Sundew.Packaging.Publish.Internal
             }
 
             stringBuilder.Append('u');
-            stringBuilder.Append(this.dateTime.UtcTime.ToString(PrereleasePackageDateTimeFormat));
+            stringBuilder.Append(dateTime.ToString(PrereleasePackageDateTimeFormat));
             if (!string.IsNullOrEmpty(selectedSource.Stage))
             {
                 stringBuilder.Append('-').Append(selectedSource.Stage);

@@ -15,10 +15,13 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Moq;
     using NuGet.Configuration;
     using Sundew.Packaging.Publish;
+    using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Publish.Internal.Logging;
     using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
     using Xunit;
+    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
 
     public class PublishTaskTests
     {
@@ -38,30 +41,28 @@ namespace Sundew.Packaging.Publish.UnitTests
         private readonly IFileSystem fileSystem = New.Mock<IFileSystem>().SetDefaultValue(DefaultValue.Mock);
         private readonly ISettingsFactory settingsFactory = New.Mock<ISettingsFactory>();
         private readonly IBuildEngine buildEngine = New.Mock<IBuildEngine>();
-        private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand = New.Mock<IPersistNuGetVersionCommand>();
-        private readonly ICommandLogger commandLogger = New.Mock<ICommandLogger>();
+        private readonly IPublishInfoProvider publishInfoProvider = New.Mock<IPublishInfoProvider>();
+        private readonly ILogger logger = New.Mock<ILogger>();
         private readonly PublishTask testee;
 
         public PublishTaskTests()
         {
             this.testee = new PublishTask(
+                this.fileSystem,
+                this.publishInfoProvider,
                 this.pushPackageCommand,
                 this.copyPackageToLocalSourceCommand,
                 this.copyPdbToSymbolCacheCommand,
-                this.fileSystem,
                 this.settingsFactory,
-                this.persistNuGetVersionCommand,
-                this.commandLogger)
+                this.logger)
             {
                 BuildEngine = this.buildEngine,
                 PackageId = ExpectedPackageId,
                 ProjectDir = ProjectDir,
                 PackageOutputPath = PackageOutputPath,
                 OutputPath = OutputPath,
-                Version = Version,
-                PublishPackages = true,
                 TimeoutInSeconds = TimeoutInSeconds,
-                WorkingDirectory = @"Any\LocalSourcePath",
+                SolutionDir = @"Any\LocalSourcePath",
             };
 
             this.fileSystem.Setup(x => x.FileExists(It.IsAny<string>())).Returns(true);
@@ -70,24 +71,24 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_SourceIsLocalFile_Then_CopyPackageToLocalSourceCommandShouldBeExecuted()
         {
-            this.testee.PushSource = @"c:\temp\packages";
+            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
 
             this.testee.Execute();
 
-            this.copyPackageToLocalSourceCommand.Verify(x => x.Add(ExpectedPackageId, ExpectedPackagePath, this.testee.PushSource, false, It.IsAny<ICommandLogger>()), Times.Once);
+            this.copyPackageToLocalSourceCommand.Verify(x => x.Add(ExpectedPackageId, ExpectedPackagePath, publishInfo.PushSource, false, It.IsAny<ILogger>()), Times.Once);
         }
 
         [Fact]
         public void Execute_When_SourceIsRemote_Then_PushPackageCommandShouldBeExecuted()
         {
-            this.testee.PushSource = "http://nuget.org";
+            var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
 
             this.testee.Execute();
 
             this.pushPackageCommand.Verify(
                 x => x.PushAsync(
                 ExpectedPackagePath,
-                this.testee.PushSource,
+                publishInfo.PushSource,
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -97,69 +98,65 @@ namespace Sundew.Packaging.Publish.UnitTests
                 false,
                 false,
                 It.IsAny<NuGet.Common.ILogger>(),
-                It.IsAny<ICommandLogger>()),
+                It.IsAny<ILogger>()),
                 Times.Once);
         }
 
         [Fact]
         public void Execute_When_SourceIsLocalAndCopyPdbToSymbolCacheIsSet_Then_PushPackageCommandShouldBeExecuted()
         {
+            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
             this.testee.PackInputs = new ITaskItem[] { new TaskItem(ExpectedPdbPath) };
-            this.testee.PushSource = @"c:\temp\packages";
             this.testee.SymbolCacheDir = @"c:\temp\symbol-cache";
             this.testee.CopyLocalSourcePdbToSymbolCache = true;
 
             this.testee.Execute();
 
-            this.copyPdbToSymbolCacheCommand.Verify(x => x.AddAndCleanCache(ExpectedPdbPath, this.testee.SymbolCacheDir, It.IsAny<ISettings>(), It.IsAny<ICommandLogger>()), Times.Once);
+            this.copyPdbToSymbolCacheCommand.Verify(x => x.AddAndCleanCache(new[] { ExpectedPdbPath }, this.testee.SymbolCacheDir, It.IsAny<ISettings>(), It.IsAny<ILogger>()), Times.Once);
         }
 
         [Fact]
         public void Execute_Then_PackagePathsShouldBeExpectedResult()
         {
+            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+
             this.testee.Execute();
 
             this.testee.PackagePaths!.Select(x => x.ItemSpec).Should().Equal(new[] { ExpectedPackagePath, ExpectedSymbolsPackagePath });
         }
 
         [Fact]
-        public void Execute_Then_PersistNuGetVersionShouldBeCalled()
-        {
-            this.testee.Execute();
-
-            this.persistNuGetVersionCommand.Verify(x => x.Save(Version, OutputPath, It.IsAny<string>(), It.IsAny<ICommandLogger>()), Times.Once);
-        }
-
-        [Fact]
         public void Execute_When_PackagePushLogFormatIsSet_Then_MessageShouldBeLoggedWithFormat()
         {
             this.testee.Parameter = "##";
-            this.testee.PushSource = "http://nuget.org";
+            var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
             this.testee.PublishLogFormats = "{10}vso[task.setvariable variable=package_{0}]{2}-{4}-{1}";
 
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogImportant($"##vso[task.setvariable variable=package_{ExpectedPackageId}]{ExpectedPackagePath}-{this.testee.PushSource}-{Version}"), Times.Once);
+            this.logger.Verify(x => x.LogImportant($"##vso[task.setvariable variable=package_{ExpectedPackageId}]{ExpectedPackagePath}-{publishInfo.PushSource}-{Version}"), Times.Once);
         }
 
         [Fact]
         public void Execute_When_PackagePushLogFormatIsSetNotSet_Then_NothingIsLogged()
         {
+            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
+            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
         public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeEnabled()
         {
-            this.testee.PushSource = "http://nuget.org";
+            var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
             this.testee.PublishLogFormats = "{0}";
             this.testee.AllowLocalSource = false;
 
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogImportant(ExpectedPackageId), Times.Once);
+            this.logger.Verify(x => x.LogImportant(ExpectedPackageId), Times.Once);
         }
 
         [Theory]
@@ -167,7 +164,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [InlineData("{0}  > file.txt", ExpectedPackageId + " ", "file.txt")]
         public void Execute_When_SourceIsRemoteAndLocalPackageIsNotAllowed_Then_AppendPublishPackageLoggingShouldBeEnabled(string appendPublishFileLogFormats, string expectedContext, string expectedFile)
         {
-            this.testee.PushSource = "http://nuget.org";
+            var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
             this.testee.AppendPublishFileLogFormats = appendPublishFileLogFormats;
             this.testee.AllowLocalSource = false;
 
@@ -179,34 +176,43 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_SourceIsLocalAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
         {
-            this.testee.PushSource = @"c:\temp\packages";
+            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
             this.testee.PublishLogFormats = "{0}";
             this.testee.AllowLocalSource = false;
 
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
+            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
-        public void Execute_When_SourceIsNull_Then_PublishPackageLoggingShouldBeDisabled()
+        public void Execute_When_SourceIsEmpty_Then_PublishPackageLoggingShouldBeDisabled()
         {
+            var publishInfo = this.ArrangePublishInfo(string.Empty, Version);
             this.testee.PublishLogFormats = "{0}";
 
             this.testee.Execute();
 
-            this.commandLogger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
+            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
         public void Execute_When_NoSymbolPackageExists_Then_PackagePathsShouldBeExpectedResult()
         {
+            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
             this.fileSystem.Setup(x => x.FileExists(ExpectedSymbolsPackagePath)).Returns(false);
             this.fileSystem.Setup(x => x.FileExists(ExpectedSymbolsPackagePathLong)).Returns(false);
 
             this.testee.Execute();
 
             this.testee.PackagePaths!.Select(x => x.ItemSpec).Should().Equal(new[] { ExpectedPackagePath });
+        }
+
+        private PublishInfo ArrangePublishInfo(string pushSource, string version)
+        {
+            var publishInfo = new PublishInfo(string.Empty, string.Empty, pushSource, null, null, null, true, version);
+            this.publishInfoProvider.Setup(x => x.Read(It.IsAny<string>())).Returns(publishInfo);
+            return publishInfo;
         }
     }
 }

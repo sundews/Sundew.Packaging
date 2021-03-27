@@ -15,6 +15,6 @@
   </metadata>
   <files>
     <file src=".package\**\*.*" target=""/>
-    <file src=".package\build\*.*" target="buildCrossTargeting"/>
+    <file src=".package\build\*.targets" target="buildCrossTargeting"/>
   </files>
 </package>

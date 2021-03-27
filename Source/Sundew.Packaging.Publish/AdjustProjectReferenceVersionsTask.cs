@@ -12,9 +12,11 @@ namespace Sundew.Packaging.Publish
     using System.Linq;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
+    using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
+    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
 
     /// <summary>
     /// Task for adjusting project reference versions.
@@ -23,9 +25,8 @@ namespace Sundew.Packaging.Publish
     {
         internal const string MSBuildSourceProjectFileName = "MSBuildSourceProjectFile";
         internal const string ProjectVersionName = "ProjectVersion";
-        private const string SundewBuildPublishVersionFileExtension = "sbpv";
         private readonly IFileSystem fileSystem;
-        private readonly ICommandLogger commandLogger;
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdjustProjectReferenceVersionsTask"/> class.
@@ -35,10 +36,10 @@ namespace Sundew.Packaging.Publish
         {
         }
 
-        internal AdjustProjectReferenceVersionsTask(IFileSystem fileSystem, ICommandLogger? commandLogger)
+        internal AdjustProjectReferenceVersionsTask(IFileSystem fileSystem, ILogger? commandLogger)
         {
             this.fileSystem = fileSystem;
-            this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
+            this.logger = commandLogger ?? new MsBuildLogger(this.Log);
         }
 
         /// <summary>
@@ -80,30 +81,37 @@ namespace Sundew.Packaging.Publish
             {
                 foreach (var projectReference in this.ProjectReferences)
                 {
-                    var resolvedProjectReference = this.ResolvedProjectReferences?.FirstOrDefault(x =>
+                    var resolvedProjectReferences = this.ResolvedProjectReferences ?? new ITaskItem[0];
+
+                    var resolvedProjectReference = resolvedProjectReferences.FirstOrDefault(x =>
                         x.GetMetadata(MSBuildSourceProjectFileName) == projectReference.ItemSpec);
 
                     if (resolvedProjectReference == null)
                     {
+                        this.logger.LogInfo($"No project reference version found for: {projectReference.ItemSpec}");
                         continue;
                     }
 
-                    var assemblyVersionFile = Path.ChangeExtension(resolvedProjectReference.ItemSpec, SundewBuildPublishVersionFileExtension);
+                    var assemblyVersionFile = Path.ChangeExtension(resolvedProjectReference.ItemSpec, Constants.SppVersionExtension);
                     if (this.fileSystem.FileExists(assemblyVersionFile))
                     {
                         var packageVersion = this.fileSystem.ReadAllText(assemblyVersionFile);
                         var referenceVersion = projectReference.GetMetadata(ProjectVersionName);
                         if (!string.IsNullOrEmpty(packageVersion) && !Equals(referenceVersion, packageVersion))
                         {
-                            this.commandLogger.LogInfo($"Replaced version: {referenceVersion} with {packageVersion} for ProjectReference: {Path.GetFileName(projectReference.ItemSpec)} ");
+                            this.logger.LogInfo($"Replaced version: {referenceVersion} with {packageVersion} for ProjectReference: {Path.GetFileName(projectReference.ItemSpec)} ");
                             projectReference.SetMetadata(ProjectVersionName, packageVersion);
+                            continue;
                         }
                     }
+
+                    this.logger.LogInfo($"SPP Version file not found or empty: {assemblyVersionFile}");
                 }
             }
             catch (Exception e)
             {
-                this.commandLogger.LogWarning(e.ToString());
+                this.logger.LogError(e.ToString());
+                return false;
             }
 
             this.AdjustedProjectReferences = this.ProjectReferences;

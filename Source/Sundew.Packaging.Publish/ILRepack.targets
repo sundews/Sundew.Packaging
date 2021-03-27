@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="ILRepacker" AfterTargets="_CopyPackageFiles">
+  <Target Name="ILRepacker" BeforeTargets="_CopyPackageFiles">
 
     <ItemGroup>
       <InputAssemblies Include="$(OutputPath)**\*.dll" />
@@ -17,6 +17,6 @@
            InternalizeExclude="$(AssemblyName)"
            TargetKind="Dll"
            LibraryPath="$(OutputPath)"
-           OutputFile="$(OutputPath)\$(AssemblyName).m.dll" />
+           OutputFile="$(OutputPath)$(AssemblyName).m.dll" />
   </Target>
 </Project>

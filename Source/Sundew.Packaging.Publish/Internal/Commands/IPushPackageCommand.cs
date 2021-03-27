@@ -10,6 +10,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.Threading.Tasks;
     using global::NuGet.Common;
     using global::NuGet.Configuration;
+    using Sundew.Packaging.Publish.Internal.Logging;
 
     /// <summary>Interface for implementing a push command that pushes NuGet packages to a NuGet server.</summary>
     public interface IPushPackageCommand
@@ -27,8 +28,8 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="settings">The settings.</param>
         /// <param name="noServiceEndpoint">The no service endpoint.</param>
         /// <param name="skipDuplicates">Skips duplicate.</param>
+        /// <param name="nuGetLogger">The nuGetLogger.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="commandLogger">The command logger.</param>
         /// <returns>
         /// An async task.
         /// </returns>
@@ -43,7 +44,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             ISettings settings,
             bool noServiceEndpoint,
             bool skipDuplicates,
-            ILogger logger,
-            ICommandLogger commandLogger);
+            global::NuGet.Common.ILogger nuGetLogger,
+            global::Sundew.Packaging.Publish.Internal.Logging.ILogger logger);
     }
 }
