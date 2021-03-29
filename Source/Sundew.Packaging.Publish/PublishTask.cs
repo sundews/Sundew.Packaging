@@ -165,12 +165,12 @@ namespace Sundew.Packaging.Publish
         public string? Parameter { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [clean similar package versions].
+        /// Gets or sets a value indicating whether [prune similar package versions].
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [clean similar package versions]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [prune similar package versions]; otherwise, <c>false</c>.
         /// </value>
-        public bool CleanSimilarPackageVersions { get; set; }
+        public bool PruneSimilarPackageVersions { get; set; }
 
         /// <summary>Gets the package paths.</summary>
         /// <value>The package paths.</value>
@@ -182,13 +182,13 @@ namespace Sundew.Packaging.Publish
         /// <exception cref="FileNotFoundException">The package path: {packagePath} does not exist.</exception>
         public override bool Execute()
         {
+            var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
             var publishInfoFilePath = this.PublishInfoFilePath ?? throw new ArgumentNullException(nameof(this.PublishInfoFilePath), $"{nameof(this.PublishInfoFilePath)} was not set.");
             var packageId = this.PackageId ?? throw new ArgumentNullException(nameof(this.PackageId), $"{nameof(this.PackageId)} was not set.");
 
             try
             {
-                var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
-                var publishInfo = this.publishInfoProvider.Read(this.PublishInfoFilePath!);
+                var publishInfo = this.publishInfoProvider.Read(publishInfoFilePath);
 
                 var packagePathWithoutExtension = this.GetPackagePathWithoutExtension(publishInfo.Version);
                 var packagePath = packagePathWithoutExtension + NupkgFileExtension;
@@ -269,7 +269,11 @@ namespace Sundew.Packaging.Publish
                     this.PackagePaths[1] = symbolsPackagePath;
                 }
 
-                this.pruneSimilarPackageVersionsCommand.Prune(packagePath, packageId, publishInfo.Version);
+                if (this.PruneSimilarPackageVersions)
+                {
+                    this.pruneSimilarPackageVersionsCommand.Prune(packagePath, packageId, publishInfo.Version);
+                }
+
                 return true;
             }
             catch (Exception e)

@@ -13,6 +13,7 @@ namespace Sundew.Packaging.Publish
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using Sundew.Base.Time;
+    using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
     using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
@@ -23,15 +24,15 @@ namespace Sundew.Packaging.Publish
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
     public class GetBuildDateTimeTask : Task
     {
-        private readonly IDateTime dateTime;
         private readonly ILogger logger;
         private readonly IFileSystem fileSystem;
+        private readonly PrereleaseDateTimeProvider prereleaseDateTimeProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetBuildDateTimeTask"/> class.
         /// </summary>
         public GetBuildDateTimeTask()
-        : this(null, new DateTimeProvider(), null)
+        : this(null, null, null)
         {
         }
 
@@ -41,21 +42,30 @@ namespace Sundew.Packaging.Publish
         /// <param name="fileSystem">The file system.</param>
         /// <param name="dateTime">The date time.</param>
         /// <param name="logger">The logger.</param>
-        internal GetBuildDateTimeTask(IFileSystem? fileSystem, IDateTime dateTime, ILogger? logger)
+        internal GetBuildDateTimeTask(IFileSystem? fileSystem, IDateTime? dateTime, ILogger? logger)
         {
-            this.dateTime = dateTime;
             this.logger = logger ?? new MsBuildLogger(this.Log);
             this.fileSystem = fileSystem ?? new FileSystem();
+            this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider(), this.logger);
         }
 
         /// <summary>
-        /// Gets or sets the build date time file path.
+        /// Gets or sets the solution dir.
         /// </summary>
         /// <value>
-        /// The build date time file path.
+        /// The solution dir.
         /// </value>
         [Required]
-        public string? BuildDateTimeFilePath { get; set; }
+        public string? SolutionDir { get; set; }
+
+        /// <summary>
+        /// Gets or sets the build info file path.
+        /// </summary>
+        /// <value>
+        /// The build info file path.
+        /// </value>
+        [Required]
+        public string? BuildInfoFilePath { get; set; }
 
         /// <summary>
         /// Gets or sets the package versions path.
@@ -76,12 +86,13 @@ namespace Sundew.Packaging.Publish
         {
             try
             {
-                var buildDateTimeFilePath = this.BuildDateTimeFilePath ?? throw new ArgumentNullException(nameof(this.BuildDateTimeFilePath), $"{nameof(this.BuildDateTimeFilePath)} was not set.");
-                var packageVersionsPath = this.PackageVersionsPath ?? throw new ArgumentNullException(nameof(this.PackageVersionsPath), $"{nameof(this.PackageVersionsPath)} was not set.");
-                var directory = Path.GetDirectoryName(buildDateTimeFilePath);
-                if (!this.fileSystem.DirectoryExists(directory))
+                var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
+                var buildInfoFilePath = Path.Combine(workingDirectory, this.BuildInfoFilePath ?? throw new ArgumentNullException(nameof(this.BuildInfoFilePath), $"{nameof(this.BuildInfoFilePath)} was not set."));
+                var packageVersionsPath = Path.Combine(workingDirectory, this.PackageVersionsPath ?? throw new ArgumentNullException(nameof(this.PackageVersionsPath), $"{nameof(this.PackageVersionsPath)} was not set."));
+                var buildInfoDirectory = Path.GetDirectoryName(buildInfoFilePath);
+                if (!this.fileSystem.DirectoryExists(buildInfoDirectory))
                 {
-                    this.fileSystem.CreateDirectory(directory);
+                    this.fileSystem.CreateDirectory(buildInfoDirectory);
                 }
 
                 if (this.fileSystem.DirectoryExists(packageVersionsPath))
@@ -95,9 +106,7 @@ namespace Sundew.Packaging.Publish
                     this.fileSystem.CreateDirectory(packageVersionsPath);
                 }
 
-                var dateTime = this.dateTime.UtcTime.ToString(CultureInfo.InvariantCulture);
-                this.logger.LogImportant($"Wrote build time: {dateTime} to {buildDateTimeFilePath}");
-                this.fileSystem.WriteAllText(buildDateTimeFilePath, dateTime);
+                this.prereleaseDateTimeProvider.SaveBuildDateTime(buildInfoFilePath);
             }
             catch (Exception e)
             {

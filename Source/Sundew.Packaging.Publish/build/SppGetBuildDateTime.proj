@@ -9,10 +9,10 @@
     TaskName="GetBuildDateTimeTask"
     AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
 
-  <Target Name="_SppGetBuildDateTime" Outputs="@(SppBuildDateTimeFile)">
-    <GetBuildDateTimeTask BuildDateTimeFilePath="$(_SppBuildDateTimeFilePath)" PackageVersionsPath="$(_SppPackageVersionsPath)"/>
+  <Target Name="_SppGetBuildDateTime" Outputs="@(SppBuildInfoFile)">
+    <GetBuildDateTimeTask SolutionDir="$(SolutionDir)" BuildInfoFilePath="$(_SppBuildInfoFilePath)" PackageVersionsPath="$(_SppPackageVersionsPath)"/>
     <ItemGroup>
-      <SppBuildDateTimeFile Include="$(_SppBuildDateTimeFilePath)"/>
+      <SppBuildInfoFile Include="$(_SppBuildInfoFilePath)"/>
     </ItemGroup>
   </Target>
 </Project>

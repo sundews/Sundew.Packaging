@@ -11,26 +11,42 @@ namespace Sundew.Packaging.Publish.Internal
     using System.Globalization;
     using Sundew.Base.Time;
     using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Publish.Internal.Logging;
 
     internal class PrereleaseDateTimeProvider
     {
+        internal const string UniversalDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";
         private readonly IFileSystem fileSystem;
         private readonly IDateTime dateTime;
+        private readonly ILogger logger;
 
-        public PrereleaseDateTimeProvider(IFileSystem fileSystem, IDateTime dateTime)
+        public PrereleaseDateTimeProvider(IFileSystem fileSystem, IDateTime dateTime, ILogger logger)
         {
             this.fileSystem = fileSystem;
             this.dateTime = dateTime;
+            this.logger = logger;
         }
 
-        public DateTime GetUtcDateTime(string buildDateTimeFilePath)
+        public DateTime GetBuildDateTime(string buildInfoFilePath)
         {
-            if (this.fileSystem.FileExists(buildDateTimeFilePath))
+            if (this.fileSystem.FileExists(buildInfoFilePath))
             {
-                return DateTime.Parse(this.fileSystem.ReadAllText(buildDateTimeFilePath), CultureInfo.InvariantCulture);
+                var dateTimeText = this.fileSystem.ReadAllText(buildInfoFilePath);
+                this.logger.LogInfo($"SPP: Using preset DateTime: {dateTimeText} from {buildInfoFilePath}");
+                return DateTime.ParseExact(dateTimeText, UniversalDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
             }
 
             var dateTime = this.dateTime.UtcTime;
+            this.logger.LogInfo($"SPP: Using DateTime.UtcNow: {dateTime}");
+            return dateTime;
+        }
+
+        public DateTime SaveBuildDateTime(string buildInfoFilePath)
+        {
+            var dateTime = this.dateTime.UtcTime;
+            var dateTimeText = dateTime.ToString(UniversalDateTimeFormat, CultureInfo.InvariantCulture);
+            this.fileSystem.WriteAllText(buildInfoFilePath, dateTimeText);
+            this.logger.LogImportant($"Wrote build time: {dateTimeText} to {buildInfoFilePath}");
             return dateTime;
         }
     }

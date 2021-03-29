@@ -61,15 +61,15 @@ namespace Sundew.Packaging.Publish
             IPackageVersioner? packageVersioner,
             IDateTime? dateTime,
             INuGetVersionProvider? nuGetVersionProvider,
-            ILogger? commandLogger)
+            ILogger? logger)
         {
             this.fileSystem = fileSystem;
-            this.logger = commandLogger ?? new MsBuildLogger(this.Log);
+            this.logger = logger ?? new MsBuildLogger(this.Log);
             this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, settingsFactory);
             this.publishInfoProvider = new PublishInfoProvider(this.fileSystem, this.logger);
             this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(), new LatestPackageVersionCommand());
             this.nuGetVersionProvider = nuGetVersionProvider ?? new NuGetVersionProvider(this.fileSystem, this.logger);
-            this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider());
+            this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider(), this.logger);
             this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
         }
 
@@ -79,13 +79,13 @@ namespace Sundew.Packaging.Publish
         public string? SolutionDir { get; set; }
 
         /// <summary>
-        /// Gets or sets the build date time file path.
+        /// Gets or sets the build info file path.
         /// </summary>
         /// <value>
-        /// The build date time file path.
+        /// The build info file path.
         /// </value>
         [Required]
-        public string? BuildDateTimeFilePath { get; set; }
+        public string? BuildInfoFilePath { get; set; }
 
         /// <summary>
         /// Gets or sets the publish information file path.
@@ -257,9 +257,9 @@ namespace Sundew.Packaging.Publish
             {
                 var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
                 var publishInfoFilePath = this.PublishInfoFilePath ?? throw new ArgumentNullException(nameof(this.PublishInfoFilePath), $"{nameof(this.PublishInfoFilePath)} was not initialized.");
-                var versionFilePath = this.VersionFilePath ?? throw new ArgumentNullException(nameof(this.VersionFilePath), $"{nameof(this.VersionFilePath)} was not initialized.");
+                var versionFilePath = Path.Combine(workingDirectory, this.VersionFilePath ?? throw new ArgumentNullException(nameof(this.VersionFilePath), $"{nameof(this.VersionFilePath)} was not initialized."));
                 var referencedPackageVersionFilePath = this.ReferencedPackageVersionFilePath ?? throw new ArgumentNullException(nameof(this.ReferencedPackageVersionFilePath), $"{nameof(this.ReferencedPackageVersionFilePath)} was not initialized.");
-                var buildDateTimeFilePath = this.BuildDateTimeFilePath ?? throw new ArgumentNullException(nameof(this.BuildDateTimeFilePath), $"{nameof(this.BuildDateTimeFilePath)} was not initialized.");
+                var buildDateTimeFilePath = Path.Combine(workingDirectory, this.BuildInfoFilePath ?? throw new ArgumentNullException(nameof(this.BuildInfoFilePath), $"{nameof(this.BuildInfoFilePath)} was not initialized."));
 
                 if (this.fileSystem.FileExists(publishInfoFilePath) && this.nuGetVersionProvider.Read(versionFilePath, out var version))
                 {
@@ -290,7 +290,7 @@ namespace Sundew.Packaging.Publish
                 {
                     var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
                     this.VersioningMode?.TryParseEnum(out versioningMode, true);
-                    var buildDateTime = this.prereleaseDateTimeProvider.GetUtcDateTime(buildDateTimeFilePath);
+                    var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
                     var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
                     this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion, this.IncludeSymbols);
                     this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, packageVersion);

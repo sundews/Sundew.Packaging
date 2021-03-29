@@ -55,6 +55,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
         private readonly INuGetVersionProvider nuGetVersionProvider = New.Mock<INuGetVersionProvider>();
         private readonly ISettingsFactory settingsFactory = New.Mock<ISettingsFactory>();
+        private readonly ILogger logger = New.Mock<ILogger>();
 
         public PreparePublishTaskTests()
         {
@@ -64,9 +65,9 @@ namespace Sundew.Packaging.Publish.UnitTests
                 new PackageVersioner(this.packageExistsCommand, this.latestPackageVersionCommand),
                 this.dateTime,
                 this.nuGetVersionProvider,
-                New.Mock<ILogger>())
+                this.logger)
             {
-                BuildDateTimeFilePath = BuildDateTimeFilePath,
+                BuildInfoFilePath = BuildDateTimeFilePath,
                 PublishInfoFilePath = @"c:\a\PublishInfo.path",
                 VersionFilePath = @"c:\a\Version.path",
                 ReferencedPackageVersionFilePath = @"c:\a\ReferencedPackageVersion.path",
@@ -81,7 +82,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.dateTime.SetupGet(x => x.UtcTime).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
             this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
             this.fileSystem.Setup(x => x.FileExists(BuildDateTimeFilePath)).Returns(true);
-            this.fileSystem.Setup(x => x.ReadAllText(BuildDateTimeFilePath)).Returns(new DateTime(2016, 01, 08, 17, 36, 13).ToString(CultureInfo.InvariantCulture));
+            this.fileSystem.Setup(x => x.ReadAllText(BuildDateTimeFilePath)).Returns(new DateTime(2016, 01, 08, 17, 36, 13, DateTimeKind.Utc).ToString(PrereleaseDateTimeProvider.UniversalDateTimeFormat, CultureInfo.InvariantCulture));
             this.latestPackageVersionCommand.Setup(
                     x => x.GetLatestMajorMinorVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<NuGet.Common.ILogger>()))
                 .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, bool, NuGet.Common.ILogger, ILatestPackageVersionCommand, NuGetVersion?>(
@@ -478,9 +479,10 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.fileSystem.Setup(x => x.GetCurrentDirectory()).Returns("c:\\");
             this.testee.SolutionDir = "*Undefined*";
 
-            Action act = () => this.testee.Execute();
+            var result = this.testee.Execute();
 
-            act.Should().ThrowExactly<ArgumentException>();
+            result.Should().BeFalse();
+            this.logger.Verify(x => x.LogError(It.IsAny<string>()), Times.Once);
         }
 
         [Fact]

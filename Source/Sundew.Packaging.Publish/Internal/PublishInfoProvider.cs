@@ -7,6 +7,7 @@
 
 namespace Sundew.Packaging.Publish.Internal
 {
+    using System.IO;
     using Newtonsoft.Json;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
@@ -33,6 +34,12 @@ namespace Sundew.Packaging.Publish.Internal
                 includeSymbols ? selectedSource.SymbolsApiKey : null,
                 selectedSource.IsEnabled,
                 nugetVersion);
+            var directoryPath = Path.GetDirectoryName(publishInfoFilePath);
+            if (!this.fileSystem.DirectoryExists(directoryPath))
+            {
+                this.fileSystem.CreateDirectory(directoryPath);
+            }
+
             this.fileSystem.WriteAllText(publishInfoFilePath, JsonConvert.SerializeObject(publishInfo));
             this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.Stage}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
             return publishInfo;

@@ -10,11 +10,10 @@
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
     <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppAddDefaultPushSourceToLatestVersionSources)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
-    <SppCleanSimilarPackageVersions Condition="'$(SppCleanSimilarPackageVersions)'==''">True</SppCleanSimilarPackageVersions>
+    <SppPruneSimilarPackageVersions Condition="'$(SppPruneSimilarPackageVersions)'==''">True</SppPruneSimilarPackageVersions>
     <_SppEnableTargets>false</_SppEnableTargets>
-    <_SppBuildDateTimeFilePath>$(SolutionDir).vs/Spp/$(SolutionName).sppd</_SppBuildDateTimeFilePath>
-    <_SppPackageVersionsPath>$(SolutionDir).vs/Spp/Versions/</_SppPackageVersionsPath>
-    <_SppPackageVersionFilePath>$(_SppPackageVersionsPath)$(AssemblyName).sppv</_SppPackageVersionFilePath>
+    <_SppBuildInfoFilePath>.vs/Spp/BuildInfo.sppd</_SppBuildInfoFilePath>
+    <_SppPackageVersionsPath>.vs/Spp/Versions/</_SppPackageVersionsPath>
     <GetPackageVersionDependsOn>SppInitialize;SppGetPackageVersionForProjectReference;$(GetPackageVersionDependsOn)</GetPackageVersionDependsOn>
   </PropertyGroup>
 
@@ -28,20 +27,24 @@
     TaskName="PublishTask"
     AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
 
-  <Target Name="SppInitialize" Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND ((('$(DesignTimeBuild)' != 'true' AND '$(BuildingProject)' != 'false')) OR '$(_SppIsResolvingProjectReferenceVersion)' == 'true' OR '$(BuildProjectReferences)' == 'false')" 
+  <Target Name="SppInitialize" 
+          Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND ((('$(DesignTimeBuild)' != 'true' AND '$(BuildingProject)' != 'false')) OR '$(BuildProjectReferences)' == 'false')" 
           AfterTargets="BuildOnlySettings" 
           BeforeTargets="DispatchToInnerBuilds;SppGetPackageVersionForProjectReference">
     <PropertyGroup>
       <_SppPublishInfoFilePath>$(NuspecOutputPath)$(AssemblyName).sppi</_SppPublishInfoFilePath>
       <_SppReferencedPackageVersionFilePath>$(NuspecOutputPath)$(AssemblyName).sppv</_SppReferencedPackageVersionFilePath>
+      <_SppPackageVersionFilePath>$(_SppPackageVersionsPath)$(AssemblyName).sppv</_SppPackageVersionFilePath>
       <_SppEnableTargets>true</_SppEnableTargets>
     </PropertyGroup>
   </Target>
 
-  <Target Name="SppGetBuildDateTime" DependsOnTargets="SppInitialize" Condition="'$(_SppEnableTargets)' == 'true' AND '$(IsInnerBuild)' != 'true'">
+  <Target Name="SppGetBuildDateTime"
+          DependsOnTargets="SppInitialize"
+          Condition="'$(_SppEnableTargets)' == 'true' AND '$(IsInnerBuild)' != 'true'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\build\SppGetBuildDateTime.proj"
              Targets="_SppGetBuildDateTime" 
-             Properties="_SppPackageVersionsPath=$(_SppPackageVersionsPath); _SppBuildDateTimeFilePath=$(_SppBuildDateTimeFilePath); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)"
+             Properties="_SppPackageVersionsPath=$(_SppPackageVersionsPath); _SppBuildInfoFilePath=$(_SppBuildInfoFilePath); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)"
              RemoveProperties="TargetFramework;Platform" >
       <Output ItemName="_SppBuildDateTimeFile" TaskParameter="TargetOutputs"/>
     </MSBuild>
@@ -53,7 +56,7 @@
           Condition="'$(_SppEnableTargets)' == 'true'">
     <PreparePublishTask
                  SolutionDir="$(SolutionDir)"
-                 BuildDateTimeFilePath="$(_SppBuildDateTimeFilePath)"
+                 BuildInfoFilePath="$(_SppBuildInfoFilePath)"
                  PublishInfoFilePath="$(_SppPublishInfoFilePath)"
                  VersionFilePath="$(_SppPackageVersionFilePath)"
                  ReferencedPackageVersionFilePath="$(_SppReferencedPackageVersionFilePath)"
@@ -82,7 +85,8 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="SppGetPackageVersionForProjectReference" Condition="'$(_SppEnableTargets)' == 'true' AND '$(BuildProjectReferences)' == 'false'">
+  <Target Name="SppGetPackageVersionForProjectReference" 
+          Condition="'$(_SppEnableTargets)' == 'true' AND '$(BuildProjectReferences)' == 'false'">
     <ReadLinesFromFile File="$(_SppReferencedPackageVersionFilePath)">
       <Output PropertyName="_SppReferencedPackageVersion" TaskParameter="Lines"/>
     </ReadLinesFromFile>
@@ -91,32 +95,10 @@
       <PackageVersion>$(_SppReferencedPackageVersion)</PackageVersion>
     </PropertyGroup>
   </Target>
-<!--
-  <Target Name="SppAdjustProjectReferenceVersions" BeforeTargets="GenerateNuspec" Condition="'$(_SppEnableTargets)' == 'true' AND '$(NuspecFile)' == ''">
-    <MSBuild Projects="@(_ProjectReferencesWithVersions)" Targets="_SppGetProjectReferenceVersion" Properties="BuildProjectReferences=false;_SppIsResolvingProjectReferenceVersion=true;">
-      <Output
-        TaskParameter="TargetOutputs"
-        ItemName="_NewProjectReferencesWithVersions"/>
-    </MSBuild>
 
-    <ItemGroup>
-      <_ProjectReferencesWithVersions Remove="@(_ProjectReferencesWithVersions)"/>
-      <_ProjectReferencesWithVersions Include ="@(_NewProjectReferencesWithVersions)"/>
-    </ItemGroup>
-  </Target>
-
-  <Target Name="_SppGetProjectReferenceVersion" DependsOnTargets="SppInitialize" Condition="'$(_SppIsResolvingProjectReferenceVersion)' == 'true'" Returns="@(_ProjectPathWithVersion)">
-    <ReadLinesFromFile File="$(_SppPackageVersionFilePath)">
-      <Output PropertyName="PackageVersion" TaskParameter="Lines"/>
-    </ReadLinesFromFile>
-    <ItemGroup>
-      <_ProjectPathWithVersion Include="$(MSBuildProjectFullPath)">
-        <ProjectVersion Condition="'$(PackageVersion)' != ''">$(PackageVersion)</ProjectVersion>
-      </_ProjectPathWithVersion>
-    </ItemGroup>
-  </Target>-->
-
-  <Target Name="SppPublishNuGet" AfterTargets="Pack" Condition="'$(_SppEnableTargets)' == 'true'">
+  <Target Name="SppPublishNuGet" 
+          AfterTargets="Pack" 
+          Condition="'$(_SppEnableTargets)' == 'true'">
     <PublishTask
                  SolutionDir="$(SolutionDir)"
                  PublishInfoFilePath="$(_SppPublishInfoFilePath)"
@@ -134,7 +116,7 @@
                  AppendPublishFileLogFormats="$(SppAppendPublishFileLogFormats)"
                  AllowLocalSource="$(SppAllowLocalSource)"
                  Parameter="$(SppParameter)"
-                 CleanSimilarPackageVersions="$(SppCleanSimilarPackageVersions)">
+                 PruneSimilarPackageVersions="$(SppPruneSimilarPackageVersions)">
       <Output ItemName="SppPackages" TaskParameter="PackagePaths"/>
     </PublishTask>
   </Target>

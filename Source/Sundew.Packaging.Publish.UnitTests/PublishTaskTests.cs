@@ -28,6 +28,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         private const string ExpectedPackageId = "PackageId";
         private const string ProjectDir = @"c:\sdb";
         private const string PackageOutputPath = @"c:\sdb\bin";
+        private const string AnyPackageInfoFilePath = @"c:\anypublishinfo\path";
         private const string OutputPath = @"c:\sdb\bin\Debug";
         private const string Version = "1.0.0";
         private const int TimeoutInSeconds = 300;
@@ -57,6 +58,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                 this.logger)
             {
                 BuildEngine = this.buildEngine,
+                PublishInfoFilePath = AnyPackageInfoFilePath,
                 PackageId = ExpectedPackageId,
                 ProjectDir = ProjectDir,
                 PackageOutputPath = PackageOutputPath,
