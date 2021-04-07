@@ -25,22 +25,22 @@ namespace Sundew.Packaging.Publish.Internal
 
         public Source(
             Regex? stageRegex,
-            string uri,
+            string pushSource,
             string? apiKey,
-            string? symbolsUri,
+            string? symbolsPushSource,
             string? symbolsApiKey,
             string stage,
             bool isStableRelease,
             string feedSource,
             string? prereleaseFormat,
             IReadOnlyList<string>? additionalFeedSources,
-            bool isFallback = false,
-            bool isEnabled = true)
+            bool isEnabled,
+            bool isFallback = false)
         {
             this.StageRegex = stageRegex;
-            this.Uri = uri;
+            this.PushSource = pushSource;
             this.ApiKey = apiKey;
-            this.SymbolsUri = symbolsUri;
+            this.SymbolsPushSource = symbolsPushSource;
             this.SymbolsApiKey = symbolsApiKey;
             this.Stage = stage;
             this.IsStableRelease = isStableRelease;
@@ -53,7 +53,7 @@ namespace Sundew.Packaging.Publish.Internal
 
         public Regex? StageRegex { get; }
 
-        public string Uri { get; }
+        public string PushSource { get; }
 
         public string FeedSource { get; }
 
@@ -63,7 +63,7 @@ namespace Sundew.Packaging.Publish.Internal
 
         public string? ApiKey { get; }
 
-        public string? SymbolsUri { get; }
+        public string? SymbolsPushSource { get; }
 
         public string? SymbolsApiKey { get; }
 
@@ -75,7 +75,15 @@ namespace Sundew.Packaging.Publish.Internal
 
         public bool IsEnabled { get; }
 
-        public static Source? Parse(string? sourceText, string defaultStage, bool isStableRelease, string? fallbackPrereleaseFormat, IReadOnlyList<string>? feedSources)
+        public static Source? Parse(
+            string? sourceText,
+            string defaultStage,
+            bool isStableRelease,
+            string? fallbackPrereleaseFormat,
+            string? fallbackApiKey,
+            string? fallbackSymbolsApiKey,
+            IReadOnlyList<string>? feedSources,
+            bool isSourcePublishEnabled)
         {
             if (sourceText == null || string.IsNullOrEmpty(sourceText))
             {
@@ -87,26 +95,26 @@ namespace Sundew.Packaging.Publish.Internal
             {
                 var name = new Regex(match.Groups[StageRegexText].Value);
                 var stageNameGroup = match.Groups[StageNameText];
-                string? apiKey = null;
                 var apiKeyGroup = match.Groups[ApiKeyText];
-                if (apiKeyGroup.Success)
+                var apiKey = apiKeyGroup.Success ? apiKeyGroup.Value : fallbackApiKey;
+                if (apiKey == string.Empty)
                 {
-                    apiKey = apiKeyGroup.Value;
+                    apiKey = null;
                 }
 
-                var uri = match.Groups[UriText].Value;
-                string? symbolsUri = null;
+                var sourceUri = match.Groups[UriText].Value;
                 var symbolsUriGroup = match.Groups[SymbolsUriText];
+                string? symbolsUri = null;
+                string? symbolsApiKey = null;
                 if (symbolsUriGroup.Success)
                 {
                     symbolsUri = symbolsUriGroup.Value;
-                }
-
-                string? symbolsApiKey = null;
-                var symbolsApiKeyGroup = match.Groups[SymbolsApiKeyText];
-                if (symbolsApiKeyGroup.Success)
-                {
-                    symbolsApiKey = symbolsApiKeyGroup.Value;
+                    var symbolsApiKeyGroup = match.Groups[SymbolsApiKeyText];
+                    symbolsApiKey = symbolsApiKeyGroup.Success ? symbolsApiKeyGroup.Value : fallbackSymbolsApiKey ?? apiKey;
+                    if (symbolsApiKey == string.Empty)
+                    {
+                        symbolsApiKey = null;
+                    }
                 }
 
                 var stage = defaultStage;
@@ -115,11 +123,11 @@ namespace Sundew.Packaging.Publish.Internal
                     stage = stageNameGroup.Value;
                 }
 
-                var feedUri = uri;
+                var feedSource = sourceUri;
                 var feedUriGroup = match.Groups[FeedUriText];
                 if (feedUriGroup.Success)
                 {
-                    feedUri = feedUriGroup.Value;
+                    feedSource = feedUriGroup.Value;
                 }
 
                 var prereleaseFormat = fallbackPrereleaseFormat;
@@ -129,7 +137,7 @@ namespace Sundew.Packaging.Publish.Internal
                     prereleaseFormat = prereleaseFormatGroup.Value;
                 }
 
-                return new Source(name, uri, apiKey, symbolsUri, symbolsApiKey, stage, isStableRelease, feedUri, prereleaseFormat, feedSources);
+                return new Source(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, stage, isStableRelease, feedSource, prereleaseFormat, feedSources, isSourcePublishEnabled);
             }
 
             return default;

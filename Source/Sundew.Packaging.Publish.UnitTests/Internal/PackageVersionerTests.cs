@@ -13,7 +13,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using NuGet.Common;
     using NuGet.Versioning;
-    using Sundew.Base.Time;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
@@ -22,7 +22,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     public class PackageVersionerTests
     {
         private const string AnyPackageId = "Package.Id";
+        private const string AnyWorkingDirectory = @"c:\Working\Dir";
         private const string AnyPushSource = @"Ignored => c:\temp\ignored";
+        private static readonly DateTime BuildDateTime = new DateTime(2016, 01, 08, 17, 36, 13);
         private readonly IDateTime dateTime = New.Mock<IDateTime>();
         private readonly PackageVersioner testee;
         private readonly ILatestPackageVersionCommand latestPackageVersionCommand;
@@ -30,8 +32,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         public PackageVersionerTests()
         {
             this.latestPackageVersionCommand = New.Mock<ILatestPackageVersionCommand>();
-            this.testee = new PackageVersioner(this.dateTime, New.Mock<IPackageExistsCommand>(), this.latestPackageVersionCommand);
-            this.dateTime.SetupGet(x => x.UtcTime).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
+            this.testee = new PackageVersioner(New.Mock<IPackageExistsCommand>(), this.latestPackageVersionCommand);
+            this.dateTime.SetupGet(x => x.UtcNow).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
         }
 
         [Theory]
@@ -48,12 +50,13 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null)!),
+                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
+                BuildDateTime,
                 string.Empty,
                 New.Mock<ILogger>());
 
-            result.ToFullString().Should().Be(expectedResult);
+            result.ToNormalizedString().Should().Be(expectedResult);
         }
 
         [Theory]
@@ -77,12 +80,13 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null)!),
+                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
+                BuildDateTime,
                 string.Empty,
                 New.Mock<ILogger>());
 
-            result.ToFullString().Should().Be(expectedResult);
+            result.ToNormalizedString().Should().Be(expectedResult);
         }
 
         [Theory]
@@ -106,12 +110,13 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, "ci", true, null, null)!),
+                new SelectedSource(Source.Parse(AnyPushSource, "ci", true, null, null, null, null, true)!),
                 new[] { AnyPushSource },
+                BuildDateTime,
                 string.Empty,
                 New.Mock<ILogger>());
 
-            result.ToFullString().Should().Be(expectedResult);
+            result.ToNormalizedString().Should().Be(expectedResult);
         }
     }
 }

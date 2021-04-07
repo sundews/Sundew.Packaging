@@ -7,16 +7,22 @@
 
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
+    using Sundew.Packaging.Publish.Internal.Logging;
+
     /// <summary>Interface for implementing a command that can add NuGet packages to an offline feed.</summary>
     public interface ICopyPackageToLocalSourceCommand
     {
-        /// <summary>Adds the asynchronous.</summary>
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
         /// <param name="packageId">The package id.</param>
         /// <param name="packagePath">The package path.</param>
         /// <param name="source">The source.</param>
         /// <param name="skipDuplicate">Skips duplicate packages.</param>
-        /// <param name="commandLogger">The command logger.</param>
-        /// <returns>The destination path.</returns>
-        string Add(string packageId, string packagePath, string source, bool skipDuplicate, ICommandLogger commandLogger);
+        /// <param name="logger">The logger.</param>
+        /// <returns>
+        /// The destination path.
+        /// </returns>
+        string Add(string packageId, string packagePath, string source, bool skipDuplicate, ILogger logger);
     }
 }

@@ -24,6 +24,8 @@ namespace Sundew.Packaging.Publish.Internal.IO
 
         void DeleteDirectory(string path, bool recursive);
 
+        void DeleteFile(string path);
+
         void WriteAllText(string path, string contents);
 
         void AppendAllText(string path, string contents);

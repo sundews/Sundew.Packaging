@@ -27,7 +27,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 
         public async Task<NuGetVersion?> GetLatestMajorMinorVersion(string packageId, IReadOnlyList<string> sources, NuGetVersion nuGetVersion, bool includePatchInMatch, bool allowPrerelease, ILogger logger)
         {
-            logger.LogInformation(sources.AggregateToStringBuilder(new StringBuilder(DeterminingLatestVersionFromSources), (builder, s) => builder.Append(s).Append(Separator), builder => builder.ToStringFromEnd(Separator.Length)));
+            logger.LogInformation(sources.JoinToStringBuilder(new StringBuilder(DeterminingLatestVersionFromSources), Separator).ToString());
             return (await sources.SelectAsync(async sourceUri =>
                 {
                     PackageSource packageSource = new(sourceUri);

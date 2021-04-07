@@ -20,7 +20,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     {
         public async Task<bool> ExistsAsync(string packageId, SemanticVersion semanticVersion, string sourceUri, ILogger logger)
         {
-            PackageSource packageSource = new PackageSource(sourceUri);
+            PackageSource packageSource = new(sourceUri);
             var resourceAsync = await Repository.Factory.GetCoreV3(packageSource.Source).GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
             if (resourceAsync != null)
             {

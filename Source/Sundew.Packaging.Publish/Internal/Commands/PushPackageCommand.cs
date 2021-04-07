@@ -10,14 +10,15 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using global::NuGet.Commands;
-    using global::NuGet.Common;
     using global::NuGet.Configuration;
 
     /// <summary>Pushes a NuGet package to a NuGet server.</summary>
     /// <seealso cref="IPushPackageCommand" />
     public class PushPackageCommand : IPushPackageCommand
     {
-        /// <summary>Pushes the asynchronous.</summary>
+        /// <summary>
+        /// Pushes the asynchronous.
+        /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="source">The source.</param>
         /// <param name="apiKey">The API key.</param>
@@ -28,9 +29,11 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="settings">The settings.</param>
         /// <param name="noServiceEndpoint">The no service endpoint.</param>
         /// <param name="skipDuplicates">Skips duplicate.</param>
+        /// <param name="nuGetLogger">The nuGetLogger.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="commandLogger">The command logger.</param>
-        /// <returns>An async task.</returns>
+        /// <returns>
+        /// An async task.
+        /// </returns>
         public async Task PushAsync(
             string packagePath,
             string? source,
@@ -42,8 +45,8 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             ISettings settings,
             bool noServiceEndpoint,
             bool skipDuplicates,
-            ILogger logger,
-            ICommandLogger commandLogger)
+            global::NuGet.Common.ILogger nuGetLogger,
+            Logging.ILogger logger)
         {
             var packageSourceProvider = new PackageSourceProvider(settings);
             await PushRunner.Run(
@@ -59,9 +62,9 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 string.IsNullOrEmpty(symbolPackagePath) || !string.IsNullOrEmpty(symbolsSource),
                 noServiceEndpoint,
                 skipDuplicates,
-                logger);
+                nuGetLogger);
 
-            commandLogger.LogImportant($"Successfully pushed package to: {source}");
+            logger.LogImportant($"Successfully pushed package to: {source}");
             if (!string.IsNullOrEmpty(symbolPackagePath) && symbolPackagePath != null && !string.IsNullOrEmpty(symbolsSource))
             {
                 await PushRunner.Run(
@@ -77,8 +80,8 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                     true,
                     noServiceEndpoint,
                     skipDuplicates,
-                    logger);
-                commandLogger.LogImportant($"Successfully pushed symbols package to: {symbolsSource}");
+                    nuGetLogger);
+                logger.LogImportant($"Successfully pushed symbols package to: {symbolsSource}");
             }
         }
     }

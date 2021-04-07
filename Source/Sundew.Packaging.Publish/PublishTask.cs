@@ -10,6 +10,7 @@ namespace Sundew.Packaging.Publish
     using System;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Common;
@@ -18,6 +19,7 @@ namespace Sundew.Packaging.Publish
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
     using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
+    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
 
     /// <summary>Publishes the created NuGet package to a specified package source.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
@@ -32,51 +34,62 @@ namespace Sundew.Packaging.Publish
         private const string PackagePathPackagePathDoesNotExistFormat = "The package path: {0} does not exist.";
         private const string PdbFileExtension = ".pdb";
 
+        private readonly IPublishInfoProvider publishInfoProvider;
         private readonly IPushPackageCommand pushPackageCommand;
         private readonly ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand;
         private readonly ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand;
         private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
-        private readonly IPersistNuGetVersionCommand persistNuGetVersionCommand;
-        private readonly ICommandLogger commandLogger;
+        private readonly ILogger logger;
         private readonly IAppendPublishFileLogCommand appendPublishFileLogCommand;
+        private readonly PruneSimilarPackageVersionsCommand pruneSimilarPackageVersionsCommand;
 
         /// <summary>Initializes a new instance of the <see cref="PublishTask"/> class.</summary>
         public PublishTask()
          : this(
+             new Internal.IO.FileSystem(),
+             null,
              new PushPackageCommand(),
              new CopyPackageToLocalSourceCommand(),
              new CopyPdbToSymbolCacheCommand(),
-             new Internal.IO.FileSystem(),
              new SettingsFactory(),
-             new PersistNuGetVersionCommand(new FileSystem()),
              null)
         {
         }
 
         internal PublishTask(
+            IFileSystem fileSystem,
+            IPublishInfoProvider? publishInfoProvider,
             IPushPackageCommand pushPackageCommand,
             ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand,
             ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand,
-            IFileSystem fileSystem,
             ISettingsFactory settingsFactory,
-            IPersistNuGetVersionCommand persistNuGetVersionCommand,
-            ICommandLogger? commandLogger)
+            ILogger? commandLogger)
         {
+            this.fileSystem = fileSystem;
+            this.logger = commandLogger ?? new MsBuildLogger(this.Log);
+            this.publishInfoProvider = publishInfoProvider ?? new PublishInfoProvider(this.fileSystem, this.logger);
             this.pushPackageCommand = pushPackageCommand;
             this.copyPackageToLocalSourceCommand = copyPackageToLocalSourceCommand;
             this.copyPdbToSymbolCacheCommand = copyPdbToSymbolCacheCommand;
-            this.fileSystem = fileSystem;
             this.settingsFactory = settingsFactory;
-            this.persistNuGetVersionCommand = persistNuGetVersionCommand;
-            this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
+            this.pruneSimilarPackageVersionsCommand = new PruneSimilarPackageVersionsCommand(this.fileSystem);
             this.appendPublishFileLogCommand = new AppendPublishFileLogCommand(this.fileSystem);
         }
 
-        /// <summary>Gets or sets the working directory.</summary>
-        /// <value>The working directory.</value>
+        /// <summary>Gets or sets the solution dir.</summary>
+        /// <value>The solution dir.</value>
         [Required]
-        public string? WorkingDirectory { get; set; }
+        public string? SolutionDir { get; set; }
+
+        /// <summary>
+        /// Gets or sets the publish information file path.
+        /// </summary>
+        /// <value>
+        /// The publish information file path.
+        /// </value>
+        [Required]
+        public string? PublishInfoFilePath { get; set; }
 
         /// <summary>Gets or sets the project dir.</summary>
         /// <value>The project dir.</value>
@@ -102,47 +115,6 @@ namespace Sundew.Packaging.Publish
         /// <value>The package identifier.</value>
         [Required]
         public string? PackageId { get; set; }
-
-        /// <summary>Gets or sets the assembly name.</summary>
-        /// <value>The assembly name.</value>
-        [Required]
-        public string? AssemblyName { get; set; }
-
-        /// <summary>Gets or sets the version.</summary>
-        /// <value>The version.</value>
-        [Required]
-        public string? Version { get; set; }
-
-        /// <summary>Gets or sets the push source.</summary>
-        /// <value>The source.</value>
-        [Required]
-        public string? PushSource { get; set; }
-
-        /// <summary>Gets or sets the feed source.</summary>
-        /// <value>The feed source.</value>
-        [Required]
-        public string? FeedSource { get; set; }
-
-        /// <summary>Gets or sets the stage.</summary>
-        /// <value>The stage.</value>
-        public string? Stage { get; set; }
-
-        /// <summary>Gets or sets the symbols source.</summary>
-        /// <value>The symbols source.</value>
-        public string? SymbolsSource { get; set; }
-
-        /// <summary>Gets or sets the API key.</summary>
-        /// <value>The API key.</value>
-        public string? ApiKey { get; set; }
-
-        /// <summary>Gets or sets the symbol API key.</summary>
-        /// <value>The symbol API key.</value>
-        public string? SymbolApiKey { get; set; }
-
-        /// <summary>Gets or sets a value indicating whether this instance is publish enabled.</summary>
-        /// <value>
-        ///   <c>true</c> if this instance is publish enabled; otherwise, <c>false</c>.</value>
-        public bool PublishPackages { get; set; }
 
         /// <summary>Gets or sets a value indicating whether [allow local source].</summary>
         /// <value>
@@ -192,6 +164,14 @@ namespace Sundew.Packaging.Publish
         /// <value>The parameter.</value>
         public string? Parameter { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [prune similar package versions].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [prune similar package versions]; otherwise, <c>false</c>.
+        /// </value>
+        public bool PruneSimilarPackageVersions { get; set; }
+
         /// <summary>Gets the package paths.</summary>
         /// <value>The package paths.</value>
         [Output]
@@ -202,93 +182,114 @@ namespace Sundew.Packaging.Publish
         /// <exception cref="FileNotFoundException">The package path: {packagePath} does not exist.</exception>
         public override bool Execute()
         {
-            var packagePathWithoutExtension = this.GetPackagePathWithoutExtension();
-            var packagePath = packagePathWithoutExtension + NupkgFileExtension;
-            if (!this.fileSystem.FileExists(packagePath))
-            {
-                throw new FileNotFoundException(string.Format(PackagePathPackagePathDoesNotExistFormat, packagePath));
-            }
+            var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
+            var publishInfoFilePath = this.PublishInfoFilePath ?? throw new ArgumentNullException(nameof(this.PublishInfoFilePath), $"{nameof(this.PublishInfoFilePath)} was not set.");
+            var packageId = this.PackageId ?? throw new ArgumentNullException(nameof(this.PackageId), $"{nameof(this.PackageId)} was not set.");
 
-            this.persistNuGetVersionCommand.Save(this.Version!, this.OutputPath!, this.AssemblyName!, this.commandLogger);
-            var symbolPackagePath = packagePathWithoutExtension + SnupkgFileExtension;
-            if (!this.fileSystem.FileExists(symbolPackagePath))
+            try
             {
-                symbolPackagePath = packagePathWithoutExtension + SymbolsNupkgFileExtension;
+                var publishInfo = this.publishInfoProvider.Read(publishInfoFilePath);
+
+                var packagePathWithoutExtension = this.GetPackagePathWithoutExtension(publishInfo.Version);
+                var packagePath = packagePathWithoutExtension + NupkgFileExtension;
+                if (!this.fileSystem.FileExists(packagePath))
+                {
+                    throw new FileNotFoundException(string.Format(PackagePathPackagePathDoesNotExistFormat, packagePath));
+                }
+
+                var symbolPackagePath = packagePathWithoutExtension + SnupkgFileExtension;
                 if (!this.fileSystem.FileExists(symbolPackagePath))
                 {
-                    symbolPackagePath = null;
-                }
-            }
-
-            var source = this.PushSource;
-            var isLocalSource = source != null && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
-            if (this.PublishPackages)
-            {
-                var workingDirectory = this.WorkingDirectory!;
-                var settings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
-                if (isLocalSource)
-                {
-                    this.copyPackageToLocalSourceCommand.Add(this.PackageId!, packagePath, source!, this.SkipDuplicate, this.commandLogger);
-                    if (this.CopyLocalSourcePdbToSymbolCache)
+                    symbolPackagePath = packagePathWithoutExtension + SymbolsNupkgFileExtension;
+                    if (!this.fileSystem.FileExists(symbolPackagePath))
                     {
-                        foreach (var packInput in this.PackInputs!)
-                        {
-                            if (Path.GetExtension(packInput.ItemSpec) == PdbFileExtension)
-                            {
-                                this.copyPdbToSymbolCacheCommand.AddAndCleanCache(packInput.ItemSpec, this.SymbolCacheDir, settings, this.commandLogger);
-                            }
-                        }
+                        symbolPackagePath = null;
                     }
                 }
-                else
+
+                var source = publishInfo.PushSource;
+                var isValidSource = !string.IsNullOrEmpty(source);
+                var isLocalSource = isValidSource && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
+                if (isValidSource && publishInfo.IsEnabled)
                 {
-                    this.pushPackageCommand.PushAsync(
-                        packagePath,
-                        source,
-                        this.ApiKey,
-                        symbolPackagePath,
-                        this.SymbolsSource,
-                        this.SymbolApiKey,
-                        this.TimeoutInSeconds,
-                        settings,
-                        this.NoServiceEndpoint,
-                        this.SkipDuplicate,
-                        new NuGetToMsBuildLoggerAdapter(this.Log),
-                        this.commandLogger).Wait();
+                    var settings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
+                    if (isLocalSource)
+                    {
+                        this.copyPackageToLocalSourceCommand.Add(packageId, packagePath, source, this.SkipDuplicate, this.logger);
+                        if (this.CopyLocalSourcePdbToSymbolCache)
+                        {
+                            this.copyPdbToSymbolCacheCommand.AddAndCleanCache(
+                                this.PackInputs!.Where(x => Path.GetExtension(x.ItemSpec) == PdbFileExtension)
+                                    .Select(x => x.ItemSpec).ToList(),
+                                this.SymbolCacheDir,
+                                settings,
+                                this.logger);
+                        }
+                    }
+                    else
+                    {
+                        this.pushPackageCommand.PushAsync(
+                            packagePath,
+                            source,
+                            publishInfo.ApiKey,
+                            symbolPackagePath,
+                            publishInfo.SymbolsPushSource,
+                            publishInfo.SymbolsApiKey,
+                            this.TimeoutInSeconds,
+                            settings,
+                            this.NoServiceEndpoint,
+                            this.SkipDuplicate,
+                            new NuGetToMsBuildLoggerAdapter(this.logger),
+                            this.logger).Wait();
+                    }
                 }
-            }
 
-            if (source != null && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+                if (isValidSource && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+                {
+                    PublishLogger.Log(this.logger, this.PublishLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty);
+                }
+
+                if (isValidSource && this.AppendPublishFileLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+                {
+                    this.appendPublishFileLogCommand.Append(workingDirectory, this.AppendPublishFileLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty, this.logger);
+                }
+
+                var packagePathTaskItem = new TaskItem(packagePath);
+                packagePathTaskItem.SetMetadata(PackageSourceText, publishInfo.PushSource);
+                packagePathTaskItem.SetMetadata(PublishedText, publishInfo.IsEnabled.ToString(CultureInfo.InvariantCulture));
+                packagePathTaskItem.SetMetadata(IsSymbolText, false.ToString(CultureInfo.InvariantCulture));
+                this.PackagePaths = new ITaskItem[symbolPackagePath != null ? 2 : 1];
+                this.PackagePaths[0] = packagePathTaskItem;
+                if (symbolPackagePath != null)
+                {
+                    var symbolsPackagePath = new TaskItem(symbolPackagePath);
+                    symbolsPackagePath.SetMetadata(PackageSourceText, publishInfo.SymbolsPushSource);
+                    symbolsPackagePath.SetMetadata(PublishedText, publishInfo.IsEnabled.ToString(CultureInfo.InvariantCulture));
+                    symbolsPackagePath.SetMetadata(IsSymbolText, true.ToString(CultureInfo.InvariantCulture));
+                    this.PackagePaths[1] = symbolsPackagePath;
+                }
+
+                if (this.PruneSimilarPackageVersions)
+                {
+                    this.pruneSimilarPackageVersionsCommand.Prune(packagePath, packageId, publishInfo.Version);
+                }
+
+                return true;
+            }
+            catch (Exception e)
             {
-                PublishLogger.Log(this.commandLogger,  this.PublishLogFormats, this.PackageId!, this.Version!, packagePath, this.Stage!, source, this.ApiKey, this.FeedSource!, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey, this.Parameter ?? string.Empty);
+                this.logger.LogError(e.ToString());
+                return false;
             }
-
-            if (source != null && this.AppendPublishFileLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+            finally
             {
-                this.appendPublishFileLogCommand.Append(this.WorkingDirectory!, this.AppendPublishFileLogFormats, this.PackageId!, this.Version!, packagePath, this.Stage!, source, this.ApiKey, this.FeedSource!, symbolPackagePath, this.SymbolsSource, this.SymbolApiKey, this.Parameter ?? string.Empty, this.commandLogger);
+                this.publishInfoProvider.Delete(publishInfoFilePath);
             }
-
-            var packagePathTaskItem = new TaskItem(packagePath);
-            packagePathTaskItem.SetMetadata(PackageSourceText, this.PushSource);
-            packagePathTaskItem.SetMetadata(PublishedText, this.PublishPackages.ToString(CultureInfo.InvariantCulture));
-            packagePathTaskItem.SetMetadata(IsSymbolText, false.ToString(CultureInfo.InvariantCulture));
-            this.PackagePaths = new ITaskItem[symbolPackagePath != null ? 2 : 1];
-            this.PackagePaths[0] = packagePathTaskItem;
-            if (symbolPackagePath != null)
-            {
-                var symbolsPackagePath = new TaskItem(symbolPackagePath);
-                symbolsPackagePath.SetMetadata(PackageSourceText, this.SymbolsSource);
-                symbolsPackagePath.SetMetadata(PublishedText, this.PublishPackages.ToString(CultureInfo.InvariantCulture));
-                symbolsPackagePath.SetMetadata(IsSymbolText, true.ToString(CultureInfo.InvariantCulture));
-                this.PackagePaths[1] = symbolsPackagePath;
-            }
-
-            return true;
         }
 
-        private string GetPackagePathWithoutExtension()
+        private string GetPackagePathWithoutExtension(string version)
         {
-            return Path.Combine(this.ProjectDir!, this.PackageOutputPath!, $"{this.PackageId}.{this.Version}");
+            return Path.Combine(this.ProjectDir!, this.PackageOutputPath!, $"{this.PackageId}.{version}");
         }
     }
 }

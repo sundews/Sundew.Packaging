@@ -7,12 +7,12 @@
 
 namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
 {
-    using System;
     using System.IO;
     using FluentAssertions;
     using Moq;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Publish.Internal.Logging;
     using Xunit;
 
     public class CopyPackageToLocalSourceCommandTests
@@ -23,19 +23,19 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         private static readonly string ExpectedDestinationPath = Path.Combine(ASourceText, APackageIdText, APackagePathText);
         private readonly IFileSystem fileSystem;
         private readonly CopyPackageToLocalSourceCommand testee;
-        private readonly ICommandLogger commandLogger;
+        private readonly ILogger logger;
 
         public CopyPackageToLocalSourceCommandTests()
         {
             this.fileSystem = New.Mock<IFileSystem>();
             this.testee = new CopyPackageToLocalSourceCommand(this.fileSystem);
-            this.commandLogger = New.Mock<ICommandLogger>();
+            this.logger = New.Mock<ILogger>();
         }
 
         [Fact]
         public void Add_Then_ResultShouldBeExpectedDestinationPath()
         {
-            var result = this.testee.Add(APackageIdText, APackagePathText, ASourceText, false, this.commandLogger);
+            var result = this.testee.Add(APackageIdText, APackagePathText, ASourceText, false, this.logger);
 
             result.Should().Be(ExpectedDestinationPath);
         }
@@ -43,7 +43,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [Fact]
         public void Add_Then_FileSystemCopyShouldBeCalledWithExpectedDestinationPath()
         {
-            this.testee.Add(APackageIdText, APackagePathText, ASourceText, false, this.commandLogger);
+            this.testee.Add(APackageIdText, APackagePathText, ASourceText, false, this.logger);
 
             this.fileSystem.Verify(x => x.Copy(APackagePathText, ExpectedDestinationPath, true), Times.Once);
         }

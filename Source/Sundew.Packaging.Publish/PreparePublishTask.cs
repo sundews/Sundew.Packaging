@@ -13,13 +13,14 @@ namespace Sundew.Packaging.Publish
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Versioning;
-    using Sundew.Base.Enumerations;
-    using Sundew.Base.Time;
+    using Sundew.Base.Primitives;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
     using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
+    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
 
     /// <summary>MSBuild task that prepare for publishing the created NuGet package.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
@@ -30,26 +31,26 @@ namespace Sundew.Packaging.Publish
         internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
         private const string MergedAssemblyEnding = ".m";
 
-        private readonly ISettingsFactory settingsFactory;
-
         private readonly IFileSystem fileSystem;
 
         private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
 
         private readonly IPackageVersioner packageVersioner;
+        private readonly INuGetVersionProvider nuGetVersionProvider;
         private readonly ILatestVersionSourcesCommand latestVersionSourcesCommand;
 
-        private readonly ICommandLogger commandLogger;
+        private readonly ILogger logger;
+        private readonly IPublishInfoProvider publishInfoProvider;
+        private readonly PrereleaseDateTimeProvider prereleaseDateTimeProvider;
 
         /// <summary>Initializes a new instance of the <see cref="PreparePublishTask"/> class.</summary>
         public PreparePublishTask()
             : this(
                 new SettingsFactory(),
                 new FileSystem(),
-                new PackageVersioner(
-                    new DateTimeProvider(),
-                    new PackageExistsCommand(),
-                    new LatestPackageVersionCommand()),
+                null,
+                null,
+                null,
                 null)
         {
         }
@@ -57,21 +58,61 @@ namespace Sundew.Packaging.Publish
         internal PreparePublishTask(
             ISettingsFactory settingsFactory,
             IFileSystem fileSystem,
-            IPackageVersioner packageVersioner,
-            ICommandLogger? commandLogger)
+            IPackageVersioner? packageVersioner,
+            IDateTime? dateTime,
+            INuGetVersionProvider? nuGetVersionProvider,
+            ILogger? logger)
         {
-            this.settingsFactory = settingsFactory;
             this.fileSystem = fileSystem;
-            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, this.settingsFactory);
-            this.packageVersioner = packageVersioner;
+            this.logger = logger ?? new MsBuildLogger(this.Log);
+            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, settingsFactory);
+            this.publishInfoProvider = new PublishInfoProvider(this.fileSystem, this.logger);
+            this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(), new LatestPackageVersionCommand());
+            this.nuGetVersionProvider = nuGetVersionProvider ?? new NuGetVersionProvider(this.fileSystem, this.logger);
+            this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider(), this.logger);
             this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
-            this.commandLogger = commandLogger ?? new MsBuildCommandLogger(this.Log);
         }
 
         /// <summary>Gets or sets the solution dir.</summary>
         /// <value>The solution dir.</value>
         [Required]
         public string? SolutionDir { get; set; }
+
+        /// <summary>
+        /// Gets or sets the build info file path.
+        /// </summary>
+        /// <value>
+        /// The build info file path.
+        /// </value>
+        [Required]
+        public string? BuildInfoFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the publish information file path.
+        /// </summary>
+        /// <value>
+        /// The publish information file path.
+        /// </value>
+        [Required]
+        public string? PublishInfoFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the version file path.
+        /// </summary>
+        /// <value>
+        /// The version file path.
+        /// </value>
+        [Required]
+        public string? VersionFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the referenced package version file path.
+        /// </summary>
+        /// <value>
+        /// The version referenced package file path.
+        /// </value>
+        [Required]
+        public string? ReferencedPackageVersionFilePath { get; set; }
 
         /// <summary>Gets or sets the package identifier.</summary>
         /// <value>The package identifier.</value>
@@ -82,6 +123,15 @@ namespace Sundew.Packaging.Publish
         /// <value>The version.</value>
         [Required]
         public string? Version { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is source publish enabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is source publish enabled; otherwise, <c>false</c>.
+        /// </value>
+        [Required]
+        public bool IsSourcePublishEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether [allow default push source for getting latest version].
@@ -176,111 +226,86 @@ namespace Sundew.Packaging.Publish
         /// </value>
         public string? PrereleaseFormat { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [include symbols].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [include symbols]; otherwise, <c>false</c>.
+        /// </value>
+        public bool IncludeSymbols { get; set; }
+
         /// <summary>Gets or sets the parameter.</summary>
         /// <value>The parameter.</value>
         public string? Parameter { get; set; }
 
         /// <summary>
-        /// Gets the working directory.
+        /// Gets the package version.
         /// </summary>
         /// <value>
-        /// The working directory.
+        /// The package version.
         /// </value>
-        [Output]
-        public string? WorkingDirectory { get; private set; }
-
-        /// <summary>Gets the package version.</summary>
-        /// <value>The package version.</value>
         [Output]
         public string? PackageVersion { get; private set; }
 
-        /// <summary>Gets the source.</summary>
-        /// <value>The source.</value>
-        [Output]
-        public string? PushSource { get; private set; }
-
-        /// <summary>
-        /// Gets the feed source.
-        /// </summary>
-        /// <value>
-        /// The feed source.
-        /// </value>
-        [Output]
-        public string? FeedSource { get; private set; }
-
-        /// <summary>Gets the stage.</summary>
-        /// <value>The stage.</value>
-        [Output]
-        public string? Stage { get; private set; }
-
-        /// <summary>Gets the symbols source.</summary>
-        /// <value>The symbols source.</value>
-        [Output]
-        public string? SymbolsSource { get; private set; }
-
-        /// <summary>Gets a value indicating whether this instance is publish enabled.</summary>
-        /// <value>
-        ///   <c>true</c> if this instance is publish enabled; otherwise, <c>false</c>.</value>
-        [Output]
-        public bool PublishPackages { get; private set; }
-
-        /// <summary>
-        /// Gets the API key.
-        /// </summary>
-        /// <value>
-        /// The API key.
-        /// </value>
-        [Output]
-        public string? SourceApiKey { get; private set; }
-
-        /// <summary>
-        /// Gets the symbols source API key.
-        /// </summary>
-        /// <value>
-        /// The symbols source API key.
-        /// </value>
-        [Output]
-        public string? SymbolsSourceApiKey { get; private set; }
+        internal PublishInfo? PublishInfo { get; private set; }
 
         /// <summary>Must be implemented by derived class.</summary>
         /// <returns>true, if successful.</returns>
         public override bool Execute()
         {
-            this.WorkingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
-            var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
-            var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(this.WorkingDirectory, localSourceName, this.LocalSource ?? DefaultLocalSource);
-
-            var selectedSource = SourceSelector.SelectSource(
-                this.SourceName,
-                this.ProductionSource,
-                this.IntegrationSource,
-                this.DevelopmentSource,
-                nuGetSettings.LocalSourcePath,
-                this.PrereleaseFormat,
-                nuGetSettings.DefaultSettings,
-                this.AllowLocalSource);
-
-            var latestVersionSources =
-                this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, selectedSource, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
-
-            this.PublishPackages = selectedSource.IsEnabled;
-            this.PushSource = selectedSource.Uri;
-            this.FeedSource = selectedSource.FeedSource;
-            this.Stage = selectedSource.Stage;
-            this.SourceApiKey = this.GetApiKey(selectedSource);
-            this.SymbolsSource = selectedSource.SymbolsUri;
-            this.SymbolsSourceApiKey = this.GetSymbolsApiKey(selectedSource);
-            if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
+            try
             {
-                var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
-                this.VersioningMode?.TryParseEnum(out versioningMode, true);
-                this.PackageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, selectedSource, latestVersionSources, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.Log)).ToFullString();
+                var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
+                var publishInfoFilePath = this.PublishInfoFilePath ?? throw new ArgumentNullException(nameof(this.PublishInfoFilePath), $"{nameof(this.PublishInfoFilePath)} was not initialized.");
+                var versionFilePath = Path.Combine(workingDirectory, this.VersionFilePath ?? throw new ArgumentNullException(nameof(this.VersionFilePath), $"{nameof(this.VersionFilePath)} was not initialized."));
+                var referencedPackageVersionFilePath = this.ReferencedPackageVersionFilePath ?? throw new ArgumentNullException(nameof(this.ReferencedPackageVersionFilePath), $"{nameof(this.ReferencedPackageVersionFilePath)} was not initialized.");
+                var buildDateTimeFilePath = Path.Combine(workingDirectory, this.BuildInfoFilePath ?? throw new ArgumentNullException(nameof(this.BuildInfoFilePath), $"{nameof(this.BuildInfoFilePath)} was not initialized."));
 
-                return true;
+                if (this.fileSystem.FileExists(publishInfoFilePath) && this.nuGetVersionProvider.Read(versionFilePath, out var version))
+                {
+                    this.PackageVersion = version;
+                    return true;
+                }
+
+                var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
+                var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, localSourceName, this.LocalSource ?? DefaultLocalSource);
+
+                var selectedSource = SourceSelector.SelectSource(
+                    this.SourceName,
+                    this.ProductionSource,
+                    this.IntegrationSource,
+                    this.DevelopmentSource,
+                    nuGetSettings.LocalSourcePath,
+                    this.PrereleaseFormat,
+                    this.ApiKey,
+                    this.SymbolsApiKey,
+                    nuGetSettings.DefaultSettings,
+                    this.AllowLocalSource,
+                    this.IsSourcePublishEnabled);
+
+                var latestVersionSources =
+                    this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, selectedSource, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
+
+                if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
+                {
+                    var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
+                    this.VersioningMode?.TryParseEnum(out versioningMode, true);
+                    var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
+                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
+                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion, this.IncludeSymbols);
+                    this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, packageVersion);
+                    this.PackageVersion = packageVersion;
+                    return true;
+                }
+
+                this.logger.LogError($"Could not parse package version: {this.Version}");
+                return false;
             }
-
-            this.commandLogger.LogError($"Could not parse package version: {this.Version}");
-            return false;
+            catch (Exception e)
+            {
+                this.logger.LogError(e.ToString());
+                return false;
+            }
         }
 
         private static string GetFolderName(string name)
@@ -291,26 +316,6 @@ namespace Sundew.Packaging.Publish
             }
 
             return name;
-        }
-
-        private string? GetApiKey(Source source)
-        {
-            if (source.ApiKey == string.Empty)
-            {
-                return null;
-            }
-
-            return source.ApiKey ?? this.ApiKey;
-        }
-
-        private string? GetSymbolsApiKey(Source source)
-        {
-            if (source.SymbolsApiKey == string.Empty)
-            {
-                return null;
-            }
-
-            return source.SymbolsApiKey ?? this.SymbolsApiKey ?? source.ApiKey ?? this.ApiKey;
         }
     }
 }

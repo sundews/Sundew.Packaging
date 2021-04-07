@@ -12,7 +12,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using Sundew.Base.Text;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.Commands;
+    using Sundew.Packaging.Publish.Internal.Logging;
     using Xunit;
 
     public class PublishLoggerTests
@@ -35,13 +35,36 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         [InlineData("1|2|3", new[] { @"1", "2", "3" })]
         public void Log_Then_ActualMessageShouldBeExpectedResult(string packagePushFormats, string[] expectedResult)
         {
-            var commandLogger = New.Mock<ICommandLogger>();
+            var commandLogger = New.Mock<ILogger>();
             var actualMessages = new List<string>();
             commandLogger.Setup(x => x.LogImportant(It.IsAny<string>())).Callback<string>(x => actualMessages.Add(x));
+            var publishInfo = new PublishInfo(string.Empty, Source, Source, null, null, string.Empty, true, ExpectedVersion);
 
-            PublishLogger.Log(commandLogger, packagePushFormats, ExpectedPackageId, ExpectedVersion, PackagePath, string.Empty, Source, null, Source, null, null, string.Empty, "##");
+            PublishLogger.Log(commandLogger, packagePushFormats, ExpectedPackageId, PackagePath, null, publishInfo, "##");
 
             actualMessages.Should().Equal(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("{5}{7}{8}|{1}", 1)]
+        [InlineData("{5}|{7}|{8}", 0)]
+        [InlineData("{{5}}", 1)]
+        [InlineData("{5}}", 0)]
+        [InlineData("{{5}", 0)]
+        [InlineData("{{{1}", 1)]
+        [InlineData("{1}}}", 1)]
+        [InlineData(@"{11}{2}{11},{11}{4}{11},{5},{11}{7}{11},{11}{8}{11},{11}{9}{11}{12}", 0)]
+        [InlineData(@"{11}{2}{11},{11}{4}{11},{11}{9}{11}{12}", 1)]
+        [InlineData(null, 0)]
+        [InlineData("", 0)]
+        public void Log_When_FormatMayReferenceANullValue_Then_LogImportantShouldCalledExpectedNumberOfTimes(string packagePushFormats, int numberOfCalls)
+        {
+            var commandLogger = New.Mock<ILogger>();
+            var publishInfo = new PublishInfo(string.Empty, Source, Source, null, null, string.Empty, true, ExpectedVersion);
+
+            PublishLogger.Log(commandLogger, packagePushFormats, ExpectedPackageId, PackagePath, null, publishInfo, "##");
+
+            commandLogger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Exactly(numberOfCalls));
         }
     }
 }

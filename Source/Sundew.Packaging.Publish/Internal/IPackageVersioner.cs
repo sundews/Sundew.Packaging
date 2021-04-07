@@ -7,6 +7,7 @@
 
 namespace Sundew.Packaging.Publish.Internal
 {
+    using System;
     using System.Collections.Generic;
     using global::NuGet.Common;
     using global::NuGet.Versioning;
@@ -19,6 +20,7 @@ namespace Sundew.Packaging.Publish.Internal
             VersioningMode versioningMode,
             SelectedSource selectedSource,
             IReadOnlyList<string> latestVersionSources,
+            DateTime buildDateTime,
             string parameter,
             ILogger logger);
     }
