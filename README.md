@@ -48,7 +48,7 @@ For this to work, the default push source must be configured in NuGet.config: ht
 For example it would be possible to create additional build configurations within the csproj (Release-Stable, Prerelease), which would set the **SppSourceName** property accordingly.
 
 ### **3.6 Versioning**
-Local source packages are per default versioned as prerelease package and will have a postfix appended to the configured version number: **u&lt;UTC-TIMESTAMP&gt;-pre**
+Local source packages are per default versioned as prerelease package and will have a postfix appended to the configured version number: **u&lt;UTC-TIME&gt;-pre**
 
 ### **3.7 Debugging support**
 Local builds by default output .pdb files to the default symbol cache directory **%LocalAppData%\Temp\SymbolCache)**.
@@ -105,7 +105,7 @@ The staging names are prepended to the prerelease version to allow differentiati
 
 **Local** => pre  
 **Development** => dev  
-**Integration** => ci 
+**Integration** => ci  
 **Production** => prod (Not included in actual version)
 
 The staging name can be used to change how NuGet clients sort prereleases.  
