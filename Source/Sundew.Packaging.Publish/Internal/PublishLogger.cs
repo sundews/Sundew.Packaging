@@ -8,7 +8,6 @@
 namespace Sundew.Packaging.Publish.Internal
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -16,13 +15,13 @@ namespace Sundew.Packaging.Publish.Internal
     using System.Text.RegularExpressions;
     using Sundew.Base.Collections;
     using Sundew.Base.Text;
-    using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.Logging;
 
     internal static class PublishLogger
     {
         private const string DoubleQuotes = @"""";
         private const string IndexGroupName = "Index";
+        private const string IndicesContainedNullValues = "The following indices contained null values: ";
         private static readonly Regex FormatRegex = new(@"[^\{\}]*(?:(?>(?<CurlyOpen>\{\{)|\{)(?<Index>\d+)(?:[\+\-\.\,\:\w\d]*)(?>(?<CurlyClosed-CurlyOpen>\}\})|\})(?(CurlyOpen)(?!))(?(CurlyClosed)(?<-Index>)(?<-CurlyClosed>))[^\{\}]*)+");
 
         public static void Log(
@@ -37,7 +36,7 @@ namespace Sundew.Packaging.Publish.Internal
             const char pipe = '|';
             var lastWasPipe = false;
             var logFormats = packagePushLogFormats.Split(
-                (char character, int _) =>
+                (character, _, _) =>
                 {
                     var wasPipe = lastWasPipe;
                     if (wasPipe)
@@ -100,7 +99,7 @@ namespace Sundew.Packaging.Publish.Internal
                 if (indicesWithNullValues.Count > 0)
                 {
                     const string separator = ", ";
-                    return (indicesWithNullValues.AggregateToStringBuilder(new StringBuilder("The following indices contained null values: "), (builder, i) => builder.Append(i).Append(separator), builder => builder.ToStringFromEnd(separator.Length)), false);
+                    return (indicesWithNullValues.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), separator, CultureInfo.InvariantCulture).ToString(), false);
                 }
             }
 

@@ -18,7 +18,6 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
     using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
     using Xunit;
     using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;

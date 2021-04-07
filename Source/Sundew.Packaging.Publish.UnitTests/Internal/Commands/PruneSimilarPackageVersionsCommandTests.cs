@@ -10,7 +10,6 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
     using System.IO;
     using System.Linq;
     using Moq;
-    using Sundew.Base.Collections;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
     using Xunit;

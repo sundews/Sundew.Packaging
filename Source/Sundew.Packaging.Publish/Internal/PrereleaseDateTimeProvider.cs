@@ -9,7 +9,7 @@ namespace Sundew.Packaging.Publish.Internal
 {
     using System;
     using System.Globalization;
-    using Sundew.Base.Time;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
 
@@ -36,14 +36,14 @@ namespace Sundew.Packaging.Publish.Internal
                 return DateTime.ParseExact(dateTimeText, UniversalDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
             }
 
-            var dateTime = this.dateTime.UtcTime;
+            var dateTime = this.dateTime.UtcNow;
             this.logger.LogInfo($"SPP: Using DateTime.UtcNow: {dateTime}");
             return dateTime;
         }
 
         public DateTime SaveBuildDateTime(string buildInfoFilePath)
         {
-            var dateTime = this.dateTime.UtcTime;
+            var dateTime = this.dateTime.UtcNow;
             var dateTimeText = dateTime.ToString(UniversalDateTimeFormat, CultureInfo.InvariantCulture);
             this.fileSystem.WriteAllText(buildInfoFilePath, dateTimeText);
             this.logger.LogImportant($"Wrote build time: {dateTimeText} to {buildInfoFilePath}");

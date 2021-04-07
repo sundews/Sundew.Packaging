@@ -8,7 +8,6 @@
 namespace Sundew.Packaging.Publish.Internal
 {
     using System.IO;
-    using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
 

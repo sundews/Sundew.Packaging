@@ -10,9 +10,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using global::NuGet.Commands;
-    using global::NuGet.Common;
     using global::NuGet.Configuration;
-    using Sundew.Packaging.Publish.Internal.Logging;
 
     /// <summary>Pushes a NuGet package to a NuGet server.</summary>
     /// <seealso cref="IPushPackageCommand" />

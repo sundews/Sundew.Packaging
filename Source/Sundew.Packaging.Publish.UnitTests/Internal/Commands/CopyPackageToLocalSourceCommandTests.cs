@@ -7,7 +7,6 @@
 
 namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
 {
-    using System;
     using System.IO;
     using FluentAssertions;
     using Moq;

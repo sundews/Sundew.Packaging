@@ -1,4 +1,4 @@
-﻿<Project TreatAsLocalProperty="NodeReuse" Sdk="Microsoft.NET.Sdk" >
+﻿<Project TreatAsLocalProperty="NodeReuse" Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
@@ -47,7 +47,9 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Sundew.Base" Version="6.0.0" />
+		<PackageReference Include="Sundew.Base.Collections" Version="7.0.0" />
+		<PackageReference Include="Sundew.Base.Primitives" Version="7.0.0" />
+		<PackageReference Include="Sundew.Base.Text" Version="7.0.0" />
 		<PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
 	</ItemGroup>
 

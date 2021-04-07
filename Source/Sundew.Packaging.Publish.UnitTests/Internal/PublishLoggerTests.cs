@@ -12,7 +12,6 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using Sundew.Base.Text;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.Logging;
     using Xunit;
 

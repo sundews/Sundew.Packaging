@@ -9,9 +9,6 @@ namespace Sundew.Packaging.Publish.Internal.Logging
 {
     using System;
     using global::NuGet.Common;
-    using Microsoft.Build.Framework;
-    using Microsoft.Build.Utilities;
-    using Sundew.Packaging.Publish.Internal.Commands;
 
     internal class NuGetToMsBuildLoggerAdapter : global::NuGet.Common.ILogger
     {

@@ -9,10 +9,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
 {
     using System;
     using System.Globalization;
-    using System.Threading;
     using FluentAssertions;
     using Moq;
-    using Sundew.Base.Time;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
@@ -32,7 +31,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             this.dateTime = New.Mock<IDateTime>();
             this.fileSystem = New.Mock<IFileSystem>();
             this.testee = new PrereleaseDateTimeProvider(this.fileSystem, this.dateTime, New.Mock<ILogger>());
-            this.dateTime.Setup(x => x.UtcTime).Returns(ExpectedDateTime);
+            this.dateTime.Setup(x => x.UtcNow).Returns(ExpectedDateTime);
         }
 
         [Fact]

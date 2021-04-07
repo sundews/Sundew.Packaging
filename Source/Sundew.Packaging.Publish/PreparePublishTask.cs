@@ -13,8 +13,8 @@ namespace Sundew.Packaging.Publish
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Versioning;
-    using Sundew.Base.Enumerations;
-    using Sundew.Base.Time;
+    using Sundew.Base.Primitives;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
     using Sundew.Packaging.Publish.Internal.IO;

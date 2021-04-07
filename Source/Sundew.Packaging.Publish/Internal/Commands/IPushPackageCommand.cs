@@ -8,9 +8,7 @@
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
     using System.Threading.Tasks;
-    using global::NuGet.Common;
     using global::NuGet.Configuration;
-    using Sundew.Packaging.Publish.Internal.Logging;
 
     /// <summary>Interface for implementing a push command that pushes NuGet packages to a NuGet server.</summary>
     public interface IPushPackageCommand

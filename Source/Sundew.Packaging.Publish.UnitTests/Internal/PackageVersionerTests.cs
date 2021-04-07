@@ -13,11 +13,10 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using NuGet.Common;
     using NuGet.Versioning;
-    using Sundew.Base.Time;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
     using Xunit;
 
     public class PackageVersionerTests
@@ -34,7 +33,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         {
             this.latestPackageVersionCommand = New.Mock<ILatestPackageVersionCommand>();
             this.testee = new PackageVersioner(New.Mock<IPackageExistsCommand>(), this.latestPackageVersionCommand);
-            this.dateTime.SetupGet(x => x.UtcTime).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
+            this.dateTime.SetupGet(x => x.UtcNow).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
         }
 
         [Theory]

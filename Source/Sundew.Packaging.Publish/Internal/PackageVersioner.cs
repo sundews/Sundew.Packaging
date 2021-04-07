@@ -10,6 +10,7 @@ namespace Sundew.Packaging.Publish.Internal
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Text.RegularExpressions;
     using global::NuGet.Common;
     using global::NuGet.Versioning;
     using Sundew.Packaging.Publish.Internal.Commands;
@@ -17,6 +18,8 @@ namespace Sundew.Packaging.Publish.Internal
     internal class PackageVersioner : IPackageVersioner
     {
         internal const string PrereleasePackageDateTimeFormat = "yyyyMMdd-HHmmss";
+        private const string Replacement = "-";
+        private static readonly Regex PrefixPostfixReplacement = new(@"[^0-9A-Za-z-]");
         private readonly IPackageExistsCommand packageExistsCommand;
         private readonly ILatestPackageVersionCommand latestPackageVersionCommand;
 
@@ -149,7 +152,7 @@ namespace Sundew.Packaging.Publish.Internal
             var stringBuilder = new StringBuilder();
             if (!string.IsNullOrEmpty(selectedSource.PackagePrefix))
             {
-                stringBuilder.Append(selectedSource.PackagePrefix).Append('-');
+                stringBuilder.Append(PrefixPostfixReplacement.Replace(selectedSource.PackagePrefix, Replacement)).Append('-');
             }
 
             stringBuilder.Append('u');
@@ -161,7 +164,7 @@ namespace Sundew.Packaging.Publish.Internal
 
             if (!string.IsNullOrEmpty(selectedSource.PackagePostfix))
             {
-                stringBuilder.Append('-').Append(selectedSource.PackagePostfix);
+                stringBuilder.Append('-').Append(PrefixPostfixReplacement.Replace(selectedSource.PackagePostfix, Replacement));
             }
 
             return stringBuilder.ToString();

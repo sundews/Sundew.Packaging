@@ -8,7 +8,6 @@
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Text;
     using global::NuGet.Versioning;

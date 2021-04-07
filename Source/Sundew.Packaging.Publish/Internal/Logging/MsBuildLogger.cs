@@ -9,7 +9,6 @@ namespace Sundew.Packaging.Publish.Internal.Logging
 {
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
-    using Sundew.Packaging.Publish.Internal.Commands;
 
     internal class MsBuildLogger : ILogger
     {
