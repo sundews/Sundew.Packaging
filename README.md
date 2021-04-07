@@ -88,7 +88,7 @@ The source selecting is made in combination of the SourceMatcherRegex and the **
 The regexes will be evaluated in the order as listed above.
 
 The SourceMatcherRegex can be used to match the current branch (must be passed into MSBuild via build server) to decide which source to publish to and map to a staging name for the version prefix. The regex also supports two groups (Prefix and Postfix), which if found will be included in the prerelease version according to the following format:
-**[&lt;Prefix&gt;-]u&lt;UTC-TIMESTAMP&gt;-&lt;StagingName&gt;[-&lt;Postfix&gt;]**.
+**[&lt;Prefix&gt;-]u&lt;UTC-TIME&gt;-&lt;StagingName&gt;[-&lt;Postfix&gt;]**.
 
 Note that using the prefix may break how NuGet clients may automatically find the latest version based on Staging name and timestamp.
 
@@ -115,27 +115,27 @@ The staging name can be used to change how NuGet clients sort prereleases.
 
 ### **4.3 Suggested versioning scheme**
 **GitHub flow/Git flow**
-| **Build** | Branch type     | Release     | Versioning                                       | Release mode              |
-| --------- | --------------- | ----------- | ------------------------------------------------ | ------------------------- |
-| CI        | main            | stable      | &lt;Major.Minor.*&gt;                            | Push to Production NuGet  |
-|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-ci   | Push to Integration NuGet |
-|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev  | Push to Development NuGet |
-|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev  | -                         |
-| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-pre  | Push to local NuGet       |
+| **Build** | Branch type     | Release     | Versioning                                 | Release mode              |
+| --------- | --------------- | ----------- | ------------------------------------------ | ------------------------- |
+| CI        | main            | stable      | &lt;Major.Minor.*&gt;                      | Push to Production NuGet  |
+|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-ci  | Push to Integration NuGet |
+|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | Push to Development NuGet |
+|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | -                         |
+| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-pre | Push to local NuGet       |
 
 **Trunk based development**
-| **Build** | Branch type | Release     | Versioning                                        | Release mode              |
-| --------- | ----------- | ----------- | ------------------------------------------------- | ------------------------- |
-| CI        | release     | stable      | &lt;Major.Minor.*&gt;                             | Push to Production NuGet  |
-|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-ci    | Push to Integration NuGet |
-|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev   | Push to Development NuGet |
-|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-dev   | -                         |
-| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIMESTAMP&gt;-pre   | Push to local NuGet       |
+| **Build** | Branch type | Release     | Versioning                                 | Release mode              |
+| --------- | ----------- | ----------- | ------------------------------------------ | ------------------------- |
+| CI        | release     | stable      | &lt;Major.Minor.*&gt;                      | Push to Production NuGet  |
+|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-ci  | Push to Integration NuGet |
+|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | Push to Development NuGet |
+|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | -                         |
+| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-pre | Push to local NuGet       |
 
 Packages for the three sources above are versioned differently:  
 **SppProductionSource** = Stable - The version number defined in the **Version** MSBuild property *.  
-**SppIntegrationSource** = Prerelease - Adds the stage name **u&lt;UTC-TIMESTAMP&gt;-ci** to the configured version number *.  
-**SppDevelopmentSource** = Prerelease - Adds the stage name **u&lt;UTC-TIMESTAMP&gt;-dev** to the configured version number *.
+**SppIntegrationSource** = Prerelease - Adds the stage name **u&lt;UTC-TIME&gt;-ci** to the configured version number *.  
+**SppDevelopmentSource** = Prerelease - Adds the stage name **u&lt;UTC-TIME&gt;-dev** to the configured version number *.
 
 *) The patch component  depends on the **SppVersioningMode** MSBuild property
 
@@ -167,6 +167,7 @@ Packages for the three sources above are versioned differently:
   - **{9}** - The symbol api key
   - **{10}** - The value of the SppParameter MSBuild property
   - **{11}** - Double quotes
+  - **{12}** - Environment.NewLine
 
    Usefull for CI environments to extract information from the build. E.g. to set a build variable to the select push source and path for pushing packages from the CI environment only.
 
@@ -203,5 +204,6 @@ dotnet tool install -g Sundew.Packaging.Tool
 The projects listed at the link below use Sundew.Packaging.Publish to automate publishing packages for various stages and tag stable versions in git:  
 https://github.com/hugener/builds
 
-- [GitHub actions sample](https://github.com/hugener/Sundew.TextView.ApplicationFramework/blob/master/.github/workflows/dotnet.yml)  
+- [GitHub actions sample](https://github.com/hugener/Sundew.TextView.ApplicationFramework/blob/master/.github/workflows/dotnet.yml)
+- [GitHub actions sample (MultiTargetting)](https://github.com/hugener/Sundew.Base/blob/master/.github/workflows/dotnet.yml)  
 - [Azure Pipeline sample](https://github.com/hugener/Sundew.Generator/blob/main/azure-pipelines.yml)
