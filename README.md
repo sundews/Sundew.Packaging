@@ -88,7 +88,7 @@ The source selecting is made in combination of the SourceMatcherRegex and the **
 The regexes will be evaluated in the order as listed above.
 
 The SourceMatcherRegex can be used to match the current branch (must be passed into MSBuild via build server) to decide which source to publish to and map to a staging name for the version prefix. The regex also supports two groups (Prefix and Postfix), which if found will be included in the prerelease version according to the following format:
-**[&lt;Prefix&gt;-]u&lt;UTC-TIME&gt;-&lt;StagingName&gt;[-&lt;Postfix&gt;]**.
+**[&lt;Prefix&gt;-]u&lt;UTC&gt;-&lt;StagingName&gt;[-&lt;Postfix&gt;]**.
 
 Note that using the prefix may break how NuGet clients may automatically find the latest version based on Staging name and timestamp.
 
@@ -103,7 +103,7 @@ This allows the source to be selected based on the branch name in git, etc.
 #### **4.1.3 Staging names**
 The staging names are prepended to the prerelease version to allow differentiating the stage of a package and ensures that NuGet clients will detect the latest prerelease in the following order.
 
-**Local** => pre  
+**Local** => local  
 **Development** => dev  
 **Integration** => ci  
 **Production** => prod (Not included in actual version)
@@ -115,27 +115,27 @@ The staging name can be used to change how NuGet clients sort prereleases.
 
 ### **4.3 Suggested versioning scheme**
 **GitHub flow/Git flow**
-| **Build** | Branch type     | Release     | Versioning                                 | Release mode              |
-| --------- | --------------- | ----------- | ------------------------------------------ | ------------------------- |
-| CI        | main            | stable      | &lt;Major.Minor.*&gt;                      | Push to Production NuGet  |
-|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-ci  | Push to Integration NuGet |
-|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | Push to Development NuGet |
-|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | -                         |
-| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-pre | Push to local NuGet       |
+| **Build** | Branch type     | Release     | Versioning                            | Release mode              |
+| --------- | --------------- | ----------- | ------------------------------------- | ------------------------- |
+| CI        | main            | stable      | &lt;Major.Minor.*&gt;                 | Push to Production NuGet  |
+|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-ci  | Push to Integration NuGet |
+|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | Push to Development NuGet |
+|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | -                         |
+| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-pre | Push to local NuGet       |
 
 **Trunk based development**
-| **Build** | Branch type | Release     | Versioning                                 | Release mode              |
-| --------- | ----------- | ----------- | ------------------------------------------ | ------------------------- |
-| CI        | release     | stable      | &lt;Major.Minor.*&gt;                      | Push to Production NuGet  |
-|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-ci  | Push to Integration NuGet |
-|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | Push to Development NuGet |
-|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-dev | -                         |
-| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC-TIME&gt;-pre | Push to local NuGet       |
+| **Build** | Branch type | Release     | Versioning                            | Release mode              |
+| --------- | ----------- | ----------- | ------------------------------------- | ------------------------- |
+| CI        | release     | stable      | &lt;Major.Minor.*&gt;                 | Push to Production NuGet  |
+|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-ci  | Push to Integration NuGet |
+|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | Push to Development NuGet |
+|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | -                         |
+| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-pre | Push to local NuGet       |
 
 Packages for the three sources above are versioned differently:  
 **SppProductionSource** = Stable - The version number defined in the **Version** MSBuild property *.  
-**SppIntegrationSource** = Prerelease - Adds the stage name **u&lt;UTC-TIME&gt;-ci** to the configured version number *.  
-**SppDevelopmentSource** = Prerelease - Adds the stage name **u&lt;UTC-TIME&gt;-dev** to the configured version number *.
+**SppIntegrationSource** = Prerelease - Adds the stage name **u&lt;UTC&gt;-ci** to the configured version number *.  
+**SppDevelopmentSource** = Prerelease - Adds the stage name **u&lt;UTC&gt;-dev** to the configured version number *.
 
 *) The patch component  depends on the **SppVersioningMode** MSBuild property
 
@@ -178,7 +178,9 @@ Packages for the three sources above are versioned differently:
 
 - **SppLatestVersionSources** = (default: **null**) A pipe (|) separated list of sources to query to find the latest version.
 - **SppAddDefaultPushSourceToLatestVersionSources** = (default: **true**) Adds the default push source to SppLatestVersionSources.
+- **SppLocalPackageStage** (default: **true**) Local builds will use the specified stage.
 - **SppPrereleaseFormat** = (default: **null**) Sets the fallback prerelease format for prerelease source if not specified in the Source Matcher.
+- **SppDisable** = (default: **null**) Disables SPP completely.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:  
@@ -190,7 +192,7 @@ The items contains the following information:
 - **IsSymbol** = indicates whether the package is a symbols package
 
 ## **6. Extensibility**
-The combination of build output and disabling publication allows to override the publish functionality. By creating a MSBuild target, which runs after the **SppPublishNuGet** target and that consumes the **SppPackages** TaskItems, it is possible to create a custom way of publishing packages. This could be usefull for some CI setups where the build itself is not responsible for publishing packages, but rather to instruct the CI, which packages should be published and where. 
+The combination of build output and disabling publication allows to override the publish functionality. By creating a MSBuild target, which runs after the **SppPublishNuGet** target and that consumes the **SppPackages** TaskItems, it is possible to create a custom way of publishing packages. This could be usefull for some CI setups where the build itself is not responsible for publishing packages, but rather to instruct the CI, which packages should be published and where.
 
 ## **7. Updating packages**
 - Use the standard NuGet client

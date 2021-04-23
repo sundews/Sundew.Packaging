@@ -14,7 +14,7 @@
 		<Description>Automated NuGet package publisher:
 - Publish prerelease package to local NuGet feed
 - Publish to official NuGet feed
-- Customizable publish for CI based on development, integration, production stages
+- Customizable publish for build server based on development, integration, production stages
 - Automated versioning of patch-/revision- and prereleases
 - Local debug support</Description>
 		<RepositoryUrl>https://github.com/hugener/Sundew.Packaging.Publish</RepositoryUrl>
@@ -31,6 +31,7 @@
 		<WarningsAsErrors />
 		<DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
 		<PackageProjectUrl>https://github.com/hugener/Sundew.Packaging.Publish</PackageProjectUrl>
+    <SppLocalPackageStage>pre</SppLocalPackageStage>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">

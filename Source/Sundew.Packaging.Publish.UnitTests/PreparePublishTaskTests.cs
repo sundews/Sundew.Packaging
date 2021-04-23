@@ -90,15 +90,15 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-u20160108-173613-pre")]
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-u20160108-173613-local")]
         public void Execute_Then_PackageVersionShouldBeExpectedResult(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
             this.testee.Version = packageVersion;
@@ -115,15 +115,15 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-u20160108-173613-pre")]
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-u20160108-173613-local")]
         public void Execute_When_DefaultIsSet_Then_PackageVersionShouldBeExpectedPreVersion(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
             this.testee.Version = packageVersion;
@@ -199,15 +199,15 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Theory]
-        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-u20160108-173613-pre")]
-        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-u20160108-173613-pre")]
+        [InlineData("1.0", VersioningMode.AutomaticLatestPatch, false, "1.0.6-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.0-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.AlwaysIncrementPatch, false, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0", VersioningMode.NoChange, false, "1.0.0-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, true, "1.0.2-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, "1.0.1-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, "1.0.2-u20160108-173613-local")]
+        [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-u20160108-173613-local")]
         public void Execute_When_LocalPushSourceIsSet_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
             this.testee.Version = packageVersion;

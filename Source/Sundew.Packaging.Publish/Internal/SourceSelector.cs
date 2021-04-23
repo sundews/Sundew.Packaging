@@ -15,7 +15,7 @@ namespace Sundew.Packaging.Publish.Internal
     internal static class SourceSelector
     {
         internal const string DefaultPushSourceText = "defaultPushSource";
-        internal const string DefaultLocalPackageStage = "pre";
+        internal const string DefaultLocalPackageStage = "local";
         internal const string DefaultDevelopmentPackageStage = "dev";
         internal const string DefaultIntegrationPackageStage = "ci";
         internal const string DefaultProductionPackageStage = "prod";
@@ -35,6 +35,7 @@ namespace Sundew.Packaging.Publish.Internal
             string? fallbackPrereleaseFormat,
             string? fallbackApiKey,
             string? fallbackSymbolsApiKey,
+            string? localPackageStage,
             ISettings defaultSettings,
             bool allowLocalSource,
             bool isSourcePublishEnabled)
@@ -56,7 +57,7 @@ namespace Sundew.Packaging.Publish.Internal
                         return new SelectedSource(new Source(default, defaultSource, default, default, default, DefaultProductionPackageStage, true, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), isSourcePublishEnabled));
                     }
 
-                    return new SelectedSource(new Source(default, defaultSource, default, default, default, DefaultLocalPackageStage, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), isSourcePublishEnabled, true));
+                    return new SelectedSource(new Source(default, defaultSource, default, default, default, string.IsNullOrEmpty(localPackageStage) ? DefaultLocalPackageStage : localPackageStage!, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), isSourcePublishEnabled, true));
                 }
 
                 if (sourceName.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
@@ -84,7 +85,7 @@ namespace Sundew.Packaging.Publish.Internal
                 }
             }
 
-            return new SelectedSource(new Source(null, localSource, default, default, default, DefaultLocalPackageStage, false, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), allowLocalSource, allowLocalSource && isSourcePublishEnabled));
+            return new SelectedSource(new Source(null, localSource, default, default, default, string.IsNullOrEmpty(localPackageStage) ? DefaultLocalPackageStage : localPackageStage!, false, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), allowLocalSource, allowLocalSource && isSourcePublishEnabled));
         }
 
         private static void TryAddFeedSource(List<string> feedSources, Source? source)

@@ -204,6 +204,14 @@ namespace Sundew.Packaging.Publish
         /// <value>The local source.</value>
         public string? LocalSource { get; set; }
 
+        /// <summary>
+        /// Gets or sets the local package stage.
+        /// </summary>
+        /// <value>
+        /// The local package stage.
+        /// </value>
+        public string? LocalPackageStage { get; set; }
+
         /// <summary>Gets or sets a value indicating whether [allow local source].</summary>
         /// <value>
         ///   <c>true</c> if [allow local source]; otherwise, <c>false</c>.</value>
@@ -279,6 +287,7 @@ namespace Sundew.Packaging.Publish
                     this.PrereleaseFormat,
                     this.ApiKey,
                     this.SymbolsApiKey,
+                    this.LocalPackageStage,
                     nuGetSettings.DefaultSettings,
                     this.AllowLocalSource,
                     this.IsSourcePublishEnabled);

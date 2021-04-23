@@ -28,7 +28,7 @@
     AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
 
   <Target Name="SppInitialize" 
-          Condition="!$(DefineConstants.Contains('DISABLE_SPP')) AND ((('$(DesignTimeBuild)' != 'true' AND '$(BuildingProject)' != 'false')) OR '$(BuildProjectReferences)' == 'false')" 
+          Condition="'$(SppDisable)' != 'true' AND !$(DefineConstants.Contains('DISABLE_SPP')) AND ((('$(DesignTimeBuild)' != 'true' AND '$(BuildingProject)' != 'false')) OR '$(BuildProjectReferences)' == 'false')" 
           AfterTargets="BuildOnlySettings" 
           BeforeTargets="DispatchToInnerBuilds;SppGetPackageVersionForProjectReference">
     <PropertyGroup>
@@ -74,6 +74,7 @@
                  LocalSource="$(SppLocalSource)"
                  AllowLocalSource="$(SppAllowLocalSource)"
                  SourceName="$(SppSourceName)"
+                 LocalPackageStage="$(SppLocalPackageStage)"
                  PrereleaseFormat="$(SppPrereleaseFormat)"
                  IncludeSymbols="$(IncludeSymbols)"
                  Parameter="$(SppParameter)">
