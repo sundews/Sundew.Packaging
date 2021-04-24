@@ -80,6 +80,8 @@ All three follow the format:
   - **{3}** - Prefix (The value of the optional Prefix group in the SourceMatcherRegex)
   - **{4}** - Postfix (The value of the optional Postfix group in the SourceMatcherRegex)
   - **{5}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
+  The following command can be used to get the short hash and send it to a GitHub Action output using git and [CommandlineBatcher](https://github.com/hugener/CommandlineBatcher) (cb).
+```git rev-parse --short=8 HEAD | cb -c "|::set-output name=git_hash::{0}" --batches-stdin```
 
 Leading and trailing dashes "-" will be trimmed.
 
