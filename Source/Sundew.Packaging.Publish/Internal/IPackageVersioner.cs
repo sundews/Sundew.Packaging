@@ -17,6 +17,7 @@ namespace Sundew.Packaging.Publish.Internal
         SemanticVersion GetVersion(
             string packageId,
             NuGetVersion nuGetVersion,
+            string? forceVersion,
             VersioningMode versioningMode,
             SelectedSource selectedSource,
             IReadOnlyList<string> latestVersionSources,

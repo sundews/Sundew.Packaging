@@ -37,6 +37,25 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         }
 
         [Theory]
+        [InlineData("1.2.3")]
+        [InlineData("1.2.3-pre")]
+        public void GetVersion_When_ForceVersionIsSet_Then_ResultShouldBeExpectedVersion(string expectedVersion)
+        {
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse("4.5.6"),
+                expectedVersion,
+                VersioningMode.AlwaysIncrementPatch,
+                new SelectedSource(Source.Parse(AnyPushSource, "beta", false, null, null, null, null, true)!),
+                new[] { AnyPushSource },
+                BuildDateTime,
+                string.Empty,
+                New.Mock<ILogger>());
+
+            result.ToNormalizedString().Should().Be(expectedVersion);
+        }
+
+        [Theory]
         [InlineData("1.0.1", VersioningMode.NoChange, "dev", "1.0.1-u20160108-173613-dev")]
         [InlineData("2.0.0", VersioningMode.NoChange, "pre", "2.0.0-u20160108-173613-pre")]
         [InlineData("3.0.2", VersioningMode.NoChange, "ci", "3.0.2-u20160108-173613-ci")]
@@ -49,6 +68,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
+                null,
                 versioningMode,
                 new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
@@ -79,6 +99,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
+                null,
                 versioningMode,
                 new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
@@ -109,6 +130,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
+                null,
                 versioningMode,
                 new SelectedSource(Source.Parse(AnyPushSource, "ci", true, null, null, null, null, true)!),
                 new[] { AnyPushSource },

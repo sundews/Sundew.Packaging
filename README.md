@@ -125,7 +125,7 @@ The staging name can be used to change how NuGet clients sort prereleases.
 |           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | -                         |
 | Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-pre | Push to local NuGet       |
 
-**Trunk based development**
+**Trunk-based development**
 | **Build** | Branch type | Release     | Versioning                            | Release mode              |
 | --------- | ----------- | ----------- | ------------------------------------- | ------------------------- |
 | CI        | release     | stable      | &lt;Major.Minor.*&gt;                 | Push to Production NuGet  |
@@ -155,6 +155,8 @@ Packages for the three sources above are versioned differently:
   - **AlwaysIncrementPatch** = increments the patch part with 1.
   - **NoChange** = does not change the version number.
 - **SppAllowLocalSource** = (default: **true**) specifies whether local source is allowed. Usefull for CI environments to disable local source if none of the stages where matched.
+- **SppPrereleasePrefix** = (default: **null**) specifies the prefix to be used for prerelease packages.
+- **SppPrereleasePostfix** = (default: **null**) specifies the postfix to be used for prerelease packages.
 - **SppParameter** = (default: **empty**)
 - **SppPublishLogFormat** = (default: **null**) specifies a format with which packages to be pushed can be logged. Multiple formats can be separated by |.
   - **{0}** - The package id.
@@ -182,6 +184,7 @@ Packages for the three sources above are versioned differently:
 - **SppAddDefaultPushSourceToLatestVersionSources** = (default: **true**) Adds the default push source to SppLatestVersionSources.
 - **SppLocalPackageStage** (default: **true**) Local builds will use the specified stage.
 - **SppPrereleaseFormat** = (default: **null**) Sets the fallback prerelease format for prerelease source if not specified in the Source Matcher.
+- **SppForceVersion** = (default: **null**) Forces the version to the specified value if not null.
 - **SppDisable** = (default: **null**) Disables SPP completely.
 
 ### **5.2 Build output**

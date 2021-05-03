@@ -57,6 +57,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 null,
                 null,
+                null,
+                null,
                 New.Mock<ISettings>(),
                 false,
                 true);
@@ -131,6 +133,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 source,
                 string.Empty,
                 string.Empty,
+                null,
+                null,
                 null,
                 null,
                 null,

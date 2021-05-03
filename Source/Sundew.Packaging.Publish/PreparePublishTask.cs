@@ -212,6 +212,22 @@ namespace Sundew.Packaging.Publish
         /// </value>
         public string? LocalPackageStage { get; set; }
 
+        /// <summary>
+        /// Gets or sets the prerelease prefix.
+        /// </summary>
+        /// <value>
+        /// The prerelease prefix.
+        /// </value>
+        public string? PrereleasePrefix { get; set; }
+
+        /// <summary>
+        /// Gets or sets the prerelease postfix.
+        /// </summary>
+        /// <value>
+        /// The prerelease postfix.
+        /// </value>
+        public string? PrereleasePostfix { get; set; }
+
         /// <summary>Gets or sets a value indicating whether [allow local source].</summary>
         /// <value>
         ///   <c>true</c> if [allow local source]; otherwise, <c>false</c>.</value>
@@ -245,6 +261,14 @@ namespace Sundew.Packaging.Publish
         /// <summary>Gets or sets the parameter.</summary>
         /// <value>The parameter.</value>
         public string? Parameter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the forced version.
+        /// </summary>
+        /// <value>
+        /// The forced version.
+        /// </value>
+        public string? ForceVersion { get; set; }
 
         /// <summary>
         /// Gets the package version.
@@ -288,6 +312,8 @@ namespace Sundew.Packaging.Publish
                     this.ApiKey,
                     this.SymbolsApiKey,
                     this.LocalPackageStage,
+                    this.PrereleasePrefix,
+                    this.PrereleasePostfix,
                     nuGetSettings.DefaultSettings,
                     this.AllowLocalSource,
                     this.IsSourcePublishEnabled);
@@ -300,7 +326,7 @@ namespace Sundew.Packaging.Publish
                     var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
                     this.VersioningMode?.TryParseEnum(out versioningMode, true);
                     var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
-                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
+                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
                     this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion, this.IncludeSymbols);
                     this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, packageVersion);
                     this.PackageVersion = packageVersion;

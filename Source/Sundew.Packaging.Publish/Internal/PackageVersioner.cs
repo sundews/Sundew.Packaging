@@ -32,6 +32,7 @@ namespace Sundew.Packaging.Publish.Internal
         public SemanticVersion GetVersion(
             string packageId,
             NuGetVersion nuGetVersion,
+            string? forceVersion,
             VersioningMode versioningMode,
             SelectedSource selectedSource,
             IReadOnlyList<string> latestVersionSources,
@@ -39,6 +40,14 @@ namespace Sundew.Packaging.Publish.Internal
             string parameter,
             ILogger logger)
         {
+            if (!string.IsNullOrEmpty(forceVersion))
+            {
+                if (NuGetVersion.TryParse(forceVersion, out NuGetVersion forcedVersion))
+                {
+                    return forcedVersion;
+                }
+            }
+
             return versioningMode switch
             {
                 VersioningMode.AutomaticLatestPatch => this.GetAutomaticLatestPatchVersion(buildDateTime, packageId, nuGetVersion, selectedSource, latestVersionSources, parameter, logger),
