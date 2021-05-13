@@ -16,6 +16,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 
     internal class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
     {
+        private const string NuGetOrg = @"nuget.org";
         private readonly IFileSystem fileSystem;
 
         public LatestVersionSourcesCommand(IFileSystem fileSystem)
@@ -23,7 +24,12 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             this.fileSystem = fileSystem;
         }
 
-        public IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, SelectedSource selectedSource, NuGetSettings nuGetSettings, bool addDefaultPushSource)
+        public IReadOnlyList<string> GetLatestVersionSources(
+            string? latestVersionSourcesText,
+            SelectedSource selectedSource,
+            NuGetSettings nuGetSettings,
+            bool addNuGetOrgSource,
+            bool addAllSources)
         {
             var latestVersionSources = new List<string>();
             this.TryAddFeedSource(latestVersionSources, selectedSource.FeedSource);
@@ -36,10 +42,25 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 }
             }
 
-            var defaultPushSource = new PackageSourceProvider(nuGetSettings.DefaultSettings).DefaultPushSource;
-            if (addDefaultPushSource && !string.IsNullOrEmpty(defaultPushSource) && this.IsRemoteSourceOrDoesLocalSourceExists(defaultPushSource))
+            if (addNuGetOrgSource)
             {
-                latestVersionSources.Add(defaultPushSource);
+                var nuGetOrgSource = nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == NuGetOrg)?.Value;
+                if (!string.IsNullOrEmpty(nuGetOrgSource) && nuGetOrgSource != null)
+                {
+                    latestVersionSources.Add(nuGetOrgSource);
+                }
+            }
+
+            if (addAllSources)
+            {
+                foreach (var item in nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>() ?? Enumerable.Empty<AddItem>())
+                {
+                    var sourceUrl = item?.Value;
+                    if (!string.IsNullOrEmpty(sourceUrl) && sourceUrl != null)
+                    {
+                        latestVersionSources.Add(sourceUrl);
+                    }
+                }
             }
 
             if (latestVersionSourcesText == null)

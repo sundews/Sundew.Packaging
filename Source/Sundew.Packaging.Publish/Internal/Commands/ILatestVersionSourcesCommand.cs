@@ -11,6 +11,11 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 
     internal interface ILatestVersionSourcesCommand
     {
-        IReadOnlyList<string> GetLatestVersionSources(string? latestVersionSourcesText, SelectedSource selectedSource, NuGetSettings nuGetSettings, bool addDefaultPushSource);
+        IReadOnlyList<string> GetLatestVersionSources(
+            string? latestVersionSourcesText,
+            SelectedSource selectedSource,
+            NuGetSettings nuGetSettings,
+            bool addNuGetOrgSource,
+            bool addAllSources);
     }
 }

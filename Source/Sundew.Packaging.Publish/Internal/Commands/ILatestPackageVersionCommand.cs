@@ -14,6 +14,13 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 
     internal interface ILatestPackageVersionCommand
     {
-        Task<NuGetVersion?> GetLatestMajorMinorVersion(string packageId, IReadOnlyList<string> sources, NuGetVersion nuGetVersion, bool includePatchInMatch, bool allowPrerelease, ILogger logger);
+        Task<NuGetVersion?> GetLatestMajorMinorVersion(
+            string packageId,
+            IReadOnlyList<string> sources,
+            NuGetVersion nuGetVersion,
+            bool includePatchInMatch,
+            bool allowPrerelease,
+            ILogger nuGetLogger,
+            Logging.ILogger logger);
     }
 }

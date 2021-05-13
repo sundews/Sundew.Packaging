@@ -90,9 +90,7 @@ namespace Sundew.Packaging.Publish.Internal
             {
                 packageId, publishInfo.Version, packagePath, publishInfo.Stage, publishInfo.PushSource, publishInfo.ApiKey, publishInfo.FeedSource, symbolPackagePath, publishInfo.SymbolsPushSource, publishInfo.SymbolsApiKey, parameter, DoubleQuotes, Environment.NewLine,
             };
-            var stopWatch = Stopwatch.StartNew();
             var match = FormatRegex.Match(logFormat);
-            var e = stopWatch.Elapsed;
             if (match.Success)
             {
                 var indicesWithNullValues = match.Groups[IndexGroupName].Captures.Cast<Capture>().Select(x => int.Parse(x.Value)).Where(x => arguments[x] == null).ToReadOnly();

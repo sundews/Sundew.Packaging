@@ -17,12 +17,16 @@ namespace Sundew.Packaging.Publish.Internal
         SemanticVersion GetVersion(
             string packageId,
             NuGetVersion nuGetVersion,
+            string? combinedVersion,
             string? forceVersion,
             VersioningMode versioningMode,
             SelectedSource selectedSource,
             IReadOnlyList<string> latestVersionSources,
             DateTime buildDateTime,
+            string? metadata,
+            string? metadataFormat,
             string parameter,
-            ILogger logger);
+            ILogger nuGetLogger,
+            Logging.ILogger logger);
     }
 }

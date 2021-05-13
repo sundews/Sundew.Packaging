@@ -2,6 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SPP'))">
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <SppAllowLocalSource Condition="'$(ContinuousIntegrationBuild)'=='True'">False</SppAllowLocalSource>
     <SppAllowLocalSource Condition="'$(SppAllowLocalSource)'==''">True</SppAllowLocalSource>
     <SppEnablePublish Condition="'$(SppEnablePublish)'==''">True</SppEnablePublish>
     <SppEnablePublish Condition="$(DefineConstants.Contains('SPP_DISABLE_PUBLISH'))">False</SppEnablePublish>
@@ -9,7 +10,8 @@
     <SppCopyLocalSourcePdbToSymbolCache Condition="'$(SppCopyLocalSourcePdbToSymbolCache)'==''">True</SppCopyLocalSourcePdbToSymbolCache>
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
-    <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppAddDefaultPushSourceToLatestVersionSources)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
+    <SppAddNuGetOrgSourceToLatestVersionSources Condition="'$(SppAddNuGetOrgSourceToLatestVersionSources)'==''">True</SppAddNuGetOrgSourceToLatestVersionSources>
+    <SppAddAllSourcesToLatestVersionSources Condition="'$(SppAddAllSourcesToLatestVersionSources)'==''">True</SppAddAllSourcesToLatestVersionSources>
     <SppPruneSimilarPackageVersions Condition="'$(SppPruneSimilarPackageVersions)'==''">True</SppPruneSimilarPackageVersions>
     <_SppEnableTargets>false</_SppEnableTargets>
     <_SppBuildInfoFilePath>.vs/Spp/BuildInfo.sppd</_SppBuildInfoFilePath>
@@ -65,6 +67,7 @@
                  IsSourcePublishEnabled="$(SppEnablePublish)"
                  VersioningMode="$(SppVersioningMode)"
                  LatestVersionSources="$(SppLatestVersionSources)"
+                 AddNuGetOrgSourceToLatestVersionSources="$(SppAddNuGetOrgSourceToLatestVersionSources)"
                  AddDefaultPushSourceToLatestVersionSources="$(SppAddDefaultPushSourceToLatestVersionSources)"
                  ProductionSource="$(SppProductionSource)"
                  IntegrationSource="$(SppIntegrationSource)"
@@ -79,8 +82,9 @@
                  PrereleasePostfix="$(SppPrereleasePostfix)"
                  PrereleaseFormat="$(SppPrereleaseFormat)"
                  IncludeSymbols="$(IncludeSymbols)"
-                 ForceVersion="$(SppForceVersion)"
-                 Parameter="$(SppParameter)">
+                 Metadata="$(SppMetadata)"
+                 Parameter="$(SppParameter)"
+                 ForceVersion="$(SppForceVersion)">
       <Output PropertyName="_SppPackageVersion" TaskParameter="PackageVersion"/>
     </PreparePublishTask>
     <PropertyGroup>

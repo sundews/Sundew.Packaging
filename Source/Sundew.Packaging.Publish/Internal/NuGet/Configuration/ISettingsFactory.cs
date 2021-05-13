@@ -16,5 +16,7 @@ namespace Sundew.Packaging.Publish.Internal.NuGet.Configuration
         ISettings LoadSpecificSettings(string root, string configFileName);
 
         ISettings Create(string root, string configFileName, bool isMachineWide);
+
+        ISettings LoadMachineWideSettings(string root);
     }
 }

@@ -73,13 +73,14 @@ All three follow the format:
 **SourceMatcherRegex\[ #StagingName\]\[ $PrereleaseVersionFormat\]=> \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
 
 **StagingName** can be used to override the default staging names.  
-**PrereleaseVersionFormat** can be used to change how the prerelease part of the version is created:
+**PrereleaseVersionFormat** and **MetadataFormat** can be used to change how the prerelease part of the version is created:
   - **{0}** - Staging name
   - **{1}** - DateTime.UtcNow formatted as yyyyMMdd-HHmmss
   - **{2}** - DateTime.UtcNow
   - **{3}** - Prefix (The value of the optional Prefix group in the SourceMatcherRegex)
   - **{4}** - Postfix (The value of the optional Postfix group in the SourceMatcherRegex)
-  - **{5}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
+  - **{5}** - Metadata
+  - **{6}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
   The following command can be used to get the short hash and send it to a GitHub Action output using git and [CommandlineBatcher](https://github.com/hugener/CommandlineBatcher) (cb).
 ```git rev-parse --short=8 HEAD | cb -c "|::set-output name=git_hash::{0}" --batches-stdin```
 
@@ -184,6 +185,8 @@ Packages for the three sources above are versioned differently:
 - **SppAddDefaultPushSourceToLatestVersionSources** = (default: **true**) Adds the default push source to SppLatestVersionSources.
 - **SppLocalPackageStage** (default: **true**) Local builds will use the specified stage.
 - **SppPrereleaseFormat** = (default: **null**) Sets the fallback prerelease format for prerelease source if not specified in the Source Matcher.
+- **SppMetadata** = (default: **null**) The metadata.
+- **SppMetadataFormat** = (default: **null**) The metadata format used to format the version metadata.
 - **SppForceVersion** = (default: **null**) Forces the version to the specified value if not null.
 - **SppDisable** = (default: **null**) Disables SPP completely.
 
@@ -211,6 +214,13 @@ dotnet tool install -g Sundew.Packaging.Tool
 The projects listed at the link below use Sundew.Packaging.Publish to automate publishing packages for various stages and tag stable versions in git:  
 https://github.com/hugener/builds
 
-- [GitHub actions sample](https://github.com/hugener/Sundew.TextView.ApplicationFramework/blob/master/.github/workflows/dotnet.yml)
-- [GitHub actions sample (MultiTargetting)](https://github.com/hugener/Sundew.Base/blob/master/.github/workflows/dotnet.yml)  
-- [Azure Pipeline sample](https://github.com/hugener/Sundew.Generator/blob/main/azure-pipelines.yml)
+**GitHub flow workflow (Libraries and frameworks)**  
+Also compatible with git flow for more manual control over the release process
+https://github.com/hugener/Sundew.Generator/blob/main/.github/workflows/dotnet.yml
+
+https://github.com/hugener/Sundew.CommandLine/blob/main/.github/workflows/dotnet.yml
+
+**(Scaled) Trunk based development workflow (Applications)**
+https://github.com/hugener/CommandlineBatcher/blob/main/.github/workflows/dotnet.yml
+
+https://github.com/hugener/Sundew.Packaging.Tool/blob/main/.github/workflows/dotnet.yml

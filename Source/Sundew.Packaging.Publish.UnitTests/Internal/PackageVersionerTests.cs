@@ -49,6 +49,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 new SelectedSource(Source.Parse(AnyPushSource, "beta", false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
+                null,
+                null,
                 string.Empty,
                 New.Mock<ILogger>());
 
@@ -73,6 +75,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
+                null,
+                null,
                 string.Empty,
                 New.Mock<ILogger>());
 
@@ -104,6 +108,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
+                null,
+                null,
                 string.Empty,
                 New.Mock<ILogger>());
 
@@ -135,10 +141,75 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 new SelectedSource(Source.Parse(AnyPushSource, "ci", true, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
+                null,
+                null,
                 string.Empty,
                 New.Mock<ILogger>());
 
             result.ToNormalizedString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", null, "3.0.0-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", "3.0.2", "3.0.3-u20160108-173613-ci")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", null, "3.0.1-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "ci", "3.0.2", "3.0.2.1-u20160108-173613-ci")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.10", "3.0.1.11-u20160108-173613-ci")]
+        public void GetVersion_When_UsingFallbackPrereleaseFormat_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string? latestVersion, string expectedResult)
+        {
+            this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
+                    AnyPackageId,
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<NuGetVersion>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<ILogger>()))
+                .ReturnsAsync(latestVersion == null ? null : NuGetVersion.Parse(latestVersion));
+
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse(versionNumber),
+                null,
+                versioningMode,
+                new SelectedSource(Source.Parse(AnyPushSource, stage, false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
+                new[] { AnyPushSource },
+                BuildDateTime,
+                null,
+                null,
+                string.Empty,
+                New.Mock<ILogger>());
+
+            result.ToNormalizedString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("{1}-{3}-{4}-{5}-{0}", "metadata", "3.0.1.11-u20160108-173613-metadata-ci+20160108-173613-metadata-ci")]
+        [InlineData("{1}-{3}-{4}-{5}-{0}", "", "3.0.1.11-u20160108-173613-ci+20160108-173613-ci")]
+        [InlineData("{1}-{3}-{4}-{5}-{0}", null, "3.0.1.11-u20160108-173613-ci+20160108-173613-ci")]
+        public void GetVersion_When_UsingFallbackPrereleaseFormat1_Then_ResultToFullStringShouldBeExpectedResult(string metadataFormat, string? metadata, string expectedResult)
+        {
+            this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
+                    AnyPackageId,
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<NuGetVersion>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<ILogger>()))
+                .ReturnsAsync(NuGetVersion.Parse("3.0.1.10"));
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse("3.0.1"),
+                null,
+                VersioningMode.AutomaticLatestRevision,
+                new SelectedSource(Source.Parse(AnyPushSource, "ci", false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
+                new[] { AnyPushSource },
+                BuildDateTime,
+                metadata,
+                metadataFormat,
+                string.Empty,
+                New.Mock<ILogger>());
+
+            result.ToFullString().Should().Be(expectedResult);
         }
     }
 }

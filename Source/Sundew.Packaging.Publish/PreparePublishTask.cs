@@ -134,12 +134,20 @@ namespace Sundew.Packaging.Publish
         public bool IsSourcePublishEnabled { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether [allow default push source for getting latest version].
+        /// Gets or sets a value indicating whether all should be added to latest version sources.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [allow default push source for getting latest version]; otherwise, <c>false</c>.
+        ///   <c>true</c> if all sources should be added to latest version sources; otherwise, <c>false</c>.
         /// </value>
-        public bool AddDefaultPushSourceToLatestVersionSources { get; set; } = true;
+        public bool AddAllSourcesToLatestVersionSources { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether NuGetOrg should be added to latest version sources.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if NuGetOrg should be added to latest version sources; otherwise, <c>false</c>.
+        /// </value>
+        public bool AddNuGetOrgSourceToLatestVersionSources { get; set; } = true;
 
         /// <summary>Gets or sets the versioning mode.</summary>
         /// <value>The versioning mode.</value>
@@ -258,6 +266,14 @@ namespace Sundew.Packaging.Publish
         /// </value>
         public bool IncludeSymbols { get; set; }
 
+        /// <summary>Gets or sets the metadata.</summary>
+        /// <value>The metadata.</value>
+        public string? Metadata { get; set; }
+
+        /// <summary>Gets or sets the metadata format.</summary>
+        /// <value>The metadata format.</value>
+        public string? MetadataFormat { get; set; }
+
         /// <summary>Gets or sets the parameter.</summary>
         /// <value>The parameter.</value>
         public string? Parameter { get; set; }
@@ -285,6 +301,7 @@ namespace Sundew.Packaging.Publish
         /// <returns>true, if successful.</returns>
         public override bool Execute()
         {
+            System.Diagnostics.Debugger.Launch();
             try
             {
                 var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
@@ -319,14 +336,19 @@ namespace Sundew.Packaging.Publish
                     this.IsSourcePublishEnabled);
 
                 var latestVersionSources =
-                    this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, selectedSource, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
+                    this.latestVersionSourcesCommand.GetLatestVersionSources(
+                        this.LatestVersionSources,
+                        selectedSource,
+                        nuGetSettings,
+                        this.AddNuGetOrgSourceToLatestVersionSources,
+                        this.AddAllSourcesToLatestVersionSources);
 
                 if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
                 {
                     var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
                     this.VersioningMode?.TryParseEnum(out versioningMode, true);
                     var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
-                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
+                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Metadata, this.MetadataFormat, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
                     this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion, this.IncludeSymbols);
                     this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, packageVersion);
                     this.PackageVersion = packageVersion;

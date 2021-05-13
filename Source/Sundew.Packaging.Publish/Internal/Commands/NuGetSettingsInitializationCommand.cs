@@ -47,11 +47,15 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == localSourceName);
             if (addItem == null)
             {
+                var machineWideSettings = this.settingsFactory.LoadMachineWideSettings(workingDirectory);
+                machineWideSettings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
+                machineWideSettings.SaveToDisk();
                 var settings = this.fileSystem.FileExists(Path.Combine(workingDirectory, NuGetConfigFileName))
                     ? this.settingsFactory.LoadSpecificSettings(workingDirectory, NuGetConfigFileName)
                     : this.settingsFactory.Create(workingDirectory, NuGetConfigFileName, false);
                 settings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
-                settings.SaveToDisk();
+
+                // settings.SaveToDisk();
                 return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
             }
 

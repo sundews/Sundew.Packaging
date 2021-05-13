@@ -21,6 +21,11 @@ namespace Sundew.Packaging.Publish.Internal.NuGet.Configuration
             return Settings.LoadSpecificSettings(root, configFileName);
         }
 
+        public ISettings LoadMachineWideSettings(string root)
+        {
+            return Settings.LoadMachineWideSettings(root, null);
+        }
+
         public ISettings Create(string root, string configFileName, bool isMachineWide)
         {
             return new Settings(root, configFileName, isMachineWide);
