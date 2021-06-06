@@ -36,7 +36,7 @@ jobs:
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210605-231708-local
+        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210606-220706-local
         
         dotnet tool update CommandlineBatcher -g
 
@@ -77,4 +77,4 @@ jobs:
         cb -c "git|tag -a {1}-{0} -m "{1}-{0}"" "git|push ${{ env.repository }} {1}-{0}" -bvs ',' -bf ${{ env.source-package-versions }}
     - name: 'Await stable package publish'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
-      run: cb -c "spt|await -s {3} {0}.{1}" -bvs ',' -bf ${{ env.source-package-versions }}
+      run: cb -c "spt|await -s {2} {0}.{1}" -bvs ',' -bf ${{ env.source-package-versions }}
