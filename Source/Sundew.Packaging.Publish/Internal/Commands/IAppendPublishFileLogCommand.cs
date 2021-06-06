@@ -7,7 +7,7 @@
 
 namespace Sundew.Packaging.Publish.Internal.Commands
 {
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning;
 
     internal interface IAppendPublishFileLogCommand
     {
@@ -21,7 +21,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="symbolPackagePath">The symbol package path.</param>
         /// <param name="publishInfo">The publish information.</param>
         /// <param name="parameter">The parameter.</param>
-        /// <param name="logger">The logger.</param>
         void Append(
             string workingDirectory,
             string packagePushFileAppendFormats,
@@ -29,7 +28,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             string packagePath,
             string? symbolPackagePath,
             PublishInfo publishInfo,
-            string parameter,
-            ILogger logger);
+            string parameter);
     }
 }

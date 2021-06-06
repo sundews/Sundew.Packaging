@@ -13,9 +13,9 @@ namespace Sundew.Packaging.Publish
     using Microsoft.Build.Utilities;
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
-    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
+    using Sundew.Packaging.Versioning.IO;
+    using ILogger = Sundew.Packaging.Versioning.Logging.ILogger;
 
     /// <summary>
     /// MSBuild task for determining the build time.

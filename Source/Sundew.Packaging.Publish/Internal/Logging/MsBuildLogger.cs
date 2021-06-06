@@ -10,7 +10,7 @@ namespace Sundew.Packaging.Publish.Internal.Logging
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
 
-    internal class MsBuildLogger : ILogger
+    internal class MsBuildLogger : Sundew.Packaging.Versioning.Logging.ILogger
     {
         private readonly TaskLoggingHelper taskLoggingHelper;
 

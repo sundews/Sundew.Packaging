@@ -82,7 +82,7 @@ All three follow the format:
   - **{5}** - Metadata
   - **{6}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
   The following command can be used to get the short hash and send it to a GitHub Action output using git and [CommandlineBatcher](https://github.com/hugener/CommandlineBatcher) (cb).
-```git rev-parse --short=8 HEAD | cb -c "|::set-output name=git_hash::{0}" --batches-stdin```
+```git rev-parse --short=10 HEAD | cb -c "|::set-output name=git_hash::{0}" --batches-stdin```
 
 Leading and trailing dashes "-" will be trimmed.
 
@@ -118,22 +118,22 @@ The staging name can be used to change how NuGet clients sort prereleases.
 
 ### **4.3 Suggested versioning scheme**
 **GitHub flow/Git flow**
-| **Build** | Branch type     | Release     | Versioning                            | Release mode              |
-| --------- | --------------- | ----------- | ------------------------------------- | ------------------------- |
-| CI        | main            | stable      | &lt;Major.Minor.*&gt;                 | Push to Production NuGet  |
-|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-ci  | Push to Integration NuGet |
-|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | Push to Development NuGet |
-|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | -                         |
-| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-pre | Push to local NuGet       |
+| **Build** | Branch type     | Release     | Versioning                              | Release mode              |
+| --------- | --------------- | ----------- | --------------------------------------- | ------------------------- |
+| CI        | main            | stable      | &lt;Major.Minor.*&gt;                   | Push to Production NuGet  |
+|           | release         | integration | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-ci    | Push to Integration NuGet |
+|           | feature/develop | developer   | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev   | Push to Development NuGet |
+|           | PR              | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev   | -                         |
+| Local     | any             | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-local | Push to local NuGet       |
 
 **Trunk-based development**
-| **Build** | Branch type | Release     | Versioning                            | Release mode              |
-| --------- | ----------- | ----------- | ------------------------------------- | ------------------------- |
-| CI        | release     | stable      | &lt;Major.Minor.*&gt;                 | Push to Production NuGet  |
-|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-ci  | Push to Integration NuGet |
-|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | Push to Development NuGet |
-|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev | -                         |
-| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-pre | Push to local NuGet       |
+| **Build** | Branch type | Release     | Versioning                              | Release mode              |
+| --------- | ----------- | ----------- | --------------------------------------- | ------------------------- |
+| CI        | release     | stable      | &lt;Major.Minor.*&gt;                   | Push to Production NuGet  |
+|           | main        | integration | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-ci    | Push to Integration NuGet |
+|           | feature     | developer   | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev   | Push to Development NuGet |
+|           | PR          | -           | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-dev   | -                         |
+| Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-local | Push to local NuGet       |
 
 Packages for the three sources above are versioned differently:  
 **SppProductionSource** = Stable - The version number defined in the **Version** MSBuild property *.  

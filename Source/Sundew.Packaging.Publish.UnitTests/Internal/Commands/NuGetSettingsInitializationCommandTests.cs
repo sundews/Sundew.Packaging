@@ -7,15 +7,17 @@
 
 namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using FluentAssertions;
     using Moq;
     using NuGet.Configuration;
-    using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
+    using Sundew.Packaging.Versioning.Commands;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
     using Xunit;
 
     public class NuGetSettingsInitializationCommandTests
@@ -25,7 +27,6 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         private const string ADefaultLocalSourceText = "ADefaultLocalSourceText";
         private const string ExpectedLocalSourceText = "ExpectedLocalSourceText";
         private readonly ISettings settings;
-        private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
         private readonly NuGetSettingsInitializationCommand testee;
         private readonly ISettings defaultSettings;
@@ -34,17 +35,18 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         {
             this.settings = New.Mock<ISettings>();
             this.defaultSettings = New.Mock<ISettings>();
-            this.fileSystem = New.Mock<IFileSystem>();
             this.settingsFactory = New.Mock<ISettingsFactory>();
-            this.testee = new NuGetSettingsInitializationCommand(this.fileSystem, this.settingsFactory);
+            this.testee = new NuGetSettingsInitializationCommand(this.settingsFactory);
             this.settingsFactory.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<string>(), false)).Returns(this.settings);
-            this.settingsFactory.Setup(x => x.LoadSpecificSettings(ASolutionDirText, NuGetSettingsInitializationCommand.NuGetConfigFileName)).Returns(this.settings);
+            this.settingsFactory.Setup(x => x.LoadSpecificSettings(It.IsAny<string>(), NuGetSettingsInitializationCommand.NuGetConfigFileName)).Returns(this.settings);
             this.settingsFactory.Setup(x => x.LoadDefaultSettings(ASolutionDirText)).Returns(this.defaultSettings);
         }
 
         [Fact]
         public void Add_When_LocalSourceNameDoesNotExist_Then_AddOrUpdateAndSaveToDiskShouldBeCalled()
         {
+            this.defaultSettings.Setup(x => x.GetConfigFilePaths()).Returns(new[] { Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"NuGet\NuGet.Config") });
+
             var result = this.testee.Initialize(ASolutionDirText, ALocalSourceNameText, ADefaultLocalSourceText);
 
             this.settings.Verify(x => x.AddOrUpdate(NuGetSettingsInitializationCommand.PackageSourcesText, It.Is<AddItem>(x => x.Key == ALocalSourceNameText && x.Value == ADefaultLocalSourceText)), Times.Once);

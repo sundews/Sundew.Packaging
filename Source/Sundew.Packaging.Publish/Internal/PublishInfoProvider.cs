@@ -9,8 +9,10 @@ namespace Sundew.Packaging.Publish.Internal
 {
     using System.IO;
     using Newtonsoft.Json;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
 
     internal class PublishInfoProvider : IPublishInfoProvider
     {
@@ -23,17 +25,19 @@ namespace Sundew.Packaging.Publish.Internal
             this.logger = logger;
         }
 
-        public PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, bool includeSymbols)
+        public PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, string metadata, bool includeSymbols)
         {
             var publishInfo = new PublishInfo(
                 selectedSource.Stage,
+                selectedSource.PackageStage,
                 selectedSource.FeedSource,
                 selectedSource.PushSource,
                 selectedSource.ApiKey,
                 includeSymbols ? selectedSource.SymbolsPushSource : null,
                 includeSymbols ? selectedSource.SymbolsApiKey : null,
                 selectedSource.IsEnabled,
-                nugetVersion);
+                nugetVersion,
+                metadata);
             var directoryPath = Path.GetDirectoryName(publishInfoFilePath);
             if (!this.fileSystem.DirectoryExists(directoryPath))
             {
@@ -41,7 +45,7 @@ namespace Sundew.Packaging.Publish.Internal
             }
 
             this.fileSystem.WriteAllText(publishInfoFilePath, JsonConvert.SerializeObject(publishInfo));
-            this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.Stage}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
+            this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.PackageStage}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
             return publishInfo;
         }
 
@@ -49,7 +53,7 @@ namespace Sundew.Packaging.Publish.Internal
         {
             var publishInfoText = this.fileSystem.ReadAllText(publishInfoFilePath!);
             var publishInfo = JsonConvert.DeserializeObject<PublishInfo>(publishInfoText);
-            this.logger.LogInfo($"Read publish info: Stage: {publishInfo.Stage}, Feed: {publishInfo.FeedSource}, PushSource: {publishInfo.PushSource}, IsEnabled: {publishInfo.IsEnabled} from {publishInfoFilePath}");
+            this.logger.LogInfo($"Read publish info: Stage: {publishInfo.PackageStage}, Feed: {publishInfo.FeedSource}, PushSource: {publishInfo.PushSource}, IsEnabled: {publishInfo.IsEnabled} from {publishInfoFilePath}");
             return publishInfo;
         }
 

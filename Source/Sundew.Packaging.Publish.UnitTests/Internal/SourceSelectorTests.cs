@@ -11,7 +11,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using NuGet.Configuration;
     using Sundew.Base.Text;
-    using Sundew.Packaging.Publish.Internal;
+    using Sundew.Packaging.Source;
     using Xunit;
 
     public class SourceSelectorTests
@@ -66,7 +66,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             result.PushSource.Should().Be(ExpectedUri);
             result.SymbolsPushSource.Should().Be(expectedSymbolUri);
             result.PackagePrefix.Should().Be(expectedPackagePrefix);
-            result.Stage.Should().Be(expectedStage);
+            result.PackageStage.Should().Be(expectedStage);
             result.PackagePostfix.Should().Be(expectedPackagePostfix);
             result.ApiKey.Should().Be(expectedSourceApiKey);
             result.SymbolsApiKey.Should().Be(expectedSymbolSourceApiKey);
@@ -147,7 +147,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             result.FeedSource.Should().Be(expectedFeedUri);
             result.SymbolsPushSource.Should().Be(expectedSymbolUri);
             result.PackagePrefix.Should().Be(expectedPackagePrefix);
-            result.Stage.Should().Be(expectedStage);
+            result.PackageStage.Should().Be(expectedStage);
             result.PackagePostfix.Should().Be(expectedPackagePostfix);
             result.ApiKey.Should().Be(expectedSourceApiKey);
             result.PrereleaseFormat.Should().Be(expectedPrereleaseFormat);

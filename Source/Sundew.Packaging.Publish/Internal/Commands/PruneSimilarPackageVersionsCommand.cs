@@ -11,7 +11,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.IO;
     using System.Text;
     using global::NuGet.Versioning;
-    using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Versioning.IO;
 
     internal class PruneSimilarPackageVersionsCommand
     {

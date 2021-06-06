@@ -1,0 +1,112 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PackageVersionLogger.cs" company="Hukano">
+// Copyright (c) Hukano. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Sundew.Packaging.Tool.Versioning
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text;
+    using Sundew.Base.Memory;
+    using Sundew.Base.Text;
+    using Sundew.Packaging.Versioning;
+
+    /// <summary>
+    /// Logs information about a package version.
+    /// </summary>
+    public sealed class PackageVersionLogger
+    {
+        private const string DoubleQuotes = @"""";
+        private const string IndicesContainedNullValues = "The following indices contained null values: ";
+        private static readonly string[] LogNames = new[] { "PackageId", "Version", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "Parameter", "DQ", "NL" };
+        private readonly IGetVersionLogger logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PackageVersionLogger"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        public PackageVersionLogger(IGetVersionLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        /// <summary>
+        /// Logs the specified log formats.
+        /// </summary>
+        /// <param name="logFormats">The log formats.</param>
+        /// <param name="packageId">The package identifier.</param>
+        /// <param name="publishInfo">The publish information.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="properties">The properties.</param>
+        public void Log(
+            IReadOnlyList<string>? logFormats,
+            string packageId,
+            PublishInfo publishInfo,
+            string parameter,
+            IReadOnlyDictionary<string, string>? properties)
+        {
+            if (logFormats == null)
+            {
+                return;
+            }
+
+            var valueBuffer = new Buffer<object?>(LogNames.Length + properties?.Count ?? 0);
+            valueBuffer.Write(packageId);
+            valueBuffer.Write(publishInfo.Version);
+            valueBuffer.Write(publishInfo.Stage);
+            valueBuffer.Write(publishInfo.PackageStage);
+            valueBuffer.Write(publishInfo.PushSource);
+            valueBuffer.Write(publishInfo.ApiKey);
+            valueBuffer.Write(publishInfo.FeedSource);
+            valueBuffer.Write(publishInfo.SymbolsPushSource);
+            valueBuffer.Write(publishInfo.SymbolsApiKey);
+            valueBuffer.Write(publishInfo.Metadata);
+            valueBuffer.Write(parameter);
+            valueBuffer.Write(DoubleQuotes);
+            valueBuffer.Write(Environment.NewLine);
+            var logNames = LogNames.ToList();
+            if (properties != null)
+            {
+                foreach (var property in properties)
+                {
+                    logNames.Add(property.Key);
+                    valueBuffer.Write(property.Value);
+                }
+            }
+
+            foreach (var logFormat in logFormats)
+            {
+                var (log, isValid) = Format(logFormat.ToString(), LogNames, valueBuffer.ToArray());
+                if (isValid)
+                {
+                    this.logger.ReportMessage(log);
+                }
+                else
+                {
+                    this.logger.ReportMessage(log);
+                }
+            }
+        }
+
+        internal static (string Log, bool IsValid) Format(
+            string logFormat,
+            IReadOnlyList<string> logNames,
+            object?[] arguments)
+        {
+            var namedFormatString = new NamedFormatString(logFormat, logNames);
+            var nullArguments = namedFormatString.GetNullArguments(arguments);
+            if (nullArguments.Count > 0)
+            {
+                const string separator = ", ";
+                return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
+            }
+
+            return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);
+        }
+    }
+}

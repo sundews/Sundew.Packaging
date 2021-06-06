@@ -19,12 +19,14 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Sundew.Base.Text;
     using Sundew.Packaging.Publish;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
+    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.Commands;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
     using Xunit;
     using BindingFlags = System.Reflection.BindingFlags;
-    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
+    using ILogger = Sundew.Packaging.Versioning.Logging.ILogger;
 
     public class PreparePublishTaskTests
     {
@@ -41,7 +43,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             { @"c:\temp", "pre" },
             { @"c:\temp\packages", string.Empty },
             { @"c:\dev\packages", "dev" },
-            { PreparePublishTask.DefaultLocalSource, "pre" },
+            { PackageSources.DefaultLocalSource, "pre" },
             { ExpectedDefaultPushSource, "pre" },
         };
 
@@ -49,7 +51,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         private readonly IPackageExistsCommand packageExistsCommand = New.Mock<IPackageExistsCommand>();
         private readonly ILatestPackageVersionCommand latestPackageVersionCommand = New.Mock<ILatestPackageVersionCommand>();
         private readonly IDateTime dateTime = New.Mock<IDateTime>();
-        private readonly ISettings settings = New.Mock<ISettings>();
+        private readonly ISettings defaultSettings = New.Mock<ISettings>();
         private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
         private readonly INuGetVersionProvider nuGetVersionProvider = New.Mock<INuGetVersionProvider>();
         private readonly ISettingsFactory settingsFactory = New.Mock<ISettingsFactory>();
@@ -60,7 +62,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.testee = new PreparePublishTask(
                 this.settingsFactory,
                 this.fileSystem,
-                new PackageVersioner(this.packageExistsCommand, this.latestPackageVersionCommand),
+                new PackageVersioner(this.packageExistsCommand, this.latestPackageVersionCommand, this.logger),
                 this.dateTime,
                 this.nuGetVersionProvider,
                 this.logger)
@@ -82,11 +84,12 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.fileSystem.Setup(x => x.FileExists(BuildDateTimeFilePath)).Returns(true);
             this.fileSystem.Setup(x => x.ReadAllText(BuildDateTimeFilePath)).Returns(new DateTime(2016, 01, 08, 17, 36, 13, DateTimeKind.Utc).ToString(PrereleaseDateTimeProvider.UniversalDateTimeFormat, CultureInfo.InvariantCulture));
             this.latestPackageVersionCommand.Setup(
-                    x => x.GetLatestMajorMinorVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<NuGet.Common.ILogger>()))
-                .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, bool, NuGet.Common.ILogger, ILatestPackageVersionCommand, NuGetVersion?>(
-                    (_, sourceUris, _, _, allowPrerelease, _) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris.First()])));
-            this.settingsFactory.Setup(x => x.LoadDefaultSettings(It.IsAny<string>())).Returns(this.settings);
-            this.settingsFactory.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(New.Mock<ISettings>());
+                    x => x.GetLatestMajorMinorVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, bool, ILatestPackageVersionCommand, NuGetVersion?>(
+                    (_, sourceUris, _, _, allowPrerelease) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris[0]])));
+            this.settingsFactory.Setup(x => x.LoadDefaultSettings(It.IsAny<string>())).Returns(this.defaultSettings);
+            this.defaultSettings.Setup(x => x.GetConfigFilePaths()).Returns(Array.Empty<string>());
+            this.settingsFactory.Setup(x => x.LoadSpecificSettings(It.IsAny<string>(), It.IsAny<string>())).Returns(New.Mock<ISettings>());
         }
 
         [Theory]
@@ -103,14 +106,14 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             this.testee.VersioningMode = versioningMode.ToString();
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(PreparePublishTask.DefaultLocalSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(PackageSources.DefaultLocalSource);
             this.testee.PublishInfo.Version.Should().Be(expectedVersion);
         }
 
@@ -128,7 +131,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             this.testee.VersioningMode = versioningMode.ToString();
             this.testee.SourceName = "default";
@@ -157,7 +160,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             this.testee.VersioningMode = versioningMode.ToString();
             this.testee.SourceName = "default-stable";
@@ -185,7 +188,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             this.testee.VersioningMode = versioningMode.ToString();
             this.testee.SourceName = "local-stable";
@@ -193,7 +196,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(PreparePublishTask.DefaultLocalSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(PackageSources.DefaultLocalSource);
             this.testee.PublishInfo.SymbolsPushSource.Should().BeNull();
             this.testee.PublishInfo.Version.Should().Be(expectedVersion);
         }
@@ -214,7 +217,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.testee.VersioningMode = versioningMode.ToString();
             this.testee.LocalSource = @"c:\temp";
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
 
             var result = this.testee.Execute();
@@ -241,7 +244,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.testee.Version = packageVersion;
             this.testee.VersioningMode = versioningMode.ToString();
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
 
             this.testee.ProductionSource = $"master=>{ExpectedPushSource}|{ExpectedSymbolsPushSource}";
@@ -310,7 +313,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.testee.SourceName = "master";
             this.testee.IncludeSymbols = includeSymbols;
 
-            var result = this.testee.Execute();
+            this.testee.Execute();
 
             this.testee.PublishInfo!.SymbolsPushSource.Should().Be(expectedSymbolsSource);
             this.testee.PublishInfo!.SymbolsApiKey.Should().Be(expectedSymbolApiKey);
@@ -332,7 +335,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
@@ -366,7 +369,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             this.testee.ProductionSource = "master => https://production.com|https://production.com/symbols";
             this.testee.DevelopmentSource = $@"/feature/(?<Prefix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
@@ -395,7 +398,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
@@ -426,7 +429,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
@@ -457,7 +460,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
-                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>(), It.IsAny<NuGet.Common.ILogger>()))
+                    x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             const string ExpectedPushSource = @"c:\dev\packages";
             const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
@@ -496,7 +499,7 @@ namespace Sundew.Packaging.Publish.UnitTests
 
         private void ArrangeDefaultPushSource()
         {
-            this.settings.Setup(x => x.GetSection(Source.ConfigText)).Returns(
+            this.defaultSettings.Setup(x => x.GetSection(Source.ConfigText)).Returns(
                 (SettingSection)typeof(VirtualSettingSection).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                     .OrderByDescending(x => x.GetParameters().Length).First().Invoke(
                         new object[]

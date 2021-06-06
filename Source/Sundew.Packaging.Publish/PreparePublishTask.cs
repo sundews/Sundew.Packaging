@@ -9,28 +9,25 @@ namespace Sundew.Packaging.Publish
 {
     using System;
     using System.IO;
-    using System.Reflection;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Versioning;
     using Sundew.Base.Primitives;
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
-    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
-    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
+    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.Commands;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
+    using ILogger = Sundew.Packaging.Versioning.Logging.ILogger;
 
     /// <summary>MSBuild task that prepare for publishing the created NuGet package.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
     public class PreparePublishTask : Task
     {
-        internal const string DefaultLocalSourceName = "Local-Sundew";
-        internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), GetFolderName(Assembly.GetExecutingAssembly().GetName().Name));
-        internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
-        private const string MergedAssemblyEnding = ".m";
-
         private readonly IFileSystem fileSystem;
 
         private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
@@ -40,6 +37,7 @@ namespace Sundew.Packaging.Publish
         private readonly ILatestVersionSourcesCommand latestVersionSourcesCommand;
 
         private readonly ILogger logger;
+        private readonly NuGetToLoggerAdapter nuGetLogger;
         private readonly IPublishInfoProvider publishInfoProvider;
         private readonly PrereleaseDateTimeProvider prereleaseDateTimeProvider;
 
@@ -65,9 +63,10 @@ namespace Sundew.Packaging.Publish
         {
             this.fileSystem = fileSystem;
             this.logger = logger ?? new MsBuildLogger(this.Log);
-            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, settingsFactory);
+            this.nuGetLogger = new NuGetToLoggerAdapter(this.logger);
+            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(settingsFactory);
             this.publishInfoProvider = new PublishInfoProvider(this.fileSystem, this.logger);
-            this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(), new LatestPackageVersionCommand());
+            this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(this.nuGetLogger), new LatestPackageVersionCommand(this.logger, this.nuGetLogger), this.logger);
             this.nuGetVersionProvider = nuGetVersionProvider ?? new NuGetVersionProvider(this.fileSystem, this.logger);
             this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider(), this.logger);
             this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
@@ -279,6 +278,14 @@ namespace Sundew.Packaging.Publish
         public string? Parameter { get; set; }
 
         /// <summary>
+        /// Gets or sets the version format.
+        /// </summary>
+        /// <value>
+        /// The version format.
+        /// </value>
+        public string? VersionFormat { get; set; }
+
+        /// <summary>
         /// Gets or sets the forced version.
         /// </summary>
         /// <value>
@@ -301,7 +308,6 @@ namespace Sundew.Packaging.Publish
         /// <returns>true, if successful.</returns>
         public override bool Execute()
         {
-            System.Diagnostics.Debugger.Launch();
             try
             {
                 var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(this.SolutionDir, this.fileSystem);
@@ -316,8 +322,8 @@ namespace Sundew.Packaging.Publish
                     return true;
                 }
 
-                var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
-                var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, localSourceName, this.LocalSource ?? DefaultLocalSource);
+                var localSourceName = this.LocalSourceName ?? PackageSources.DefaultLocalSourceName;
+                var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, localSourceName, this.LocalSource ?? PackageSources.DefaultLocalSource);
 
                 var selectedSource = SourceSelector.SelectSource(
                     this.SourceName,
@@ -345,13 +351,14 @@ namespace Sundew.Packaging.Publish
 
                 if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
                 {
-                    var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
+                    var versioningMode = Versioning.VersioningMode.AutomaticLatestPatch;
                     this.VersioningMode?.TryParseEnum(out versioningMode, true);
                     var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
-                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Metadata, this.MetadataFormat, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
-                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion, this.IncludeSymbols);
-                    this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, packageVersion);
-                    this.PackageVersion = packageVersion;
+                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.VersionFormat, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Metadata, this.MetadataFormat, this.Parameter ?? string.Empty);
+                    var fullPackageVersion = packageVersion.ToFullString();
+                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion.ToNormalizedString(), packageVersion.Metadata, this.IncludeSymbols);
+                    this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, fullPackageVersion);
+                    this.PackageVersion = fullPackageVersion;
                     return true;
                 }
 
@@ -363,16 +370,6 @@ namespace Sundew.Packaging.Publish
                 this.logger.LogError(e.ToString());
                 return false;
             }
-        }
-
-        private static string GetFolderName(string name)
-        {
-            if (name.EndsWith(MergedAssemblyEnding))
-            {
-                return name.Substring(0, name.Length - MergedAssemblyEnding.Length);
-            }
-
-            return name;
         }
     }
 }

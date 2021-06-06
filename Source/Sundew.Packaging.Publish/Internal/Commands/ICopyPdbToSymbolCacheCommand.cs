@@ -9,7 +9,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
 {
     using System.Collections.Generic;
     using global::NuGet.Configuration;
-    using Sundew.Packaging.Publish.Internal.Logging;
 
     /// <summary>Interface for implementing a command that copies pdb files to the symbol cache.</summary>
     public interface ICopyPdbToSymbolCacheCommand
@@ -20,7 +19,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="pdbFilePaths">The PDB file paths.</param>
         /// <param name="symbolCacheDirectoryPath">The symbol cache directory path.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="logger">The logger.</param>
-        void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings, ILogger logger);
+        void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings);
     }
 }

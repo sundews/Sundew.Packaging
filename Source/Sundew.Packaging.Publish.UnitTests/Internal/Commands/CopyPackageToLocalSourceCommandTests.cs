@@ -11,8 +11,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
     using FluentAssertions;
     using Moq;
     using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
     using Xunit;
 
     public class CopyPackageToLocalSourceCommandTests
@@ -28,14 +28,14 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         public CopyPackageToLocalSourceCommandTests()
         {
             this.fileSystem = New.Mock<IFileSystem>();
-            this.testee = new CopyPackageToLocalSourceCommand(this.fileSystem);
             this.logger = New.Mock<ILogger>();
+            this.testee = new CopyPackageToLocalSourceCommand(this.fileSystem, this.logger);
         }
 
         [Fact]
         public void Add_Then_ResultShouldBeExpectedDestinationPath()
         {
-            var result = this.testee.Add(APackageIdText, APackagePathText, ASourceText, false, this.logger);
+            var result = this.testee.Add(APackageIdText, APackagePathText, ASourceText, false);
 
             result.Should().Be(ExpectedDestinationPath);
         }
@@ -43,7 +43,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [Fact]
         public void Add_Then_FileSystemCopyShouldBeCalledWithExpectedDestinationPath()
         {
-            this.testee.Add(APackageIdText, APackagePathText, ASourceText, false, this.logger);
+            this.testee.Add(APackageIdText, APackagePathText, ASourceText, false);
 
             this.fileSystem.Verify(x => x.Copy(APackagePathText, ExpectedDestinationPath, true), Times.Once);
         }

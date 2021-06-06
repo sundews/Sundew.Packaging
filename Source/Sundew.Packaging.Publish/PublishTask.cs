@@ -16,10 +16,11 @@ namespace Sundew.Packaging.Publish
     using NuGet.Common;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
-    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
-    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
+    using ILogger = Sundew.Packaging.Versioning.Logging.ILogger;
 
     /// <summary>Publishes the created NuGet package to a specified package source.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
@@ -41,17 +42,19 @@ namespace Sundew.Packaging.Publish
         private readonly IFileSystem fileSystem;
         private readonly ISettingsFactory settingsFactory;
         private readonly ILogger logger;
+        private readonly NuGetToLoggerAdapter nuGetLogger;
         private readonly IAppendPublishFileLogCommand appendPublishFileLogCommand;
+        private readonly PackagePublicationLogger packagePublicationLogger;
         private readonly PruneSimilarPackageVersionsCommand pruneSimilarPackageVersionsCommand;
 
         /// <summary>Initializes a new instance of the <see cref="PublishTask"/> class.</summary>
         public PublishTask()
          : this(
-             new Internal.IO.FileSystem(),
+             new FileSystem(),
              null,
-             new PushPackageCommand(),
-             new CopyPackageToLocalSourceCommand(),
-             new CopyPdbToSymbolCacheCommand(),
+             null,
+             null,
+             null,
              new SettingsFactory(),
              null)
         {
@@ -60,21 +63,23 @@ namespace Sundew.Packaging.Publish
         internal PublishTask(
             IFileSystem fileSystem,
             IPublishInfoProvider? publishInfoProvider,
-            IPushPackageCommand pushPackageCommand,
-            ICopyPackageToLocalSourceCommand copyPackageToLocalSourceCommand,
-            ICopyPdbToSymbolCacheCommand copyPdbToSymbolCacheCommand,
+            IPushPackageCommand? pushPackageCommand,
+            ICopyPackageToLocalSourceCommand? copyPackageToLocalSourceCommand,
+            ICopyPdbToSymbolCacheCommand? copyPdbToSymbolCacheCommand,
             ISettingsFactory settingsFactory,
-            ILogger? commandLogger)
+            ILogger? logger)
         {
             this.fileSystem = fileSystem;
-            this.logger = commandLogger ?? new MsBuildLogger(this.Log);
+            this.logger = logger ?? new MsBuildLogger(this.Log);
+            this.nuGetLogger = new NuGetToLoggerAdapter(this.logger);
             this.publishInfoProvider = publishInfoProvider ?? new PublishInfoProvider(this.fileSystem, this.logger);
-            this.pushPackageCommand = pushPackageCommand;
-            this.copyPackageToLocalSourceCommand = copyPackageToLocalSourceCommand;
-            this.copyPdbToSymbolCacheCommand = copyPdbToSymbolCacheCommand;
+            this.pushPackageCommand = pushPackageCommand ?? new PushPackageCommand(this.logger, this.nuGetLogger);
+            this.copyPackageToLocalSourceCommand = copyPackageToLocalSourceCommand ?? new CopyPackageToLocalSourceCommand(this.fileSystem, this.logger);
+            this.copyPdbToSymbolCacheCommand = copyPdbToSymbolCacheCommand ?? new CopyPdbToSymbolCacheCommand(this.fileSystem, this.logger);
             this.settingsFactory = settingsFactory;
             this.pruneSimilarPackageVersionsCommand = new PruneSimilarPackageVersionsCommand(this.fileSystem);
-            this.appendPublishFileLogCommand = new AppendPublishFileLogCommand(this.fileSystem);
+            this.appendPublishFileLogCommand = new AppendPublishFileLogCommand(this.fileSystem, this.logger);
+            this.packagePublicationLogger = new PackagePublicationLogger(this.logger);
         }
 
         /// <summary>Gets or sets the solution dir.</summary>
@@ -215,15 +220,14 @@ namespace Sundew.Packaging.Publish
                     var settings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
                     if (isLocalSource)
                     {
-                        this.copyPackageToLocalSourceCommand.Add(packageId, packagePath, source, this.SkipDuplicate, this.logger);
+                        this.copyPackageToLocalSourceCommand.Add(packageId, packagePath, source, this.SkipDuplicate);
                         if (this.CopyLocalSourcePdbToSymbolCache)
                         {
                             this.copyPdbToSymbolCacheCommand.AddAndCleanCache(
                                 this.PackInputs!.Where(x => Path.GetExtension(x.ItemSpec) == PdbFileExtension)
                                     .Select(x => x.ItemSpec).ToList(),
                                 this.SymbolCacheDir,
-                                settings,
-                                this.logger);
+                                settings);
                         }
                     }
                     else
@@ -238,20 +242,18 @@ namespace Sundew.Packaging.Publish
                             this.TimeoutInSeconds,
                             settings,
                             this.NoServiceEndpoint,
-                            this.SkipDuplicate,
-                            new NuGetToMsBuildLoggerAdapter(this.logger),
-                            this.logger).Wait();
+                            this.SkipDuplicate).Wait();
                     }
                 }
 
                 if (isValidSource && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
                 {
-                    PublishLogger.Log(this.logger, this.PublishLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty);
+                    this.packagePublicationLogger.Log(this.PublishLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty);
                 }
 
                 if (isValidSource && this.AppendPublishFileLogFormats != null && (!isLocalSource || this.AllowLocalSource))
                 {
-                    this.appendPublishFileLogCommand.Append(workingDirectory, this.AppendPublishFileLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty, this.logger);
+                    this.appendPublishFileLogCommand.Append(workingDirectory, this.AppendPublishFileLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty);
                 }
 
                 var packagePathTaskItem = new TaskItem(packagePath);

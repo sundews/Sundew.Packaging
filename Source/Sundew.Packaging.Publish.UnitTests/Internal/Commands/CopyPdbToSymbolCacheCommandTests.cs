@@ -12,8 +12,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
     using Moq;
     using NuGet.Configuration;
     using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
     using Xunit;
 
     public class CopyPdbToSymbolCacheCommandTests
@@ -31,8 +31,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         public CopyPdbToSymbolCacheCommandTests()
         {
             this.fileSystem = New.Mock<IFileSystem>();
-            this.testee = new CopyPdbToSymbolCacheCommand(this.fileSystem);
             this.logger = New.Mock<ILogger>();
+            this.testee = new CopyPdbToSymbolCacheCommand(this.fileSystem, this.logger);
             this.settings = New.Mock<ISettings>();
             this.fileSystem.Setup(x => x.ReadAllBytes(It.IsAny<string>())).Returns(GetBytes(Assembly.GetExecutingAssembly().GetManifestResourceStream("Sundew.Packaging.Publish.UnitTests.Internal.Commands.Sundew.Packaging.Publish.pdb")!));
         }
@@ -40,7 +40,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [Fact]
         public void AddAndCleanCache_Then_FileSystemCopyShouldBeCalled()
         {
-            this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings, this.logger);
+            this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings);
 
             this.fileSystem.Verify(x => x.Copy(APdbFilePathPdbText[0], ExpectedDestinationPdbPathText, true), Times.Once);
         }
@@ -52,7 +52,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
             this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
             this.fileSystem.Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new[] { ExpectedSppFilePath });
 
-            this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings, this.logger);
+            this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings);
 
             this.fileSystem.Verify(x => x.DeleteDirectory(expectedSbpDirectoryPath, true), Times.Once);
         }
@@ -63,18 +63,16 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
             this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
             this.fileSystem.Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new[] { ExpectedSppFilePath });
 
-            this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings, this.logger);
+            this.testee.AddAndCleanCache(APdbFilePathPdbText, ASymbolCacheDirectoryPathText, this.settings);
 
             this.fileSystem.Verify(x => x.WriteAllText(ExpectedSppFilePath, string.Empty), Times.Once);
         }
 
         private static byte[] GetBytes(Stream stream)
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                stream.CopyTo(memoryStream);
-                return memoryStream.ToArray();
-            }
+            using var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }

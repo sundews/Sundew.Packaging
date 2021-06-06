@@ -13,7 +13,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
     using NuGet.Common;
     using NuGet.Configuration;
     using NuGet.Versioning;
-    using Sundew.Packaging.Publish.Internal.Commands;
+    using Sundew.Packaging.Versioning.Commands;
     using Xunit;
 
     public class LatestPackageVersionCommandTests
@@ -22,7 +22,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
 
         public LatestPackageVersionCommandTests()
         {
-            this.testee = new LatestPackageVersionCommand();
+            this.testee = new LatestPackageVersionCommand(New.Mock<Versioning.Logging.ILogger>(), New.Mock<ILogger>());
         }
 
         [Theory]
@@ -32,7 +32,12 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [InlineData("Serilog", "2.2.0", false, true, "2.2.0")]
         public async Task GetLatestVersion_Then_ResultShouldBeExpectedResult(string packageId, string version, bool allowPrerelease, bool includePatchInMatch, string expectedVersion)
         {
-            var result = await this.testee.GetLatestMajorMinorVersion(packageId, new[] { NuGetConstants.V3FeedUrl }, NuGetVersion.Parse(version), includePatchInMatch, allowPrerelease, New.Mock<ILogger>());
+            var result = await this.testee.GetLatestMajorMinorVersion(
+                packageId,
+                new[] { NuGetConstants.V3FeedUrl },
+                NuGetVersion.Parse(version),
+                includePatchInMatch,
+                allowPrerelease);
 
             result.Should().Be(NuGetVersion.Parse(expectedVersion));
         }

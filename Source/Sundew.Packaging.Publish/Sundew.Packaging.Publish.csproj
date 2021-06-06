@@ -3,14 +3,9 @@
 	<PropertyGroup>
 		<MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
 		<NodeReuse>False</NodeReuse>
-		<LangVersion>9</LangVersion>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<Authors>Kim Hugener-Ohlsen</Authors>
-		<Company>Hukano</Company>
-		<Owners>Kim Hugener-Ohlsen</Owners>
 		<Description>Automated NuGet package publisher:
 - Publish prerelease package to local NuGet feed
 - Publish to official NuGet feed
@@ -24,14 +19,11 @@
 3.x - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
 2.x - Added support for automatic prerelease patch increment
 1.x - Initial release</PackageReleaseNotes>
-		<RepositoryType>git</RepositoryType>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Copyright>Kim Hugener-Ohlsen</Copyright>
 		<Configurations>Debug;Release;Release-Stable</Configurations>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<WarningsAsErrors />
 		<DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-		<PackageProjectUrl>https://github.com/hugener/Sundew.Packaging.Publish</PackageProjectUrl>
+    <NoWarn>1701;1702;1591</NoWarn>
     <SppLocalPackageStage>pre</SppLocalPackageStage>
 	</PropertyGroup>
 
@@ -45,13 +37,13 @@
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" />
 		<PackageReference Include="NuGet.Commands" Version="5.9.1" />
 		<PackageReference Include="NuGet.Protocol" Version="5.9.1" />
-		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.321">
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Sundew.Base.Collections" Version="7.0.3" />
-		<PackageReference Include="Sundew.Base.Primitives" Version="7.0.3" />
-		<PackageReference Include="Sundew.Base.Text" Version="7.0.3" />
+		<PackageReference Include="Sundew.Base.Collections" Version="8.0.0-u20210603-215906-local" />
+		<PackageReference Include="Sundew.Base.Primitives" Version="8.0.0-u20210603-215906-local" />
+		<PackageReference Include="Sundew.Base.Text" Version="8.0.0-u20210603-215906-local" />
 		<PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
 	</ItemGroup>
 
@@ -100,11 +92,15 @@
   <ItemGroup>
     <None Include="build\SppGetBuildDateTime.proj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
+  </ItemGroup>
 	
   <Target Name="_CopySelf" BeforeTargets="SppInitialize">
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
 	</Target>
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" />
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinousIntegrationBuild)' != 'true'" />
 
 </Project>

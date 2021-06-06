@@ -2,10 +2,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SPP'))">
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
-    <SppAllowLocalSource Condition="'$(ContinuousIntegrationBuild)'=='True'">False</SppAllowLocalSource>
+    <GeneratePackageOnBuild Condition="'$(SppWorkLocally)'=='True'">True</GeneratePackageOnBuild>
     <SppAllowLocalSource Condition="'$(SppAllowLocalSource)'==''">True</SppAllowLocalSource>
+    <SppAllowLocalSource Condition="'$(ContinuousIntegrationBuild)'=='True' OR '$(SppWorkLocally)'=='False'">False</SppAllowLocalSource>
     <SppEnablePublish Condition="'$(SppEnablePublish)'==''">True</SppEnablePublish>
-    <SppEnablePublish Condition="$(DefineConstants.Contains('SPP_DISABLE_PUBLISH'))">False</SppEnablePublish>
+    <SppEnablePublish Condition="$(DefineConstants.Contains('SPP_DISABLE_PUBLISH')) OR '$(GeneratePackageOnBuild)'!='True'">False</SppEnablePublish>
     <SppTimeoutInSeconds Condition="'$(SppTimeoutInSeconds)'==''">300</SppTimeoutInSeconds>
     <SppCopyLocalSourcePdbToSymbolCache Condition="'$(SppCopyLocalSourcePdbToSymbolCache)'==''">True</SppCopyLocalSourcePdbToSymbolCache>
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
@@ -68,7 +69,7 @@
                  VersioningMode="$(SppVersioningMode)"
                  LatestVersionSources="$(SppLatestVersionSources)"
                  AddNuGetOrgSourceToLatestVersionSources="$(SppAddNuGetOrgSourceToLatestVersionSources)"
-                 AddDefaultPushSourceToLatestVersionSources="$(SppAddDefaultPushSourceToLatestVersionSources)"
+                 AddAllSourcesToLatestVersionSources="$(SppAddAllSourcesToLatestVersionSources)"
                  ProductionSource="$(SppProductionSource)"
                  IntegrationSource="$(SppIntegrationSource)"
                  DevelopmentSource="$(SppDevelopmentSource)"
@@ -83,7 +84,9 @@
                  PrereleaseFormat="$(SppPrereleaseFormat)"
                  IncludeSymbols="$(IncludeSymbols)"
                  Metadata="$(SppMetadata)"
+                 MetadataFormat="$(SppMetadataFormat)"
                  Parameter="$(SppParameter)"
+                 VersionFormat="$(SppVersionFormat)"
                  ForceVersion="$(SppForceVersion)">
       <Output PropertyName="_SppPackageVersion" TaskParameter="PackageVersion"/>
     </PreparePublishTask>

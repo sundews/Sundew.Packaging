@@ -8,8 +8,8 @@
 namespace Sundew.Packaging.Publish.Internal
 {
     using System.IO;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
 
     /// <summary>
     /// Stores the NuGet version in a file at the output path.

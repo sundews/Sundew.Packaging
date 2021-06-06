@@ -17,10 +17,11 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Sundew.Packaging.Publish;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
     using Xunit;
-    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
+    using ILogger = Sundew.Packaging.Versioning.Logging.ILogger;
 
     public class PublishTaskTests
     {
@@ -76,7 +77,7 @@ namespace Sundew.Packaging.Publish.UnitTests
 
             this.testee.Execute();
 
-            this.copyPackageToLocalSourceCommand.Verify(x => x.Add(ExpectedPackageId, ExpectedPackagePath, publishInfo.PushSource, false, It.IsAny<ILogger>()), Times.Once);
+            this.copyPackageToLocalSourceCommand.Verify(x => x.Add(ExpectedPackageId, ExpectedPackagePath, publishInfo.PushSource, false), Times.Once);
         }
 
         [Fact]
@@ -97,9 +98,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                 TimeoutInSeconds,
                 It.IsAny<ISettings>(),
                 false,
-                false,
-                It.IsAny<NuGet.Common.ILogger>(),
-                It.IsAny<ILogger>()),
+                false),
                 Times.Once);
         }
 
@@ -113,7 +112,7 @@ namespace Sundew.Packaging.Publish.UnitTests
 
             this.testee.Execute();
 
-            this.copyPdbToSymbolCacheCommand.Verify(x => x.AddAndCleanCache(new[] { ExpectedPdbPath }, this.testee.SymbolCacheDir, It.IsAny<ISettings>(), It.IsAny<ILogger>()), Times.Once);
+            this.copyPdbToSymbolCacheCommand.Verify(x => x.AddAndCleanCache(new[] { ExpectedPdbPath }, this.testee.SymbolCacheDir, It.IsAny<ISettings>()), Times.Once);
         }
 
         [Fact]
@@ -131,7 +130,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Parameter = "##";
             var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
-            this.testee.PublishLogFormats = "{10}vso[task.setvariable variable=package_{0}]{2}-{4}-{1}";
+            this.testee.PublishLogFormats = "{12}vso[task.setvariable variable=package_{0}]{2}-{5}-{1}";
 
             this.testee.Execute();
 
@@ -211,7 +210,7 @@ namespace Sundew.Packaging.Publish.UnitTests
 
         private PublishInfo ArrangePublishInfo(string pushSource, string version)
         {
-            var publishInfo = new PublishInfo(string.Empty, string.Empty, pushSource, null, null, null, true, version);
+            var publishInfo = new PublishInfo(string.Empty, string.Empty, string.Empty, pushSource, null, null, null, true, version, null);
             this.publishInfoProvider.Setup(x => x.Read(It.IsAny<string>())).Returns(publishInfo);
             return publishInfo;
         }
