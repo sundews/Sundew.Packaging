@@ -97,7 +97,7 @@
     <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
   </ItemGroup>
 	
-  <Target Name="_CopySelf" BeforeTargets="SppInitialize">
+  <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinousIntegrationBuild)' != 'true'" >
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
 	</Target>
 
