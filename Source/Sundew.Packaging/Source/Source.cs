@@ -26,7 +26,7 @@ namespace Sundew.Packaging.Source
         private const string SymbolsUriText = "SymbolsUri";
         private const string FeedUriText = "FeedUri";
         private const string PrereleasFormatText = "PrereleaseFormat";
-        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>\w+)\=(?<PropertyValue>\w+))+)?");
+        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Source" /> class.
@@ -37,7 +37,7 @@ namespace Sundew.Packaging.Source
         /// <param name="symbolsPushSource">The symbols push source.</param>
         /// <param name="symbolsApiKey">The symbols API key.</param>
         /// <param name="stage">The stage.</param>
-        /// <param name="packageStage">The package stage.</param>
+        /// <param name="versionStage">The version stage.</param>
         /// <param name="isStableRelease">if set to <c>true</c> [is stable release].</param>
         /// <param name="feedSource">The feed source.</param>
         /// <param name="prereleaseFormat">The prerelease format.</param>
@@ -52,7 +52,7 @@ namespace Sundew.Packaging.Source
             string? symbolsPushSource,
             string? symbolsApiKey,
             string stage,
-            string packageStage,
+            string versionStage,
             bool isStableRelease,
             string feedSource,
             string? prereleaseFormat,
@@ -67,7 +67,7 @@ namespace Sundew.Packaging.Source
             this.SymbolsPushSource = symbolsPushSource;
             this.SymbolsApiKey = symbolsApiKey;
             this.Stage = stage;
-            this.PackageStage = packageStage;
+            this.VersionStage = versionStage;
             this.IsStableRelease = isStableRelease;
             this.FeedSource = feedSource;
             this.PrereleaseFormat = prereleaseFormat;
@@ -150,12 +150,12 @@ namespace Sundew.Packaging.Source
         public string Stage { get; }
 
         /// <summary>
-        /// Gets the stage.
+        /// Gets the version stage.
         /// </summary>
         /// <value>
         /// The stage.
         /// </value>
-        public string PackageStage { get; }
+        public string VersionStage { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is stable release.

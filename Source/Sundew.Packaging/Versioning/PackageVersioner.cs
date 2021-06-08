@@ -213,7 +213,7 @@ namespace Sundew.Packaging.Publish
             {
                 var metadataFormatter = new NamedFormatString(metadataFormat, MetadataAndPrereleaseFormatNames);
                 return RemoveDuplicates.Replace(
-                    metadataFormatter.Format(selectedSource.PackageStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter).Trim('-'),
+                    metadataFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter).Trim('-'),
                     match => match.Value[0].ToString());
             }
 
@@ -226,7 +226,7 @@ namespace Sundew.Packaging.Publish
             {
                 var prereleaseFormatter = new NamedFormatString(selectedSource.PrereleaseFormat, MetadataAndPrereleaseFormatNames);
                 return RemoveDuplicates.Replace(
-                    prereleaseFormatter.Format(selectedSource.PackageStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter).Trim('-'),
+                    prereleaseFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter).Trim('-'),
                     match => match.Value[0].ToString());
             }
 
@@ -238,9 +238,9 @@ namespace Sundew.Packaging.Publish
 
             stringBuilder.Append('u');
             stringBuilder.Append(dateTime.ToString(PrereleasePackageDateTimeFormat));
-            if (!string.IsNullOrEmpty(selectedSource.PackageStage))
+            if (!string.IsNullOrEmpty(selectedSource.VersionStage))
             {
-                stringBuilder.Append('-').Append(selectedSource.PackageStage);
+                stringBuilder.Append('-').Append(selectedSource.VersionStage);
             }
 
             if (!string.IsNullOrEmpty(selectedSource.PackagePostfix))

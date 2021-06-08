@@ -88,7 +88,7 @@ namespace Sundew.Packaging.Versioning.Logging
         {
             var arguments = new object?[]
             {
-                packageId, publishInfo.Version, packagePath, publishInfo.Stage, publishInfo.PackageStage, publishInfo.PushSource, publishInfo.ApiKey, publishInfo.FeedSource, symbolPackagePath, publishInfo.SymbolsPushSource, publishInfo.SymbolsApiKey, publishInfo.Metadata, parameter, DoubleQuotes, Environment.NewLine,
+                packageId, publishInfo.Version, packagePath, publishInfo.Stage, publishInfo.VersionStage, publishInfo.PushSource, publishInfo.ApiKey, publishInfo.FeedSource, symbolPackagePath, publishInfo.SymbolsPushSource, publishInfo.SymbolsApiKey, publishInfo.Metadata, parameter, DoubleQuotes, Environment.NewLine,
             };
 
             var namedFormatString = new NamedFormatString(logFormat, LogNames);

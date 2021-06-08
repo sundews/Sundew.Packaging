@@ -16,7 +16,7 @@ namespace Sundew.Packaging.Versioning
         /// Initializes a new instance of the <see cref="PublishInfo" /> class.
         /// </summary>
         /// <param name="stage">The stage.</param>
-        /// <param name="packageStage">The package stage.</param>
+        /// <param name="versionStage">The version stage.</param>
         /// <param name="feedSource">The feed source.</param>
         /// <param name="pushSource">The push source.</param>
         /// <param name="apiKey">The API key.</param>
@@ -27,7 +27,7 @@ namespace Sundew.Packaging.Versioning
         /// <param name="metadata">The metadata.</param>
         public PublishInfo(
             string stage,
-            string packageStage,
+            string versionStage,
             string feedSource,
             string pushSource,
             string? apiKey,
@@ -38,7 +38,7 @@ namespace Sundew.Packaging.Versioning
             string? metadata)
         {
             this.Stage = stage;
-            this.PackageStage = packageStage;
+            this.VersionStage = versionStage;
             this.FeedSource = feedSource;
             this.PushSource = pushSource;
             this.ApiKey = apiKey;
@@ -58,12 +58,12 @@ namespace Sundew.Packaging.Versioning
         public string Stage { get; }
 
         /// <summary>
-        /// Gets the stage.
+        /// Gets the version stage.
         /// </summary>
         /// <value>
         /// The stage.
         /// </value>
-        public string PackageStage { get; }
+        public string VersionStage { get; }
 
         /// <summary>
         /// Gets the feed source.

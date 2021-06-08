@@ -66,7 +66,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             result.PushSource.Should().Be(ExpectedUri);
             result.SymbolsPushSource.Should().Be(expectedSymbolUri);
             result.PackagePrefix.Should().Be(expectedPackagePrefix);
-            result.PackageStage.Should().Be(expectedStage);
+            result.VersionStage.Should().Be(expectedStage);
             result.PackagePostfix.Should().Be(expectedPackagePostfix);
             result.ApiKey.Should().Be(expectedSourceApiKey);
             result.SymbolsApiKey.Should().Be(expectedSymbolSourceApiKey);
@@ -147,7 +147,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             result.FeedSource.Should().Be(expectedFeedUri);
             result.SymbolsPushSource.Should().Be(expectedSymbolUri);
             result.PackagePrefix.Should().Be(expectedPackagePrefix);
-            result.PackageStage.Should().Be(expectedStage);
+            result.VersionStage.Should().Be(expectedStage);
             result.PackagePostfix.Should().Be(expectedPackagePostfix);
             result.ApiKey.Should().Be(expectedSourceApiKey);
             result.PrereleaseFormat.Should().Be(expectedPrereleaseFormat);

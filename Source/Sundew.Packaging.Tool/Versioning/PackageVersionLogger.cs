@@ -23,6 +23,7 @@ namespace Sundew.Packaging.Tool.Versioning
     {
         private const string DoubleQuotes = @"""";
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
+        private const string UnknownNames = "The following name(s) where not found: ";
         private static readonly string[] LogNames = new[] { "PackageId", "Version", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "Parameter", "DQ", "NL" };
         private readonly IGetVersionLogger logger;
 
@@ -59,7 +60,7 @@ namespace Sundew.Packaging.Tool.Versioning
             valueBuffer.Write(packageId);
             valueBuffer.Write(publishInfo.Version);
             valueBuffer.Write(publishInfo.Stage);
-            valueBuffer.Write(publishInfo.PackageStage);
+            valueBuffer.Write(publishInfo.VersionStage);
             valueBuffer.Write(publishInfo.PushSource);
             valueBuffer.Write(publishInfo.ApiKey);
             valueBuffer.Write(publishInfo.FeedSource);
@@ -81,7 +82,7 @@ namespace Sundew.Packaging.Tool.Versioning
 
             foreach (var logFormat in logFormats)
             {
-                var (log, isValid) = Format(logFormat.ToString(), LogNames, valueBuffer.ToArray());
+                var (log, isValid) = Format(logFormat.ToString(), logNames, valueBuffer.ToArray());
                 if (isValid)
                 {
                     this.logger.ReportMessage(log);
@@ -98,15 +99,19 @@ namespace Sundew.Packaging.Tool.Versioning
             IReadOnlyList<string> logNames,
             object?[] arguments)
         {
-            var namedFormatString = new NamedFormatString(logFormat, logNames);
-            var nullArguments = namedFormatString.GetNullArguments(arguments);
-            if (nullArguments.Count > 0)
+            const string separator = ", ";
+            if (NamedFormatString.TryCreate(logFormat, logNames, out var namedFormatString, out var unknownNames))
             {
-                const string separator = ", ";
-                return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
+                var nullArguments = namedFormatString.GetNullArguments(arguments);
+                if (nullArguments.Count > 0)
+                {
+                    return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
+                }
+
+                return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);
             }
 
-            return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);
+            return (unknownNames.JoinToStringBuilder(new StringBuilder(UnknownNames), (builder, name) => builder.Append(name), separator).ToString(), false);
         }
     }
 }

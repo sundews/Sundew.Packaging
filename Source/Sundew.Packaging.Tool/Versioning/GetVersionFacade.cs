@@ -108,7 +108,7 @@ namespace Sundew.Packaging.Tool.Versioning
 
                     var publishInfo = new PublishInfo(
                         selectedSource.Stage,
-                        selectedSource.PackageStage,
+                        selectedSource.VersionStage,
                         selectedSource.FeedSource,
                         selectedSource.PushSource,
                         selectedSource.ApiKey,
