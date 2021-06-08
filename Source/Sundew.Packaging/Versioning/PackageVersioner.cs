@@ -213,8 +213,8 @@ namespace Sundew.Packaging.Publish
             {
                 var metadataFormatter = new NamedFormatString(metadataFormat, MetadataAndPrereleaseFormatNames);
                 return RemoveDuplicates.Replace(
-                    metadataFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter).Trim('-'),
-                    match => match.Value[0].ToString());
+                    metadataFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
+                    match => match.Value[0].ToString()).Trim('-');
             }
 
             return metadata;
@@ -226,8 +226,8 @@ namespace Sundew.Packaging.Publish
             {
                 var prereleaseFormatter = new NamedFormatString(selectedSource.PrereleaseFormat, MetadataAndPrereleaseFormatNames);
                 return RemoveDuplicates.Replace(
-                    prereleaseFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter).Trim('-'),
-                    match => match.Value[0].ToString());
+                    prereleaseFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
+                    match => match.Value[0].ToString()).Trim('-');
             }
 
             var stringBuilder = new StringBuilder();
