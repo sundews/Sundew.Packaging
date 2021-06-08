@@ -52,7 +52,7 @@ jobs:
         --prerelease-postfix \"{Postfix}-${{ steps.build-setup.outputs.git-hash }}\"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version \"${{ secrets.SPP_FORCE_VERSION_IF_SET }}\"
-        --output-formats "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" "::set-output name=dev-package-source-if-set::{DevFeedSource}"
+        --output-formats "Stage={Stage}, Version={Version}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" "::set-output name=dev-package-source-if-set::{DevFeedSource}"
     - name: Restore
       run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
