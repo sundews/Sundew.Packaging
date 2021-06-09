@@ -32,7 +32,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
+		<PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.16.1" />
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" />
 		<PackageReference Include="NuGet.Commands" Version="5.9.1" />
@@ -97,7 +97,7 @@
     <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
   </ItemGroup>
 	
-  <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true'" >
+  <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true'">
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
 	</Target>
 
