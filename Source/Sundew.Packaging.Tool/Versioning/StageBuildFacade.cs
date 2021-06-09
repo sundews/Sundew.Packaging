@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="GetVersionFacade.cs" company="Hukano">
+// <copyright file="StageBuildFacade.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -21,7 +21,7 @@ namespace Sundew.Packaging.Tool.Versioning
     /// <summary>
     /// Facade for getting the stage for publishing a package.
     /// </summary>
-    public class GetVersionFacade
+    public class StageBuildFacade
     {
         private readonly ProjectPackageInfoProvider projectPackageInfoProvider;
         private readonly IPackageVersioner packageVersioner;
@@ -29,11 +29,11 @@ namespace Sundew.Packaging.Tool.Versioning
         private readonly IDateTime dateTime;
         private readonly IFileSystem fileSystem;
         private readonly PackageVersionLogger packageVersionLogger;
-        private readonly IGetVersionLogger exceptionReporter;
+        private readonly IStageBuildLogger exceptionReporter;
         private readonly LatestVersionSourcesCommand latestVersionSourcesCommand;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GetVersionFacade"/> class.
+        /// Initializes a new instance of the <see cref="StageBuildFacade"/> class.
         /// </summary>
         /// <param name="projectPackageInfoProvider">The project package information provider.</param>
         /// <param name="packageVersioner">The package versioner.</param>
@@ -42,14 +42,14 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <param name="fileSystem">The file system.</param>
         /// <param name="packagePublicationLogger">The package publication logger.</param>
         /// <param name="getVersionLogger">The get version logger.</param>
-        public GetVersionFacade(
+        public StageBuildFacade(
             ProjectPackageInfoProvider projectPackageInfoProvider,
             IPackageVersioner packageVersioner,
             INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand,
             IDateTime dateTime,
             IFileSystem fileSystem,
             PackageVersionLogger packagePublicationLogger,
-            IGetVersionLogger getVersionLogger)
+            IStageBuildLogger getVersionLogger)
         {
             this.projectPackageInfoProvider = projectPackageInfoProvider;
             this.packageVersioner = packageVersioner;
@@ -64,28 +64,28 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <summary>
         /// Gets the version asynchronous.
         /// </summary>
-        /// <param name="getVersionVerb">The get version verb.</param>
+        /// <param name="stageBuildVerb">The get version verb.</param>
         /// <returns>An async task.</returns>
-        public Task GetVersionAsync(StageBuildVerb getVersionVerb)
+        public Task GetVersionAsync(StageBuildVerb stageBuildVerb)
         {
             try
             {
-                var packageInfo = this.projectPackageInfoProvider.GetPackageInfo(getVersionVerb.ProjectFile, getVersionVerb.Configuration);
-                var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(getVersionVerb.WorkingDirectory, this.fileSystem);
+                var packageInfo = this.projectPackageInfoProvider.GetPackageInfo(stageBuildVerb.ProjectFile, stageBuildVerb.Configuration);
+                var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem);
                 var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
                 var selectedSource = SourceSelector.SelectSource(
-                    getVersionVerb.Stage,
-                    getVersionVerb.Production,
-                    getVersionVerb.Integration,
-                    getVersionVerb.Development,
+                    stageBuildVerb.Stage,
+                    stageBuildVerb.Production,
+                    stageBuildVerb.Integration,
+                    stageBuildVerb.Development,
                     nuGetSettings.LocalSourcePath,
+                    stageBuildVerb.PrereleaseFormat,
                     null,
                     null,
                     null,
-                    null,
-                    getVersionVerb.PrereleasePrefix,
-                    getVersionVerb.PrereleasePostfix,
+                    stageBuildVerb.PrereleasePrefix,
+                    stageBuildVerb.PrereleasePostfix,
                     nuGetSettings.DefaultSettings,
                     false,
                     true);
@@ -96,13 +96,13 @@ namespace Sundew.Packaging.Tool.Versioning
                     var packageVersion = this.packageVersioner.GetVersion(
                         packageInfo.PackageId,
                         nuGetVersion,
-                        getVersionVerb.VersionFormat,
-                        getVersionVerb.ForceVersion,
-                        getVersionVerb.VersioningMode,
+                        stageBuildVerb.VersionFormat,
+                        stageBuildVerb.ForceVersion,
+                        stageBuildVerb.VersioningMode,
                         selectedSource,
                         latestVersionSources,
                         this.dateTime.UtcNow,
-                        getVersionVerb.Metadata,
+                        stageBuildVerb.Metadata,
                         null,
                         null ?? string.Empty);
 
@@ -118,7 +118,7 @@ namespace Sundew.Packaging.Tool.Versioning
                         packageVersion.ToFullString(),
                         packageVersion.Metadata);
 
-                    this.packageVersionLogger.Log(getVersionVerb.OutputFormats, packageInfo.PackageId, publishInfo, string.Empty, selectedSource.Properties);
+                    this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, string.Empty, selectedSource.Properties);
                     return Task.CompletedTask;
                 }
 

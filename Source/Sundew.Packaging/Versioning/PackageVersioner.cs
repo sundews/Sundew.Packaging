@@ -137,7 +137,7 @@ namespace Sundew.Packaging.Publish
                 return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, default(string), versionMetadata);
             }
 
-            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, parameter, metadata), versionMetadata);
+            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
         }
 
         private SemanticVersion GetAutomaticLatestRevisionVersion(

@@ -70,7 +70,7 @@ namespace Sundew.Packaging.Tool
             var consoleReporter = new ConsoleReporter(false);
             var consoleLogger = new ConsoleLogger();
             var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
-            var getVersionFacade = new GetVersionFacade(
+            var getVersionFacade = new StageBuildFacade(
                 new ProjectPackageInfoProvider(),
                 new PackageVersioner(new PackageExistsCommand(nuGetToLoggerAdapter), new LatestPackageVersionCommand(consoleLogger, nuGetToLoggerAdapter), consoleLogger),
                 new NuGetSettingsInitializationCommand(),

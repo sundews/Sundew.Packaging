@@ -27,7 +27,7 @@ namespace Sundew.Packaging.Tool
         IAwaitPublishFacadeReporter,
         IPruneReporter,
         IDeleteFacadeReporter,
-        IGetVersionLogger
+        IStageBuildLogger
     {
         private const string ModifiedVerbose = "Updated";
         private const string Modified = "*";

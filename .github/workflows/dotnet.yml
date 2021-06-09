@@ -36,7 +36,7 @@ jobs:
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210608-214227-local
+        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210609-222157-local
         
         dotnet tool update CommandlineBatcher -g
 
@@ -49,7 +49,7 @@ jobs:
         --integration "refs/heads/release/.+                                                 => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --stage \"${{ github.ref }}\"
-        --prerelease-postfix \"{Postfix}-${{ steps.build-setup.outputs.git-hash }}\"
+        --prerelease-format \"{Stage}-{DateTime}-{Postfix}-${{ steps.build-setup.outputs.git-hash }}\"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version \"${{ secrets.SPP_FORCE_VERSION_IF_SET }}\"
         --output-formats "Stage={Stage}, Version={Version}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" "::set-output name=dev-package-source-if-set::{DevFeedSource}"
@@ -63,6 +63,9 @@ jobs:
         -p:"SppEnablePublish=false"
         -p:"ContinuousIntegrationBuild=true"
         -p:"SppForceVersion=${{ steps.stage-build.outputs.version }}"
+        -p:GeneratePackageOnBuild=true
+        -p:IncludeSymbols=true
+        -p:SymbolPackageFormat=snupkg
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'

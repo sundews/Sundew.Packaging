@@ -25,13 +25,13 @@ namespace Sundew.Packaging.Tool.Versioning
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
         private const string UnknownNames = "The following name(s) where not found: ";
         private static readonly string[] LogNames = new[] { "PackageId", "Version", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "Parameter", "DQ", "NL" };
-        private readonly IGetVersionLogger logger;
+        private readonly IStageBuildLogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageVersionLogger"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public PackageVersionLogger(IGetVersionLogger logger)
+        public PackageVersionLogger(IStageBuildLogger logger)
         {
             this.logger = logger;
         }

@@ -43,6 +43,7 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <param name="versioningMode">The versioning mode.</param>
         /// <param name="prereleasePrefix">The prerelease prefix.</param>
         /// <param name="prereleasePostfix">The prerelease postfix.</param>
+        /// <param name="prereleaseFormat">The prerelease format.</param>
         /// <param name="metadata">The metadata.</param>
         /// <param name="versionFormat">The version format.</param>
         /// <param name="forceVersion">The force version.</param>
@@ -58,6 +59,7 @@ namespace Sundew.Packaging.Tool.Versioning
             VersioningMode versioningMode = VersioningMode.AutomaticLatestPatch,
             string? prereleasePrefix = null,
             string? prereleasePostfix = null,
+            string? prereleaseFormat = null,
             string? metadata = null,
             string? versionFormat = null,
             string? forceVersion = null,
@@ -73,6 +75,7 @@ namespace Sundew.Packaging.Tool.Versioning
             this.VersioningMode = versioningMode;
             this.PrereleasePrefix = prereleasePrefix;
             this.PrereleasePostfix = prereleasePostfix;
+            this.PrereleaseFormat = prereleaseFormat;
             this.Metadata = metadata;
             this.VersionFormat = versionFormat;
             this.ForceVersion = forceVersion;
@@ -192,6 +195,14 @@ namespace Sundew.Packaging.Tool.Versioning
         public string? PrereleasePostfix { get; private set; }
 
         /// <summary>
+        /// Gets the prerelease format.
+        /// </summary>
+        /// <value>
+        /// The prerelease format.
+        /// </value>
+        public string? PrereleaseFormat { get; private set; }
+
+        /// <summary>
         /// Gets the metadata.
         /// </summary>
         /// <value>
@@ -253,6 +264,7 @@ namespace Sundew.Packaging.Tool.Versioning
             argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
             argumentsBuilder.AddOptional("pp", "prerelease-prefix", () => this.PrereleasePrefix, s => this.PrereleasePrefix = s, "The prerelease prefix.");
             argumentsBuilder.AddOptional("ps", "prerelease-postfix", () => this.PrereleasePostfix, s => this.PrereleasePostfix = s, "The prerelease postfix.");
+            argumentsBuilder.AddOptional(null, "prerelease-format", () => this.PrereleaseFormat, s => this.PrereleaseFormat = s, "The prerelease format.");
             argumentsBuilder.AddOptional("m", "metadata", () => this.Metadata, s => this.Metadata = s, "The version metadata.");
             argumentsBuilder.AddOptionalEnum("vm", "versioning-mode", () => this.VersioningMode, s => this.VersioningMode = s, "The versioning mode");
             argumentsBuilder.AddOptional("v", "version-format", () => this.VersionFormat, s => this.VersionFormat = s, "The version format");

@@ -194,7 +194,7 @@ namespace Sundew.Packaging.Source
         /// </summary>
         /// <param name="sourceText">The source text.</param>
         /// <param name="defaultStage">The default stage.</param>
-        /// <param name="defaultPackageStage">The default stage.</param>
+        /// <param name="defaultVersionStage">The default version stage.</param>
         /// <param name="isStableRelease">if set to <c>true</c> [is stable release].</param>
         /// <param name="fallbackPrereleaseFormat">The fallback prerelease format.</param>
         /// <param name="fallbackApiKey">The fallback API key.</param>
@@ -207,7 +207,7 @@ namespace Sundew.Packaging.Source
         public static Source? Parse(
             string? sourceText,
             string defaultStage,
-            string defaultPackageStage,
+            string defaultVersionStage,
             bool isStableRelease,
             string? fallbackPrereleaseFormat,
             string? fallbackApiKey,
@@ -247,10 +247,10 @@ namespace Sundew.Packaging.Source
                     }
                 }
 
-                var packageStage = defaultPackageStage;
+                var versionStage = defaultVersionStage;
                 if (stageNameGroup.Success)
                 {
-                    packageStage = stageNameGroup.Value;
+                    versionStage = stageNameGroup.Value;
                 }
 
                 var feedSource = sourceUri;
@@ -278,7 +278,7 @@ namespace Sundew.Packaging.Source
                     }
                 }
 
-                return new Source(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, packageStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled);
+                return new Source(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled);
             }
 
             return default;
