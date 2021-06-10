@@ -105,12 +105,11 @@
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
   </Target>
   
-  <!--
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
     <Version>$(SppForceVersion)</Version>
     <PackageVersion>$(SppForceVersion)</PackageVersion>
-  </PropertyGroup>-->
+  </PropertyGroup>
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"/>
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'"/>
 
 </Project>
