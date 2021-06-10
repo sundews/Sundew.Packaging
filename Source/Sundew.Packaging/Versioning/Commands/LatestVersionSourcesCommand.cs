@@ -12,6 +12,7 @@ namespace Sundew.Packaging.Versioning.Commands
     using System.Linq;
     using global::NuGet.Common;
     using global::NuGet.Configuration;
+    using Sundew.Base.Text;
     using Sundew.Packaging.Source;
     using Sundew.Packaging.Versioning.IO;
 
@@ -63,7 +64,7 @@ namespace Sundew.Packaging.Versioning.Commands
             if (addNuGetOrgSource)
             {
                 var nuGetOrgSource = nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == NuGetOrg)?.Value;
-                if (!string.IsNullOrEmpty(nuGetOrgSource) && nuGetOrgSource != null)
+                if (!nuGetOrgSource.IsNullOrEmpty())
                 {
                     latestVersionSources.Add(nuGetOrgSource);
                 }
@@ -74,9 +75,9 @@ namespace Sundew.Packaging.Versioning.Commands
                 foreach (var item in nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>() ?? Enumerable.Empty<AddItem>())
                 {
                     var sourceUrl = item?.Value;
-                    if (!string.IsNullOrEmpty(sourceUrl) && sourceUrl != null)
+                    if (!sourceUrl.IsNullOrEmpty())
                     {
-                        latestVersionSources.Add(sourceUrl);
+                        this.TryAddFeedSource(latestVersionSources, sourceUrl);
                     }
                 }
             }

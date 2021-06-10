@@ -248,7 +248,7 @@ namespace Sundew.Packaging.Publish
 
                 if (isValidSource && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
                 {
-                    this.packagePublicationLogger.Log(this.PublishLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty);
+                    this.packagePublicationLogger.Log(this.PublishLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, workingDirectory, this.Parameter ?? string.Empty);
                 }
 
                 if (isValidSource && this.AppendPublishFileLogFormats != null && (!isLocalSource || this.AllowLocalSource))

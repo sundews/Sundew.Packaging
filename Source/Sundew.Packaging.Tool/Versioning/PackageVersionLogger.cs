@@ -15,6 +15,7 @@ namespace Sundew.Packaging.Tool.Versioning
     using Sundew.Base.Memory;
     using Sundew.Base.Text;
     using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.IO;
 
     /// <summary>
     /// Logs information about a package version.
@@ -24,15 +25,18 @@ namespace Sundew.Packaging.Tool.Versioning
         private const string DoubleQuotes = @"""";
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
         private const string UnknownNames = "The following name(s) where not found: ";
-        private static readonly string[] LogNames = new[] { "PackageId", "Version", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "Parameter", "DQ", "NL" };
+        private static readonly string[] LogNames = new[] { "PackageId", "Version", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "CurrentDirectory", "Parameter", "DQ", "NL" };
+        private readonly IFileSystem fileSystem;
         private readonly IStageBuildLogger logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PackageVersionLogger"/> class.
+        /// Initializes a new instance of the <see cref="PackageVersionLogger" /> class.
         /// </summary>
+        /// <param name="fileSystem">The file system.</param>
         /// <param name="logger">The logger.</param>
-        public PackageVersionLogger(IStageBuildLogger logger)
+        public PackageVersionLogger(IFileSystem fileSystem, IStageBuildLogger logger)
         {
+            this.fileSystem = fileSystem;
             this.logger = logger;
         }
 
@@ -67,6 +71,7 @@ namespace Sundew.Packaging.Tool.Versioning
             valueBuffer.Write(publishInfo.SymbolsPushSource);
             valueBuffer.Write(publishInfo.SymbolsApiKey);
             valueBuffer.Write(publishInfo.Metadata);
+            valueBuffer.Write(this.fileSystem.GetCurrentDirectory());
             valueBuffer.Write(parameter);
             valueBuffer.Write(DoubleQuotes);
             valueBuffer.Write(Environment.NewLine);

@@ -17,7 +17,7 @@ namespace Sundew.Packaging.Versioning.Logging
     {
         private const string DoubleQuotes = @"""";
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
-        private static readonly string[] LogNames = new[] { "PackageId", "Version", "PackagePath", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "Parameter", "DQ", "NL" };
+        private static readonly string[] LogNames = new[] { "PackageId", "Version", "PackagePath", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "CurrentDirectory", "Parameter", "DQ", "NL" };
         private readonly ILogger logger;
 
         public PackagePublicationLogger(ILogger logger)
@@ -31,6 +31,7 @@ namespace Sundew.Packaging.Versioning.Logging
             string packagePath,
             string? symbolPackagePath,
             PublishInfo publishInfo,
+            string workingDirectory,
             string parameter)
         {
             const char pipe = '|';
@@ -66,7 +67,7 @@ namespace Sundew.Packaging.Versioning.Logging
                 SplitOptions.RemoveEmptyEntries);
             foreach (var logFormat in logFormats)
             {
-                var (log, isValid) = Format(logFormat.ToString(), packageId, packagePath, symbolPackagePath, publishInfo, parameter);
+                var (log, isValid) = Format(logFormat.ToString(), packageId, packagePath, symbolPackagePath, publishInfo, workingDirectory, parameter);
                 if (isValid)
                 {
                     this.logger.LogImportant(log);
@@ -84,11 +85,12 @@ namespace Sundew.Packaging.Versioning.Logging
             string packagePath,
             string? symbolPackagePath,
             PublishInfo publishInfo,
+            string workingDirectory,
             string parameter)
         {
             var arguments = new object?[]
             {
-                packageId, publishInfo.Version, packagePath, publishInfo.Stage, publishInfo.VersionStage, publishInfo.PushSource, publishInfo.ApiKey, publishInfo.FeedSource, symbolPackagePath, publishInfo.SymbolsPushSource, publishInfo.SymbolsApiKey, publishInfo.Metadata, parameter, DoubleQuotes, Environment.NewLine,
+                packageId, publishInfo.Version, packagePath, publishInfo.Stage, publishInfo.VersionStage, publishInfo.PushSource, publishInfo.ApiKey, publishInfo.FeedSource, symbolPackagePath, publishInfo.SymbolsPushSource, publishInfo.SymbolsApiKey, publishInfo.Metadata, workingDirectory, parameter, DoubleQuotes, Environment.NewLine,
             };
 
             var namedFormatString = new NamedFormatString(logFormat, LogNames);

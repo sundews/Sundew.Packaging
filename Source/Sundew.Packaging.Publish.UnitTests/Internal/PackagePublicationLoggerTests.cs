@@ -12,6 +12,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using Sundew.Base.Text;
     using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.IO;
     using Sundew.Packaging.Versioning.Logging;
     using Xunit;
 
@@ -37,9 +38,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         [InlineData("||", new[] { "|" })]
         [InlineData("T|", new[] { "T" })]
         [InlineData("T||", new[] { "T|", })]
-        [InlineData("{12}vso[task.setvariable package_{0}={0}]{2}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg" })]
+        [InlineData("{13}vso[task.setvariable package_{0}={0}]{2}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg" })]
         [InlineData("{Parameter}vso[task.setvariable package_{0}={0}]{2}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg" })]
-        [InlineData("{12}vso[task.setvariable package_{0}={0}]{2}|##vso[task.setvariable source_{0}={0}]{5}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
+        [InlineData("{13}vso[task.setvariable package_{0}={0}]{2}|##vso[task.setvariable source_{0}={0}]{5}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
         [InlineData("{Parameter}vso[task.setvariable package_{0}={0}]{2}|##vso[task.setvariable source_{0}={0}]{5}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
         [InlineData("MessageWithSemiColon||ShouldNotSplitWhenEscaped", new[] { @"MessageWithSemiColon|ShouldNotSplitWhenEscaped" })]
         [InlineData("1|2|3", new[] { @"1", "2", "3" })]
@@ -49,7 +50,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             this.logger.Setup(x => x.LogImportant(It.IsAny<string>())).Callback<string>(x => actualMessages.Add(x));
             var publishInfo = new PublishInfo(string.Empty, string.Empty, Source, Source, null, null, string.Empty, true, ExpectedVersion, null);
 
-            this.testee.Log(packagePushFormats, ExpectedPackageId, PackagePath, null, publishInfo, "##");
+            this.testee.Log(packagePushFormats, ExpectedPackageId, PackagePath, null, publishInfo, string.Empty, "##");
 
             actualMessages.Should().Equal(expectedResult);
         }
@@ -70,7 +71,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         {
             var publishInfo = new PublishInfo(string.Empty, string.Empty, Source, Source, null, null, string.Empty, true, ExpectedVersion, null);
 
-            this.testee.Log(packagePushFormats, ExpectedPackageId, PackagePath, null, publishInfo, "##");
+            this.testee.Log(packagePushFormats, ExpectedPackageId, PackagePath, null, publishInfo, string.Empty, "##");
 
             this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Exactly(numberOfCalls));
         }

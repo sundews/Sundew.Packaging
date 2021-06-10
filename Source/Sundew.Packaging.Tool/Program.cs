@@ -70,13 +70,14 @@ namespace Sundew.Packaging.Tool
             var consoleReporter = new ConsoleReporter(false);
             var consoleLogger = new ConsoleLogger();
             var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
+            var fileSystem = new Sundew.Packaging.Versioning.IO.FileSystem();
             var getVersionFacade = new StageBuildFacade(
                 new ProjectPackageInfoProvider(),
                 new PackageVersioner(new PackageExistsCommand(nuGetToLoggerAdapter), new LatestPackageVersionCommand(consoleLogger, nuGetToLoggerAdapter), consoleLogger),
                 new NuGetSettingsInitializationCommand(),
                 new DateTimeProvider(),
-                new Sundew.Packaging.Versioning.IO.FileSystem(),
-                new PackageVersionLogger(consoleReporter),
+                fileSystem,
+                new PackageVersionLogger(fileSystem, consoleReporter),
                 consoleReporter);
             await getVersionFacade.GetVersionAsync(getVersionVerb);
             return Result.Success(0);

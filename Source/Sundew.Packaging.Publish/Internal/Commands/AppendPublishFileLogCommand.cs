@@ -61,7 +61,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                         this.fileSystem.CreateDirectory(directory);
                     }
 
-                    var (log, isValid) = PackagePublicationLogger.Format(format, packageId,  packagePath, symbolPackagePath, publishInfo, parameter);
+                    var (log, isValid) = PackagePublicationLogger.Format(format, packageId,  packagePath, symbolPackagePath, publishInfo, workingDirectory, parameter);
                     if (isValid)
                     {
                         this.fileSystem.AppendAllText(filePath, log);
