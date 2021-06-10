@@ -40,7 +40,7 @@
     </PackageReference>
     <PackageReference Include="Sundew.Base.Memory" Version="8.0.0-u20210608-201056-dev-NamedFormatProvider" />
     <PackageReference Include="Sundew.CommandLine" Version="9.0.0-u20210608-201554-dev-SpanBasedParsing" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="7.0.0-u20210605-231657-pre">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="7.0.0-u20210610-192006-pre">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -233,7 +233,7 @@ namespace Sundew.Packaging.Publish
             var stringBuilder = new StringBuilder();
             if (!string.IsNullOrEmpty(selectedSource.PackagePrefix))
             {
-                stringBuilder.Append(PrefixPostfixReplacement.Replace(selectedSource.PackagePrefix, Dash)).Append('-');
+                stringBuilder.Append(selectedSource.PackagePrefix).Append('-');
             }
 
             stringBuilder.Append('u');
@@ -245,10 +245,10 @@ namespace Sundew.Packaging.Publish
 
             if (!string.IsNullOrEmpty(selectedSource.PackagePostfix))
             {
-                stringBuilder.Append('-').Append(PrefixPostfixReplacement.Replace(selectedSource.PackagePostfix, Dash));
+                stringBuilder.Append('-').Append(selectedSource.PackagePostfix);
             }
 
-            return stringBuilder.ToString();
+            return PrefixPostfixReplacement.Replace(stringBuilder.ToString(), Dash).Trim('-');
         }
     }
 }
