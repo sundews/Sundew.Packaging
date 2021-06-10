@@ -53,7 +53,7 @@ jobs:
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version \"${{ secrets.SPP_FORCE_VERSION_IF_SET }}\"
         --output-formats "Stage={Stage}, Version={Version}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" "::set-output name=nuGetPackagesPath::{CurrentDirectory}/NuGet" "::set-output name=dev-package-source-if-set::{DevFeedSource}"
-        "::set-output name=pushSource::{PushSource}" "::set-output name=apiKey::{ApiKey}"
+        "::set-output name=feedSource::{FeedSource}" "::set-output name=pushSource::{PushSource}" "::set-output name=apiKey::{ApiKey}"
     - name: Restore
       run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
@@ -69,7 +69,9 @@ jobs:
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
-      run: dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}\*.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+      run: |
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
@@ -79,4 +81,6 @@ jobs:
         git push ${{ env.repository }} ${{ steps.stage-build.outputs.version }}
     - name: 'Await stable package publish'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
-      run: cb -c "spt|await -s {2} {0}.{1}" -bvs ',' -bf ${{ env.source-package-versions }}
+      run: |
+        spt await -s ${{ steps.stage-build.outputs.feedSource }} Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}
+        spt await -s ${{ steps.stage-build.outputs.feedSource }} Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}
