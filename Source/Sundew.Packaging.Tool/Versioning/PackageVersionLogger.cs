@@ -25,18 +25,15 @@ namespace Sundew.Packaging.Tool.Versioning
         private const string DoubleQuotes = @"""";
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
         private const string UnknownNames = "The following name(s) where not found: ";
-        private static readonly string[] LogNames = new[] { "PackageId", "Version", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "CurrentDirectory", "Parameter", "DQ", "NL" };
-        private readonly IFileSystem fileSystem;
+        private static readonly string[] LogNames = new[] { "PackageId", "Version", "VersionNormalized", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
         private readonly IStageBuildLogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageVersionLogger" /> class.
         /// </summary>
-        /// <param name="fileSystem">The file system.</param>
         /// <param name="logger">The logger.</param>
-        public PackageVersionLogger(IFileSystem fileSystem, IStageBuildLogger logger)
+        public PackageVersionLogger(IStageBuildLogger logger)
         {
-            this.fileSystem = fileSystem;
             this.logger = logger;
         }
 
@@ -46,12 +43,14 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <param name="logFormats">The log formats.</param>
         /// <param name="packageId">The package identifier.</param>
         /// <param name="publishInfo">The publish information.</param>
+        /// <param name="workingDirectory">The working directory.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="properties">The properties.</param>
         public void Log(
             IReadOnlyList<string>? logFormats,
             string packageId,
             PublishInfo publishInfo,
+            string workingDirectory,
             string parameter,
             IReadOnlyDictionary<string, string>? properties)
         {
@@ -63,6 +62,7 @@ namespace Sundew.Packaging.Tool.Versioning
             var valueBuffer = new Buffer<object?>(LogNames.Length + properties?.Count ?? 0);
             valueBuffer.Write(packageId);
             valueBuffer.Write(publishInfo.Version);
+            valueBuffer.Write(publishInfo.VersionNormalized);
             valueBuffer.Write(publishInfo.Stage);
             valueBuffer.Write(publishInfo.VersionStage);
             valueBuffer.Write(publishInfo.PushSource);
@@ -71,7 +71,7 @@ namespace Sundew.Packaging.Tool.Versioning
             valueBuffer.Write(publishInfo.SymbolsPushSource);
             valueBuffer.Write(publishInfo.SymbolsApiKey);
             valueBuffer.Write(publishInfo.Metadata);
-            valueBuffer.Write(this.fileSystem.GetCurrentDirectory());
+            valueBuffer.Write(workingDirectory);
             valueBuffer.Write(parameter);
             valueBuffer.Write(DoubleQuotes);
             valueBuffer.Write(Environment.NewLine);

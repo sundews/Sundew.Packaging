@@ -12,7 +12,7 @@ namespace Sundew.Packaging.Publish.Internal
 
     internal interface IPublishInfoProvider
     {
-        PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, string metadata, bool includeSymbols);
+        PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, string nugetVersionNormalized, string metadata, bool includeSymbols);
 
         PublishInfo Read(string publishInfoFilePath);
 

@@ -116,9 +116,10 @@ namespace Sundew.Packaging.Tool.Versioning
                         selectedSource.SymbolsApiKey,
                         selectedSource.IsEnabled,
                         packageVersion.ToFullString(),
+                        packageVersion.ToNormalizedString(),
                         packageVersion.Metadata);
 
-                    this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, string.Empty, selectedSource.Properties);
+                    this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, selectedSource.Properties);
                     return Task.CompletedTask;
                 }
 

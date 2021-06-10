@@ -25,7 +25,7 @@ namespace Sundew.Packaging.Publish.Internal
             this.logger = logger;
         }
 
-        public PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, string metadata, bool includeSymbols)
+        public PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, string nugetVersionNormalized, string metadata, bool includeSymbols)
         {
             var publishInfo = new PublishInfo(
                 selectedSource.Stage,
@@ -37,6 +37,7 @@ namespace Sundew.Packaging.Publish.Internal
                 includeSymbols ? selectedSource.SymbolsApiKey : null,
                 selectedSource.IsEnabled,
                 nugetVersion,
+                nugetVersionNormalized,
                 metadata);
             var directoryPath = Path.GetDirectoryName(publishInfoFilePath);
             if (!this.fileSystem.DirectoryExists(directoryPath))

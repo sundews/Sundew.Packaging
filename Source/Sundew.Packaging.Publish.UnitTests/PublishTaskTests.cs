@@ -130,7 +130,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Parameter = "##";
             var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
-            this.testee.PublishLogFormats = "{13}vso[task.setvariable variable=package_{0}]{2}-{5}-{1}";
+            this.testee.PublishLogFormats = "{14}vso[task.setvariable variable=package_{0}]{3}-{6}-{1}";
 
             this.testee.Execute();
 
@@ -210,7 +210,7 @@ namespace Sundew.Packaging.Publish.UnitTests
 
         private PublishInfo ArrangePublishInfo(string pushSource, string version)
         {
-            var publishInfo = new PublishInfo(string.Empty, string.Empty, string.Empty, pushSource, null, null, null, true, version, null);
+            var publishInfo = new PublishInfo(string.Empty, string.Empty, string.Empty, pushSource, null, null, null, true, version, version, null);
             this.publishInfoProvider.Setup(x => x.Read(It.IsAny<string>())).Returns(publishInfo);
             return publishInfo;
         }

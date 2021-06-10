@@ -77,7 +77,7 @@ namespace Sundew.Packaging.Tool
                 new NuGetSettingsInitializationCommand(),
                 new DateTimeProvider(),
                 fileSystem,
-                new PackageVersionLogger(fileSystem, consoleReporter),
+                new PackageVersionLogger(consoleReporter),
                 consoleReporter);
             await getVersionFacade.GetVersionAsync(getVersionVerb);
             return Result.Success(0);
