@@ -64,7 +64,7 @@ jobs:
         -p:"ContinuousIntegrationBuild=true"
         -p:"SppForceVersion=${{ steps.stage-build.outputs.version }}"
         -p:GeneratePackageOnBuild=true
-        -p:"PackageOutputDir=${{ steps.stage-build.outputs.workingDirectory }}/NuGet"
+        -p:"PackageOutputPath=${{ steps.stage-build.outputs.workingDirectory }}/NuGet"
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
