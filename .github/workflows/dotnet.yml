@@ -52,7 +52,8 @@ jobs:
         --prerelease-format "{Stage}-{DateTime}-{Postfix}-${{ steps.build-setup.outputs.git-hash }}"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version \"${{ secrets.SPP_FORCE_VERSION_IF_SET }}\"
-        --output-formats "Stage={Stage}, Version={Version}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" "::set-output name=workingDirectory::{CurrentDirectory}" "::set-output name=dev-package-source-if-set::{DevFeedSource}"
+        --output-formats "Stage={Stage}, Version={Version}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" "::set-output name=nuGetPackagesPath::{CurrentDirectory}/NuGet" "::set-output name=dev-package-source-if-set::{DevFeedSource}"
+        "::set-output name=pushSource::{PushSource}" "::set-output name=apiKey::{ApiKey}"
     - name: Restore
       run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
@@ -64,19 +65,18 @@ jobs:
         -p:"ContinuousIntegrationBuild=true"
         -p:"SppForceVersion=${{ steps.stage-build.outputs.version }}"
         -p:GeneratePackageOnBuild=true
-        -p:"PackageOutputPath=${{ steps.stage-build.outputs.workingDirectory }}/NuGet"
+        -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
-      run: cb -c "dotnet|nuget push {0} -s {1} -k {2} -n true" -bs NewLine -bvs ':' -bf ${{ env.source-packages-to-push }}
-    - name: Cleanup
-      run: spt delete -v ${{ env.source-packages-to-push }}
+      run: dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}\*.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
         git config user.email "sundew-dev@outlook.com"
         git config user.name "sundew-build"
-        cb -c "git|tag -a {1}-{0} -m "{1}-{0}"" "git|push ${{ env.repository }} {1}-{0}" -bvs ':' -bf ${{ env.source-package-versions }}
+        git tag -a ${{ steps.stage-build.outputs.version }} -m "${{ steps.stage-build.outputs.version }}"
+        git push ${{ env.repository }} ${{ steps.stage-build.outputs.version }}
     - name: 'Await stable package publish'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: cb -c "spt|await -s {2} {0}.{1}" -bvs ',' -bf ${{ env.source-package-versions }}
