@@ -6,7 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Publish", "Sundew.Packaging.Publish\Sundew.Packaging.Publish.csproj", "{8E83995F-3B2D-48ED-B9E6-C2FA67BFCB6B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{87E650BB-5EB9-4BE9-BE14-5A93D15E655E} = {87E650BB-5EB9-4BE9-BE14-5A93D15E655E}
-		{187B0ED5-7679-485F-A4A9-E94158A27046} = {187B0ED5-7679-485F-A4A9-E94158A27046}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Publish.UnitTests", "Sundew.Packaging.Publish.UnitTests\Sundew.Packaging.Publish.UnitTests.csproj", "{15503FBB-CE4B-40B1-9E1C-35A40D9107A4}"
@@ -22,6 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Tool", "Sundew.Packaging.Tool\Sundew.Packaging.Tool.csproj", "{187B0ED5-7679-485F-A4A9-E94158A27046}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8E83995F-3B2D-48ED-B9E6-C2FA67BFCB6B} = {8E83995F-3B2D-48ED-B9E6-C2FA67BFCB6B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Tool.Tests", "Sundew.Packaging.Tool.Tests\Sundew.Packaging.Tool.Tests.csproj", "{99DC3B82-828A-447D-85D1-5AABC5A4864C}"
 EndProject
