@@ -8,6 +8,7 @@
 namespace Sundew.Packaging.Tool.Versioning
 {
     using System;
+    using System.IO;
     using System.Threading.Tasks;
     using global::NuGet.Versioning;
     using Sundew.Base.Primitives.Time;
@@ -71,7 +72,7 @@ namespace Sundew.Packaging.Tool.Versioning
             try
             {
                 var packageInfo = this.projectPackageInfoProvider.GetPackageInfo(stageBuildVerb.ProjectFile, stageBuildVerb.Configuration);
-                var workingDirectory = WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem);
+                var workingDirectory = Path.GetFullPath(WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem));
                 var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
                 var selectedSource = SourceSelector.SelectSource(

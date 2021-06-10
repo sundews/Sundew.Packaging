@@ -11,10 +11,20 @@ namespace Sundew.Packaging.Publish.Internal
     using System.IO;
     using Sundew.Packaging.Versioning.IO;
 
+    /// <summary>
+    /// Selects the working directory.
+    /// </summary>
     public static class WorkingDirectorySelector
     {
         private const string UndefinedText = "*Undefined*";
 
+        /// <summary>
+        /// Gets the working directory.
+        /// </summary>
+        /// <param name="proposedWorkingDirectory">The proposed working directory.</param>
+        /// <param name="fileSystem">The file system.</param>
+        /// <returns>The working directory.</returns>
+        /// <exception cref="ArgumentException">The working directory cannot be null. - workingDirectory.</exception>
         public static string GetWorkingDirectory(string? proposedWorkingDirectory, IFileSystem fileSystem)
         {
             var workingDirectory = proposedWorkingDirectory;
