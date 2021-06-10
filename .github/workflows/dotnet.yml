@@ -70,8 +70,8 @@ jobs:
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
       run: |
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
