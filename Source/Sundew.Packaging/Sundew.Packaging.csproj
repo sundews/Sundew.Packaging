@@ -26,4 +26,9 @@
     <PackageReference Include="Sundew.Base.Text" Version="8.0.0-u20210608-201056-dev-NamedFormatProvider" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <Version>$(SppForceVersion)</Version>
+    <PackageVersion>$(SppForceVersion)</PackageVersion>
+  </PropertyGroup>
+
 </Project>
