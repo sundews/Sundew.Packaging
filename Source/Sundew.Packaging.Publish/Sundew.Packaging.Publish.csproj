@@ -101,15 +101,16 @@
     <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
-    <Version>$(SppForceVersion)</Version>
-    <PackageVersion>$(SppForceVersion)</PackageVersion>
-  </PropertyGroup>
-
   <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true'">
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
   </Target>
+  
+  <!--
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <Version>$(SppForceVersion)</Version>
+    <PackageVersion>$(SppForceVersion)</PackageVersion>
+  </PropertyGroup>-->
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'" />
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"/>
 
 </Project>

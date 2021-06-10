@@ -51,6 +51,6 @@
     <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
   </ItemGroup>
 
-  <Import Project="$(MSBuildProjectDirectory)\..\Sundew.Packaging.Publish\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'" />
+  <Import Project="$(MSBuildProjectDirectory)\..\Sundew.Packaging.Publish\build\Sundew.Packaging.Publish.targets"/>
 
 </Project>
