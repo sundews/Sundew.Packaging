@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="ILRepacker" AfterTargets="_CopyPackageFiles">
+  <Target Name="ILRepacker" BeforeTargets="_CopyPackageFiles">
 
     <ItemGroup>
       <InputAssemblies Include="$(OutputPath)**\*.dll" />
