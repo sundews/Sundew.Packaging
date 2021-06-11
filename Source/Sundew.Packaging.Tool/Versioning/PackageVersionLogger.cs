@@ -25,7 +25,7 @@ namespace Sundew.Packaging.Tool.Versioning
         private const string DoubleQuotes = @"""";
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
         private const string UnknownNames = "The following name(s) where not found: ";
-        private static readonly string[] LogNames = new[] { "PackageId", "Version", "VersionNormalized", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
+        private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
         private readonly IStageBuildLogger logger;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Sundew.Packaging.Tool.Versioning
             var valueBuffer = new Buffer<object?>(LogNames.Length + properties?.Count ?? 0);
             valueBuffer.Write(packageId);
             valueBuffer.Write(publishInfo.Version);
-            valueBuffer.Write(publishInfo.VersionNormalized);
+            valueBuffer.Write(publishInfo.FullVersion);
             valueBuffer.Write(publishInfo.Stage);
             valueBuffer.Write(publishInfo.VersionStage);
             valueBuffer.Write(publishInfo.PushSource);

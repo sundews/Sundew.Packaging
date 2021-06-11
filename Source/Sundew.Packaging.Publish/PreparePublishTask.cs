@@ -356,7 +356,7 @@ namespace Sundew.Packaging.Publish
                     var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
                     var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.VersionFormat, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Metadata, this.MetadataFormat, this.Parameter ?? string.Empty);
                     var fullPackageVersion = packageVersion.ToFullString();
-                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion.ToFullString(), packageVersion.ToNormalizedString(), packageVersion.Metadata, this.IncludeSymbols);
+                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion.ToNormalizedString(), packageVersion.ToFullString(), packageVersion.Metadata, this.IncludeSymbols);
                     this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, fullPackageVersion);
                     this.PackageVersion = fullPackageVersion;
                     return true;

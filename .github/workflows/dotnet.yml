@@ -49,12 +49,12 @@ jobs:
         --integration "refs/heads/release/.+                                                 => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --stage "${{ github.ref }}"
-        --prerelease-format "{DateTime}-{Stage}-{Postfix}-${{ steps.build-setup.outputs.git-hash }}"
+        --prerelease-format "u{DateTime}-{Stage}-{Postfix}-${{ steps.build-setup.outputs.git-hash }}"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
-        --force-version \"${{ secrets.SPP_FORCE_VERSION_IF_SET }}\"
+        --force-version "${{ secrets.SPP_FORCE_VERSION_IF_SET }}"
         --output-formats "Stage={Stage}, Version={Version}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" 
         "::set-output name=nuGetPackagesPath::{WorkingDirectory}/NuGet" "::set-output name=dev-package-source-if-set::{DevFeedSource}" "::set-output name=feedSource::{FeedSource}" 
-        "::set-output name=pushSource::{PushSource}" "::set-output name=apiKey::{ApiKey}" "::set-output name=versionNormalized::{VersionNormalized}"
+        "::set-output name=pushSource::{PushSource}" "::set-output name=apiKey::{ApiKey}" "::set-output name=fullVersion::{FullVersion}"
     - name: Restore
       run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
@@ -62,24 +62,24 @@ jobs:
       run: >
         dotnet build ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-restore
         -p:"ContinuousIntegrationBuild=true"
-        -p:"SppForceVersion=${{ steps.stage-build.outputs.version }}"
+        -p:"SppForceVersion=${{ steps.stage-build.outputs.fullVersion }}"
         -p:GeneratePackageOnBuild=true
         -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
       run: |
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.${{ steps.stage-build.outputs.versionNormalized }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.versionNormalized }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
         git config user.email "sundew-dev@outlook.com"
         git config user.name "sundew-build"
-        git tag -a ${{ steps.stage-build.outputs.versionNormalized }} -m "${{ steps.stage-build.outputs.versionNormalized }}"
-        git push ${{ env.repository }} ${{ steps.stage-build.outputs.versionNormalized }}
+        git tag -a ${{ steps.stage-build.outputs.version }} -m "${{ steps.stage-build.outputs.version }}"
+        git push ${{ env.repository }} ${{ steps.stage-build.outputs.version }}
     - name: 'Await stable package publish'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
-        spt await -s ${{ steps.stage-build.outputs.feedSource }} Sundew.Packaging.Tool.${{ steps.stage-build.outputs.versionNormalized }}
-        spt await -s ${{ steps.stage-build.outputs.feedSource }} Sundew.Packaging.Publish.${{ steps.stage-build.outputs.versionNormalized }}
+        spt await -s ${{ steps.stage-build.outputs.feedSource }} Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}
+        spt await -s ${{ steps.stage-build.outputs.feedSource }} Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}

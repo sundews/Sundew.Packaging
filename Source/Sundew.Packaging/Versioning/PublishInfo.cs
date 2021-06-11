@@ -24,7 +24,7 @@ namespace Sundew.Packaging.Versioning
         /// <param name="symbolsApiKey">The symbols API key.</param>
         /// <param name="isEnabled">if set to <c>true</c> [is enabled].</param>
         /// <param name="version">The nuget version.</param>
-        /// <param name="versionNormalized">The version normalized.</param>
+        /// <param name="fullVersion">The full version.</param>
         /// <param name="metadata">The metadata.</param>
         public PublishInfo(
             string stage,
@@ -36,7 +36,7 @@ namespace Sundew.Packaging.Versioning
             string? symbolsApiKey,
             bool isEnabled,
             string version,
-            string versionNormalized,
+            string fullVersion,
             string? metadata)
         {
             this.Stage = stage;
@@ -48,7 +48,7 @@ namespace Sundew.Packaging.Versioning
             this.SymbolsApiKey = symbolsApiKey;
             this.IsEnabled = isEnabled;
             this.Version = version;
-            this.VersionNormalized = versionNormalized;
+            this.FullVersion = fullVersion;
             this.Metadata = metadata;
         }
 
@@ -117,20 +117,20 @@ namespace Sundew.Packaging.Versioning
         public bool IsEnabled { get; }
 
         /// <summary>
-        /// Gets the nuget version.
+        /// Gets the normalized version.
         /// </summary>
         /// <value>
-        /// The nuget version.
+        /// The normalized version.
         /// </value>
         public string Version { get; }
 
         /// <summary>
-        /// Gets the version normalized.
+        /// Gets the full nuget version.
         /// </summary>
         /// <value>
-        /// The version normalized.
+        /// The nuget version.
         /// </value>
-        public string VersionNormalized { get; }
+        public string FullVersion { get; }
 
         /// <summary>
         /// Gets the metadata.
