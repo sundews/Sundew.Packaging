@@ -104,7 +104,7 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <value>
         /// The name of the short.
         /// </value>
-        public string? ShortName => "bs";
+        public string? ShortName => "sb";
 
         /// <summary>
         /// Gets the help text.

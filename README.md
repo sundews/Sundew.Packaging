@@ -1,5 +1,6 @@
-# Sundew.Packaging.Publish
-Previously: Sundew.Build.Publish
+# Sundew.Packaging
+
+## **Sundew.Packaging.Publish**
 
 ## **1. Description**
 Sundew.Packaging.Publish is an automatic package publisher that can work standalone locally or integrated as a part of a CI/CD pipeline.
@@ -27,8 +28,8 @@ Once installed, Sundew.Packaging.Publish will start producing local builds and o
 
 ### **3.2 Local source from NuGet.config**
 NuGet.config provides a hierarical way of configuring NuGet from the local solution folder to the machinewide settings.  
-During build, the used local source will be added to the solution specific NuGet.config with the name: **Local-Sundew** (If the name does not already exist).  
-This allows the default local source to be overwritten by adding a package source named **Local (Sundew)**.  
+During build, the used local source will be added to the ApplicationData specific NuGet.config with the name: **Local-SPP** (If the name does not already exist).  
+This allows the default local source to be overwritten by adding a package source named **Local-SPP**.  
 Use the NuGet commandline to modify the settings: https://docs.microsoft.com/en-us/nuget/consume-packages/configuring-nuget-behavior
 
 ### **3.3 Local source from project**
@@ -70,17 +71,17 @@ The sources can be defined by setting the following MSBuild properties:
 - **SppDevelopmentSource**
 
 All three follow the format:
-**SourceMatcherRegex\[ #StagingName\]\[ $PrereleaseVersionFormat\]=> \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
+**SourceMatcherRegex\[#StagingName\]\[$PrereleaseVersionFormat\]=> \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
 
 **StagingName** can be used to override the default staging names.  
 **PrereleaseVersionFormat** and **MetadataFormat** can be used to change how the prerelease part of the version is created:
-  - **{0}** - Staging name
-  - **{1}** - DateTime.UtcNow formatted as yyyyMMdd-HHmmss
-  - **{2}** - DateTime.UtcNow
-  - **{3}** - Prefix (The value of the optional Prefix group in the SourceMatcherRegex)
-  - **{4}** - Postfix (The value of the optional Postfix group in the SourceMatcherRegex)
-  - **{5}** - Metadata
-  - **{6}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
+  - **{0,Stage}** - Stage name
+  - **{1,DateTime}** - DateTime.UtcNow formatted as yyyyMMdd-HHmmss
+  - **{2,DateTimeValue}** - DateTime.UtcNow
+  - **{3,Prefix}** - Prefix (The value of the optional Prefix group in the SourceMatcherRegex)
+  - **{4,Postfix}** - Postfix (The value of the optional Postfix group in the SourceMatcherRegex)
+  - **{5,Metadata}** - Metadata
+  - **{6,Parameter}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
   The following command can be used to get the short hash and send it to a GitHub Action output using git and [CommandlineBatcher](https://github.com/hugener/CommandlineBatcher) (cb).
 ```git rev-parse --short=10 HEAD | cb -c "|::set-output name=git_hash::{0}" --batches-stdin```
 
@@ -113,8 +114,8 @@ The staging names are prepended to the prerelease version to allow differentiati
 
 The staging name can be used to change how NuGet clients sort prereleases.  
 **Example:**  All prerelease use **pre**.  
-**SppIntegrationSource** = release/.+**=>pre**|http://nuget-server.com/integration  
-**SppDevelopmentSource** = .+**=>pre**|http://nuget-server.com/development  
+**SppIntegrationSource** = release/.+#**pre**=>|http://nuget-server.com/integration  
+**SppDevelopmentSource** = .+#**pre**=>|http://nuget-server.com/development  
 
 ### **4.3 Suggested versioning scheme**
 **GitHub flow/Git flow**
@@ -160,19 +161,23 @@ Packages for the three sources above are versioned differently:
 - **SppPrereleasePostfix** = (default: **null**) specifies the postfix to be used for prerelease packages.
 - **SppParameter** = (default: **empty**)
 - **SppPublishLogFormat** = (default: **null**) specifies a format with which packages to be pushed can be logged. Multiple formats can be separated by |.
-  - **{0}** - The package id.
-  - **{1}** - The resulting package version
-  - **{2}** - The package path
-  - **{3}** - The selected stage
-  - **{4}** - The selected push source
-  - **{5}** - The api key
-  - **{6}** - The selected feed source
-  - **{7}** - The symbol package path
-  - **{8}** - The selected symbol package source
-  - **{9}** - The symbol api key
-  - **{10}** - The value of the SppParameter MSBuild property
-  - **{11}** - Double quotes
-  - **{12}** - Environment.NewLine
+  - **{0,PackageId}** - The package id.
+  - **{1,Version}** - The normalized package version
+  - **{2,FullVersion}** - The full package version
+  - **{3,PackagePath}** - The package path
+  - **{4,Stage}** - The selected stage
+  - **{5,VersionStage}** - The version stage
+  - **{6,PushSource}** - The selected push source
+  - **{7,ApiKey}** - The api key
+  - **{8,FeedSource}** - The selected feed source
+  - **{9,SymbolsPath}** - The symbol package path
+  - **{10,SymbolsPushSource}** - The selected symbol package source
+  - **{11,SymbolsApiKey}** - The symbol api key
+  - **{12,Metadata}** - The metadata
+  - **{12,WorkingDirectory}** - The working directory
+  - **{13,Parameter}** - The value of the SppParameter MSBuild property
+  - **{14,DQ}** - Double quote
+  - **{15,NL}** - Environment.NewLine
 
    Usefull for CI environments to extract information from the build. E.g. to set a build variable to the select push source and path for pushing packages from the CI environment only.
 
@@ -182,13 +187,15 @@ Packages for the three sources above are versioned differently:
   - The space between **Format** and **>** is ignored, to include spaces at the end, add additional ones.
 
 - **SppLatestVersionSources** = (default: **null**) A pipe (|) separated list of sources to query to find the latest version.
-- **SppAddDefaultPushSourceToLatestVersionSources** = (default: **true**) Adds the default push source to SppLatestVersionSources.
+- **SppAddNuGetOrgSourceToLatestVersionSources** = (default: **true**) Adds the NuGet.org to SppLatestVersionSources.
+- **SppAddAllSourcesToLatestVersionSources** = (default: **true**) Adds all sources to lastest version sources.
 - **SppLocalPackageStage** (default: **true**) Local builds will use the specified stage.
 - **SppPrereleaseFormat** = (default: **null**) Sets the fallback prerelease format for prerelease source if not specified in the Source Matcher.
 - **SppMetadata** = (default: **null**) The metadata.
 - **SppMetadataFormat** = (default: **null**) The metadata format used to format the version metadata.
 - **SppForceVersion** = (default: **null**) Forces the version to the specified value if not null.
 - **SppDisable** = (default: **null**) Disables SPP completely.
+- **SppWorkLocally** = (default: **false**) Enables package creation is set.
 
 ### **5.2 Build output**
 The build also outputs MSBuild TaskItems:  

@@ -17,7 +17,7 @@ namespace Sundew.Packaging.Versioning.Logging
     {
         private const string DoubleQuotes = @"""";
         private const string IndicesContainedNullValues = "The following indices contained null values: ";
-        private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "PackageStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
+        private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
         private readonly ILogger logger;
 
         public PackagePublicationLogger(ILogger logger)
