@@ -38,9 +38,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Memory" Version="8.0.0-u20210608-201056-dev-NamedFormatProvider" />
+    <PackageReference Include="Sundew.Base.Memory" Version="8.0.3" />
     <PackageReference Include="Sundew.CommandLine" Version="9.0.0-u20210608-201554-dev-SpanBasedParsing" />
-    <PackageReference Include="System.IO.Abstractions" Version="13.2.33" />
+    <PackageReference Include="System.IO.Abstractions" Version="13.2.37" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +56,6 @@
     <PackageVersion>$(SppForceVersion)</PackageVersion>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildProjectDirectory)\..\Sundew.Packaging.Publish\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'"/>
+  <Import Project="$(MSBuildProjectDirectory)\..\Sundew.Packaging.Publish\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'" />
 
 </Project>

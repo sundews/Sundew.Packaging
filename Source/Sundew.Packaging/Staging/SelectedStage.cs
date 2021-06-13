@@ -1,27 +1,27 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SelectedSource.cs" company="Hukano">
+// <copyright file="SelectedStage.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Source
+namespace Sundew.Packaging.Staging
 {
     /// <summary>
-    /// Represents the selected source in which to push a package to.
+    /// Represents the selected stage in which to push a package to.
     /// </summary>
-    /// <seealso cref="Sundew.Packaging.Source.Source" />
-    /// <seealso cref="System.IEquatable{Sundew.Packaging.Source.Source}" />
-    /// <seealso cref="System.IEquatable{Sundew.Packaging.Source.SelectedSource}" />
-    public record SelectedSource : Source
+    /// <seealso cref="Sundew.Packaging.Staging.Stage" />
+    /// <seealso cref="System.IEquatable{Sundew.Packaging.Staging.Stage}" />
+    /// <seealso cref="System.IEquatable{Sundew.Packaging.Staging.SelectedStage}" />
+    public record SelectedStage : Stage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SelectedSource"/> class.
+        /// Initializes a new instance of the <see cref="SelectedStage"/> class.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="packagePrefix">The package prefix.</param>
         /// <param name="packagePostfix">The package postfix.</param>
-        public SelectedSource(Source source, string? packagePrefix = null, string? packagePostfix = null)
+        public SelectedStage(Stage source, string? packagePrefix = null, string? packagePostfix = null)
           : base(source)
         {
             this.PackagePrefix = packagePrefix ?? string.Empty;

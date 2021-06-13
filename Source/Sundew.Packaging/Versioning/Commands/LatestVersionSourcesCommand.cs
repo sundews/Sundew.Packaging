@@ -13,7 +13,7 @@ namespace Sundew.Packaging.Versioning.Commands
     using global::NuGet.Common;
     using global::NuGet.Configuration;
     using Sundew.Base.Text;
-    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
     using Sundew.Packaging.Versioning.IO;
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace Sundew.Packaging.Versioning.Commands
         /// <returns>The latest version.</returns>
         public IReadOnlyList<string> GetLatestVersionSources(
             string? latestVersionSourcesText,
-            SelectedSource selectedSource,
+            SelectedStage selectedSource,
             NuGetSettings nuGetSettings,
             bool addNuGetOrgSource,
             bool addAllSources)

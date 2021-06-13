@@ -14,7 +14,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using NuGet.Versioning;
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish;
-    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
     using Xunit;
@@ -46,7 +46,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 expectedVersion,
                 VersioningMode.AlwaysIncrementPatch,
-                new SelectedSource(Source.Parse(AnyPushSource, "beta", "beta", false, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, "beta", "beta", false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
                 null,
@@ -72,7 +72,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
                 null,
@@ -104,7 +104,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
                 null,
@@ -136,7 +136,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, "ci", "ci", true, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, "ci", "ci", true, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
                 null,
@@ -168,7 +168,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, stage, false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
                 null,
@@ -197,7 +197,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 null,
                 VersioningMode.AutomaticLatestRevision,
-                new SelectedSource(Source.Parse(AnyPushSource, "ci", "ci", false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, "ci", "ci", false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
                 metadata,

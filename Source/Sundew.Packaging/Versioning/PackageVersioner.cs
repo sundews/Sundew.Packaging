@@ -13,7 +13,7 @@ namespace Sundew.Packaging.Publish
     using System.Text.RegularExpressions;
     using global::NuGet.Versioning;
     using Sundew.Base.Text;
-    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
 
@@ -71,7 +71,7 @@ namespace Sundew.Packaging.Publish
             string? versionFormat,
             string? forceVersion,
             VersioningMode versioningMode,
-            SelectedSource selectedSource,
+            SelectedStage selectedSource,
             IReadOnlyList<string> latestVersionSources,
             DateTime buildDateTime,
             string? metadata,
@@ -116,7 +116,7 @@ namespace Sundew.Packaging.Publish
             DateTime buildDateTime,
             string packageId,
             NuGetVersion nugetVersion,
-            SelectedSource selectedSource,
+            SelectedStage selectedSource,
             IReadOnlyList<string> latestVersionSources,
             string metadata,
             string parameter,
@@ -144,7 +144,7 @@ namespace Sundew.Packaging.Publish
             DateTime buildDateTime,
             string packageId,
             NuGetVersion nugetVersion,
-            SelectedSource selectedSource,
+            SelectedStage selectedSource,
             IReadOnlyList<string> latestVersionSources,
             string metadata,
             string parameter,
@@ -172,7 +172,7 @@ namespace Sundew.Packaging.Publish
             DateTime buildDateTime,
             string packageId,
             NuGetVersion nugetVersion,
-            SelectedSource selectedSource,
+            SelectedStage selectedSource,
             string metadata,
             string parameter,
             string versionMetadata)
@@ -187,7 +187,7 @@ namespace Sundew.Packaging.Publish
             return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
         }
 
-        private SemanticVersion GetIncrementPatchVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedSource selectedSource, string metadata, string parameter, string versionMetadata)
+        private SemanticVersion GetIncrementPatchVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedStage selectedSource, string metadata, string parameter, string versionMetadata)
         {
             if (selectedSource.IsStableRelease)
             {
@@ -197,7 +197,7 @@ namespace Sundew.Packaging.Publish
             return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch + 1, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
         }
 
-        private SemanticVersion GetNoChangeVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedSource selectedSource, string metadata, string parameter, string versionMetadata)
+        private SemanticVersion GetNoChangeVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedStage selectedSource, string metadata, string parameter, string versionMetadata)
         {
             if (selectedSource.IsStableRelease)
             {
@@ -207,26 +207,26 @@ namespace Sundew.Packaging.Publish
             return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch, nugetVersion.Revision, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
         }
 
-        private string GetMetadata(string metadata, string? metadataFormat, SelectedSource selectedSource, DateTime dateTime, string parameter)
+        private string GetMetadata(string metadata, string? metadataFormat, SelectedStage selectedSource, DateTime dateTime, string parameter)
         {
             if (!string.IsNullOrEmpty(metadataFormat) && metadataFormat != null)
             {
                 var metadataFormatter = new NamedFormatString(metadataFormat, MetadataAndPrereleaseFormatNames);
                 return RemoveDuplicates.Replace(
-                    metadataFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
+                    metadataFormatter.Format(selectedSource.VersionStageName, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
                     match => match.Value[0].ToString()).Trim('-');
             }
 
             return metadata;
         }
 
-        private string GetPrereleasePostfix(DateTime dateTime, SelectedSource selectedSource, string metadata, string parameter)
+        private string GetPrereleasePostfix(DateTime dateTime, SelectedStage selectedSource, string metadata, string parameter)
         {
             if (!string.IsNullOrEmpty(selectedSource.PrereleaseFormat) && selectedSource.PrereleaseFormat != null)
             {
                 var prereleaseFormatter = new NamedFormatString(selectedSource.PrereleaseFormat, MetadataAndPrereleaseFormatNames);
                 return RemoveDuplicates.Replace(
-                    prereleaseFormatter.Format(selectedSource.VersionStage, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
+                    prereleaseFormatter.Format(selectedSource.VersionStageName, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
                     match => match.Value[0].ToString()).Trim('-');
             }
 
@@ -238,9 +238,9 @@ namespace Sundew.Packaging.Publish
 
             stringBuilder.Append('u');
             stringBuilder.Append(dateTime.ToString(PrereleasePackageDateTimeFormat));
-            if (!string.IsNullOrEmpty(selectedSource.VersionStage))
+            if (!string.IsNullOrEmpty(selectedSource.VersionStageName))
             {
-                stringBuilder.Append('-').Append(selectedSource.VersionStage);
+                stringBuilder.Append('-').Append(selectedSource.VersionStageName);
             }
 
             if (!string.IsNullOrEmpty(selectedSource.PackagePostfix))

@@ -21,9 +21,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="8.0.0-u20210608-201056-dev-NamedFormatProvider" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="8.0.0-u20210608-201056-dev-NamedFormatProvider" />
-    <PackageReference Include="Sundew.Base.Text" Version="8.0.0-u20210608-201056-dev-NamedFormatProvider" />
+    <PackageReference Include="Sundew.Base.Collections" Version="8.0.3" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="8.0.3" />
+    <PackageReference Include="Sundew.Base.Text" Version="8.0.3" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">

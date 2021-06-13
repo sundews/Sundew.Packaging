@@ -17,6 +17,7 @@ namespace Sundew.Packaging.Publish
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Publish.Internal.Logging;
     using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
     using Sundew.Packaging.Versioning.IO;
@@ -162,7 +163,7 @@ namespace Sundew.Packaging.Publish
         /// default: creates a prerelease and pushes it to the default push source.
         /// default-stable: creates a stable version and pushes it the default push source.</summary>
         /// <value>The name of the source.</value>
-        public string? SourceName { get; set; }
+        public string? Stage { get; set; }
 
         /// <summary>Gets or sets the production source.
         /// The production source is a string in the following format:
@@ -171,7 +172,7 @@ namespace Sundew.Packaging.Publish
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
         /// <value>The production source.</value>
-        public string? ProductionSource { get; set; }
+        public string? Production { get; set; }
 
         /// <summary>Gets or sets the integration source.
         /// The integration source is a string in the following format:
@@ -180,7 +181,7 @@ namespace Sundew.Packaging.Publish
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
         /// <value>The integration source.</value>
-        public string? IntegrationSource { get; set; }
+        public string? Integration { get; set; }
 
         /// <summary>Gets or sets the development source.
         /// The development source is a string in the following format:
@@ -189,7 +190,7 @@ namespace Sundew.Packaging.Publish
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
         /// <value>The development source.</value>
-        public string? DevelopmentSource { get; set; }
+        public string? Development { get; set; }
 
         /// <summary>
         /// Gets or sets the API key.
@@ -325,11 +326,11 @@ namespace Sundew.Packaging.Publish
                 var localSourceName = this.LocalSourceName ?? PackageSources.DefaultLocalSourceName;
                 var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, localSourceName, this.LocalSource ?? PackageSources.DefaultLocalSource);
 
-                var selectedSource = SourceSelector.SelectSource(
-                    this.SourceName,
-                    this.ProductionSource,
-                    this.IntegrationSource,
-                    this.DevelopmentSource,
+                var selectedSource = StageSelector.Select(
+                    this.Stage,
+                    this.Production,
+                    this.Integration,
+                    this.Development,
                     nuGetSettings.LocalSourcePath,
                     this.PrereleaseFormat,
                     this.ApiKey,

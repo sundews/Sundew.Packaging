@@ -1,11 +1,11 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Source.cs" company="Hukano">
+// <copyright file="Stage.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Source
+namespace Sundew.Packaging.Staging
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -14,8 +14,8 @@ namespace Sundew.Packaging.Source
     /// <summary>
     /// Defines how packages should be versioned for a source.
     /// </summary>
-    /// <seealso cref="System.IEquatable{Sundew.Packaging.Source.Source}" />
-    public record Source
+    /// <seealso cref="System.IEquatable{Sundew.Packaging.Staging.Stage}" />
+    public record Stage
     {
         internal const string ConfigText = "config";
         private const string StageRegexText = "StageRegex";
@@ -26,10 +26,10 @@ namespace Sundew.Packaging.Source
         private const string SymbolsUriText = "SymbolsUri";
         private const string FeedUriText = "FeedUri";
         private const string PrereleasFormatText = "PrereleaseFormat";
-        private static readonly Regex SourceRegex = new($@"(?:(?<StageRegex>(?:[^#\s])+)\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s*=\>\s*)(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
+        private static readonly Regex SourceRegex = new($@"(?<StageRegex>.+?)(?=\s*=\>)\s*=\>\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s+(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Source" /> class.
+        /// Initializes a new instance of the <see cref="Staging.Stage" /> class.
         /// </summary>
         /// <param name="stageRegex">The stage regex.</param>
         /// <param name="pushSource">The push source.</param>
@@ -45,7 +45,7 @@ namespace Sundew.Packaging.Source
         /// <param name="properties">The properties.</param>
         /// <param name="isEnabled">if set to <c>true</c> [is enabled].</param>
         /// <param name="isFallback">if set to <c>true</c> [is fallback].</param>
-        public Source(
+        public Stage(
             Regex? stageRegex,
             string pushSource,
             string? apiKey,
@@ -66,8 +66,8 @@ namespace Sundew.Packaging.Source
             this.ApiKey = apiKey;
             this.SymbolsPushSource = symbolsPushSource;
             this.SymbolsApiKey = symbolsApiKey;
-            this.Stage = stage;
-            this.VersionStage = versionStage;
+            this.StageName = stage;
+            this.VersionStageName = versionStage;
             this.IsStableRelease = isStableRelease;
             this.FeedSource = feedSource;
             this.PrereleaseFormat = prereleaseFormat;
@@ -142,20 +142,20 @@ namespace Sundew.Packaging.Source
         public string? SymbolsApiKey { get; }
 
         /// <summary>
-        /// Gets the stage.
+        /// Gets the stage name.
         /// </summary>
         /// <value>
         /// The stage.
         /// </value>
-        public string Stage { get; }
+        public string StageName { get; }
 
         /// <summary>
-        /// Gets the version stage.
+        /// Gets the version stage name.
         /// </summary>
         /// <value>
         /// The stage.
         /// </value>
-        public string VersionStage { get; }
+        public string VersionStageName { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is stable release.
@@ -204,7 +204,7 @@ namespace Sundew.Packaging.Source
         /// <returns>
         /// The source.
         /// </returns>
-        public static Source? Parse(
+        public static Stage? Parse(
             string? sourceText,
             string defaultStage,
             string defaultVersionStage,
@@ -278,7 +278,7 @@ namespace Sundew.Packaging.Source
                     }
                 }
 
-                return new Source(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled);
+                return new Stage(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled);
             }
 
             return default;

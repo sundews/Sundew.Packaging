@@ -9,7 +9,7 @@ namespace Sundew.Packaging.Publish.Internal
 {
     using System.IO;
     using Newtonsoft.Json;
-    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.IO;
     using Sundew.Packaging.Versioning.Logging;
@@ -25,16 +25,16 @@ namespace Sundew.Packaging.Publish.Internal
             this.logger = logger;
         }
 
-        public PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nuGetVersion, string fullNuGetVersion, string metadata, bool includeSymbols)
+        public PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string metadata, bool includeSymbols)
         {
             var publishInfo = new PublishInfo(
-                selectedSource.Stage,
-                selectedSource.VersionStage,
+                selectedSource.StageName,
+                selectedSource.VersionStageName,
                 selectedSource.FeedSource,
                 selectedSource.PushSource,
                 selectedSource.ApiKey,
-                includeSymbols ? selectedSource.SymbolsPushSource : null,
-                includeSymbols ? selectedSource.SymbolsApiKey : null,
+                selectedSource.SymbolsPushSource,
+                selectedSource.SymbolsApiKey,
                 selectedSource.IsEnabled,
                 nuGetVersion,
                 fullNuGetVersion,
@@ -46,7 +46,7 @@ namespace Sundew.Packaging.Publish.Internal
             }
 
             this.fileSystem.WriteAllText(publishInfoFilePath, JsonConvert.SerializeObject(publishInfo));
-            this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.Stage}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
+            this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.StageName}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
             return publishInfo;
         }
 

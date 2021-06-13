@@ -14,6 +14,7 @@ namespace Sundew.Packaging.Tool.Versioning
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
     using Sundew.Packaging.Tool.Versioning.MsBuild;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
@@ -75,7 +76,7 @@ namespace Sundew.Packaging.Tool.Versioning
                 var workingDirectory = Path.GetFullPath(WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem));
                 var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
-                var selectedSource = SourceSelector.SelectSource(
+                var selectedSource = StageSelector.Select(
                     stageBuildVerb.Stage,
                     stageBuildVerb.Production,
                     stageBuildVerb.Integration,
@@ -108,8 +109,8 @@ namespace Sundew.Packaging.Tool.Versioning
                         null ?? string.Empty);
 
                     var publishInfo = new PublishInfo(
-                        selectedSource.Stage,
-                        selectedSource.VersionStage,
+                        selectedSource.StageName,
+                        selectedSource.VersionStageName,
                         selectedSource.FeedSource,
                         selectedSource.PushSource,
                         selectedSource.ApiKey,

@@ -10,7 +10,7 @@ namespace Sundew.Packaging.Versioning
     using System;
     using System.Collections.Generic;
     using global::NuGet.Versioning;
-    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
 
     public interface IPackageVersioner
     {
@@ -20,7 +20,7 @@ namespace Sundew.Packaging.Versioning
             string? combiningVersion,
             string? forceVersion,
             VersioningMode versioningMode,
-            SelectedSource selectedSource,
+            SelectedStage selectedSource,
             IReadOnlyList<string> latestVersionSources,
             DateTime buildDateTime,
             string? metadata,

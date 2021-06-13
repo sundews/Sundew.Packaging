@@ -46,7 +46,7 @@ Valid values are:
 
 For this to work, the default push source must be configured in NuGet.config: https://docs.microsoft.com/en-us/nuget/consume-packages/configuring-nuget-behavior#nugetdefaultsconfig-settings
 
-For example it would be possible to create additional build configurations within the csproj (Release-Stable, Prerelease), which would set the **SppSourceName** property accordingly.
+For example it would be possible to create additional build configurations within the csproj (Release-Stable, Prerelease), which would set the **SppStageName** property accordingly.
 
 ### **3.6 Versioning**
 Local source packages are per default versioned as prerelease package and will have a postfix appended to the configured version number: **u&lt;UTC-TIME&gt;-pre**
@@ -61,17 +61,17 @@ To disable this option, define the constant: **SPP_DISABLE_COPY_LOCAL_SOURCE_PDB
 ## **4. CI builds**
 The difference to local builds is that CI builds are typically configuring a number of MSBuild properties on the build server
 
-### **4.1 Staging sources with Source Matchers**
-Source Matchers are used to determine the source for publishing packages.  
+### **4.1 Staging sources with Stage Matchers**
+Stage Matchers are used to determine the source for publishing packages.  
 The following stages are supported: **Production**, **Integration**, **Development**.
 
 The sources can be defined by setting the following MSBuild properties:
-- **SppProductionSource**
-- **SppIntegrationSource**
-- **SppDevelopmentSource**
+- **SppProduction**
+- **SppIntegration**
+- **SppDevelopment**
 
 All three follow the format:
-**SourceMatcherRegex\[#StagingName\]\[$PrereleaseVersionFormat\]=> \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
+**StageMatcherRegex=>\[#StagingName\]\[$PrereleaseVersionFormat\] \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
 
 **StagingName** can be used to override the default staging names.  
 **PrereleaseVersionFormat** and **MetadataFormat** can be used to change how the prerelease part of the version is created:
@@ -87,20 +87,20 @@ All three follow the format:
 
 Leading and trailing dashes "-" will be trimmed.
 
-#### **4.1.1 Source selection**
-The source selecting is made in combination of the SourceMatcherRegex and the **SppSourceName** MSBuild property.  
+#### **4.1.1 Stage selection**
+The stage selecting is made in combination of the StageMatcherRegex and the **SppStageName** MSBuild property.  
 The regexes will be evaluated in the order as listed above.
 
-The SourceMatcherRegex can be used to match the current branch (must be passed into MSBuild via build server) to decide which source to publish to and map to a staging name for the version prefix. The regex also supports two groups (Prefix and Postfix), which if found will be included in the prerelease version according to the following format:
+The StageMatcherRegex can be used to match the current branch (must be passed into MSBuild via build server) to decide which source to publish to and map to a staging name for the version prefix. The regex also supports two groups (Prefix and Postfix), which if found will be included in the prerelease version according to the following format:
 **[&lt;Prefix&gt;-]u&lt;UTC&gt;-&lt;StagingName&gt;[-&lt;Postfix&gt;]**.
 
 Note that using the prefix may break how NuGet clients may automatically find the latest version based on Staging name and timestamp.
 
 #### **4.1.3 Sample set up:**
-**SppSourceName** = vcs branch (e.g. master, develop, feature/&lt;FEATURE-NAME&gt;, release/&lt;VERSION-NUMBER&gt;)  
-**SppProductionSource** = master|http://nuget-server.com/production|http://nuget-server.com/production/symbols  
-**SppIntegrationSource** = release/.+|http://nuget-server.com/integration  
-**SppDevelopmentSource** = .+|http://nuget-server.com/development  
+**SppStageName** = vcs branch (e.g. master, develop, feature/&lt;FEATURE-NAME&gt;, release/&lt;VERSION-NUMBER&gt;)  
+**SppProduction** = master| http://nuget-server.com/production|http://nuget-server.com/production/symbols  
+**SppIntegration** = release/.+| http://nuget-server.com/integration  
+**SppDevelopment** = .+| http://nuget-server.com/development  
 
 This allows the source to be selected based on the branch name in git, etc.
 
@@ -114,8 +114,8 @@ The staging names are prepended to the prerelease version to allow differentiati
 
 The staging name can be used to change how NuGet clients sort prereleases.  
 **Example:**  All prerelease use **pre**.  
-**SppIntegrationSource** = release/.+#**pre**=>|http://nuget-server.com/integration  
-**SppDevelopmentSource** = .+#**pre**=>|http://nuget-server.com/development  
+**SppIntegration** = release/.+#**pre**=>|http://nuget-server.com/integration  
+**SppDevelopment** = .+#**pre**=>|http://nuget-server.com/development  
 
 ### **4.3 Suggested versioning scheme**
 **GitHub flow/Git flow**
@@ -137,9 +137,9 @@ The staging name can be used to change how NuGet clients sort prereleases.
 | Local     | any         | prerelease  | &lt;Major.Minor.*&gt;u&lt;UTC&gt;-local | Push to local NuGet       |
 
 Packages for the three sources above are versioned differently:  
-**SppProductionSource** = Stable - The version number defined in the **Version** MSBuild property *.  
-**SppIntegrationSource** = Prerelease - Adds the stage name **u&lt;UTC&gt;-ci** to the configured version number *.  
-**SppDevelopmentSource** = Prerelease - Adds the stage name **u&lt;UTC&gt;-dev** to the configured version number *.
+**SppProduction** = Stable - The version number defined in the **Version** MSBuild property *.  
+**SppIntegration** = Prerelease - Adds the stage name **u&lt;UTC&gt;-ci** to the configured version number *.  
+**SppDevelopment** = Prerelease - Adds the stage name **u&lt;UTC&gt;-dev** to the configured version number *.
 
 *) The patch component  depends on the **SppVersioningMode** MSBuild property
 
@@ -231,3 +231,87 @@ https://github.com/hugener/Sundew.CommandLine/blob/main/.github/workflows/dotnet
 https://github.com/hugener/CommandlineBatcher/blob/main/.github/workflows/dotnet.yml
 
 https://github.com/hugener/Sundew.Packaging.Tool/blob/main/.github/workflows/dotnet.yml
+
+# **Sundew.Packaging.Tool**
+
+## **1. Description**
+* Alternative NuGet client for bulk updating NuGet packages in csproj, fsproj and vbproj projects (PackageReference only).
+* Await NuGet package being published.
+* Prune NuGet packages from a local source.
+
+## **2. Install**
+dotnet tool install -g Sundew.Packaging.Tool
+
+## **3. Usage**
+
+```
+Help
+ Verbs:
+   stage-build/sb                Stages a build
+     -pf  | --project-file       | The project file                                                                    | Required
+     -s   | --stage              | The stage used to match against the production, integration and development sources | Required
+     Source matchers                                                                                                   | Required
+      -p  | --production         | The production source selector used to determine the stable version.                | Default: [none]
+      -i  | --integration        | The integration source selector used to determine the prerelease version.           | Default: [none]
+      -d  | --development        | The development source selector used to determine the prerelease version.           | Default: [none]
+     -wd  | --directory          | The working directory or file used to determine the base version.                   | Default: [none]
+     -c   | --configuration      | The configuration used to evaluate the project file.                                | Default: [none]
+     -pp  | --prerelease-prefix  | The prerelease prefix.                                                              | Default: [none]
+     -ps  | --prerelease-postfix | The prerelease postfix.                                                             | Default: [none]
+          | --prerelease-format  | The prerelease format.                                                              | Default: [none]
+     -m   | --metadata           | The version metadata.                                                               | Default: [none]
+     -vm  | --versioning-mode    | The versioning mode                                                                 | Default: automatic-latest-patch
+     -v   | --version-format     | The version format                                                                  | Default: [none]
+     -f   | --force-version      | Forces the version to the specified value                                           | Default: [none]
+     -o   | --output-formats     | A list of formats that will be logged to stdout.                                    | Default: [none]
+   update/u                      Update package references
+     -id  | --package-ids        | The package(s) to update. (* Wildcards supported)                                   | Default: *
+                                   Format: Id[.Version] or "Id[ Version]" (Pinning version is optional)
+     -p   | --projects           | The project(s) to update (* Wildcards supported)                                    | Default: *
+     -s   | --source             | The source or source name to search for packages ("All" supported)                  | Default: NuGet.config: defaultPushSource
+          | --version            | The NuGet package version (* Wildcards supported).                                  | Default: Latest version
+     -d   | --root-directory     | The directory to search for projects                                                | Default: Current directory
+     -pr  | --prerelease         | Allow updating to latest prerelease version
+     -v   | --verbose            | Verbose
+     -l   | --local              | Forces the source to "Local-SPP"
+     -sr  | --skip-restore       | Skips a dotnet restore command after package update.
+   await/a                       Awaits the specified package to be published
+     -s   | --source             | The source or source name to await publish                                          | Default: NuGet.config: defaultPushSource
+     -d   | --root-directory     | The directory to search for projects                                                | Default: Current directory
+     -t   | --timeout            | The wait timeout in seconds                                                         | Default: 300
+     -v   | --verbose            | Verbose
+     <package-id>                | Specifies the package id and optionally the version                                 | Required
+                                   Format: <PackageId>[.<Version>].
+                                   If the version is not provided, it must be specified by the version value
+     <version>                   | Specifies the NuGet Package version                                                 | Default: [none]
+   prune/p                       Prunes the matching packages for a local source
+     all                         Prune the specified local source for all packages
+       -p | --package-ids        | The packages to prune (* Wildcards supported)                                       | Default: *
+       -s | --source             | Local source or source name to search for packages                                  | Default: Local-SPP
+       -v | --verbose            | Verbose
+   delete/d                      Delete files
+     -d   | --root-directory     | The directory to search for projects                                                | Default: Current directory
+     -r   | --recursive          | Specifies whether to recurse into subdirectories.
+     -v   | --verbose            | Verbose
+     <files>                     | The files to be deleted                                                             | Required
+```
+
+## **3. Examples**
+Open Package Manager Console in Visual Studio or a similar command line.
+Stage Build
+1. https://github.com/sundews/Sundew.Packaging/blob/main/.github/workflows/dotnet.yml
+Update
+1. ```spt update``` - Update all packages in all projects to the latest stable version.
+2. ```spt u -id Serilog*``` - Updates all Serilog packages to the latest stable version for all projects (That reference Serilog)
+3. ```spt u -id TransparentMoq -pr -l``` - Updates TransparentMoq to the latest prerelease from the "Local-Sundew" source (Useful together with Sundew.Packaging.Publish for local development).
+
+Await
+1. ```spt await TransparentMoq.4.16.2``` - Awaits TransparentMoq.4.0.0 to be published to the default push source.
+2. ```spt a -s MySource TransparentMoq.4.16.2``` - Awaits TransparentMoq.4.0.0 to be published to the source named MySource.
+3. ```spt a -t 60 TransparentMoq.4.16.2``` - Awaits TransparentMoq.4.0.0 to be published to the default push source, but times out after one minute.
+4. ```spt``` used with Sundew.Packaging.Publish to ensure that another stable build does not run until packages are published https://github.com/hugener/Sundew.Generator/blob/main/.github/workflows/dotnet.yml
+
+Prune
+1. ```spt prune all``` - Prunes the all packages in the default local source.
+2. ```spt p all -p Serilog* -s MySource``` - Prunes all packages starting with Serilog from the source named MySource.
+3. ```spt p all -p TransparentMoq``` - Prunes all TransparentMoq packages from the default local source.
