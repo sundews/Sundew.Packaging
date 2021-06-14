@@ -39,7 +39,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.Base.Memory" Version="8.0.3" />
-    <PackageReference Include="Sundew.CommandLine" Version="9.0.0-u20210608-201554-dev-SpanBasedParsing" />
+    <PackageReference Include="Sundew.CommandLine" Version="9.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="13.2.37" />
   </ItemGroup>
 
