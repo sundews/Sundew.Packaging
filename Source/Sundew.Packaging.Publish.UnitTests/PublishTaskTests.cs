@@ -108,7 +108,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
             this.testee.PackInputs = new ITaskItem[] { new TaskItem(ExpectedPdbPath) };
-            this.testee.SymbolCacheDir = @"c:/temp/symbol-cache";
+            this.testee.SymbolCacheDir = Paths.EnsurePlatformPath(@"c:/temp/symbol-cache");
             this.testee.CopyLocalSourcePdbToSymbolCache = true;
 
             this.testee.Execute();

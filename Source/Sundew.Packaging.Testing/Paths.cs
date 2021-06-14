@@ -16,7 +16,7 @@ namespace Sundew.Packaging.Testing
         private const string Forwardslash = "/";
         private const string Colon = ":";
 
-        private static readonly Regex WindowsToUnixPathRegex = new(@"$\w\:|\\");
+        private static readonly Regex WindowsToUnixPathRegex = new(@"^\w\:|\\");
 
         public static string EnsurePlatformPath(string path)
         {
