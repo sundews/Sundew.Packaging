@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sundew.Packaging.Publish\Sundew.Packaging.Publish.csproj" />
+    <ProjectReference Include="..\Sundew.Packaging.Testing\Sundew.Packaging.Testing.csproj" />
   </ItemGroup>
 
 </Project>

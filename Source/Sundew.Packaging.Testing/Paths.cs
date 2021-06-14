@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.UnitTests
+namespace Sundew.Packaging.Testing
 {
     using System;
     using System.Text.RegularExpressions;
@@ -14,6 +14,7 @@ namespace Sundew.Packaging.Publish.UnitTests
     {
         private const string Backslash = "\\";
         private const string Forwardslash = "/";
+        private const string Colon = ":";
 
         private static readonly Regex WindowsToUnixPathRegex = new(@"$\w\:|\\");
 
@@ -29,7 +30,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                 path,
                 m =>
                 {
-                    if (m.Value.EndsWith(':'))
+                    if (m.Value.EndsWith(Colon))
                     {
                         return $"/{m.Value[0]}";
                     }

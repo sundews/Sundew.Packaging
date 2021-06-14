@@ -21,6 +21,7 @@ namespace Sundew.Packaging.Publish.UnitTests
     using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Source;
     using Sundew.Packaging.Staging;
+    using Sundew.Packaging.Testing;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
     using Sundew.Packaging.Versioning.IO;

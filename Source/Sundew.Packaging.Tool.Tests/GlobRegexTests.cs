@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Tool.Tests
 {
     using FluentAssertions;
     using NUnit.Framework;
+    using Sundew.Packaging.Testing;
     using Sundew.Packaging.Tool.RegularExpression;
 
     [TestFixture]
@@ -21,9 +22,9 @@ namespace Sundew.Packaging.Tool.Tests
         [TestCase(@"c:\a\file.txt", false)]
         public void IsMatch_When_MatchingWithDoubleStar_Then_ResultShouldBeAsExpected(string input, bool expectedResult)
         {
-            var regex = GlobRegex.Create(@"c:\a\**\d\file.txt");
+            var regex = GlobRegex.Create(Paths.EnsurePlatformPath(@"c:\a\**\d\file.txt"));
 
-            var result = regex.IsMatch(input);
+            var result = regex.IsMatch(Paths.EnsurePlatformPath(input));
 
             result.Should().Be(expectedResult);
         }
@@ -42,9 +43,9 @@ namespace Sundew.Packaging.Tool.Tests
         [TestCase(@"c:/a/file.txt", true)]
         public void IsMatch_When_MatchingWithDoubleAndSingleStarAndInputUsesSlash_Then_ResultShouldBeAsExpected(string input, bool expectedResult)
         {
-            var regex = GlobRegex.Create(@"c:\a\**\*.txt");
+            var regex = GlobRegex.Create(Paths.EnsurePlatformPath(@"c:\a\**\*.txt"));
 
-            var result = regex.IsMatch(input);
+            var result = regex.IsMatch(Paths.EnsurePlatformPath(input));
 
             result.Should().Be(expectedResult);
         }
@@ -63,9 +64,9 @@ namespace Sundew.Packaging.Tool.Tests
         [TestCase(@"c:/a/file.txt", true)]
         public void IsMatch_When_MatchingWithDoubleAndSingleStarAndInputUsesBackslash_Then_ResultShouldBeAsExpected(string input, bool expectedResult)
         {
-            var regex = GlobRegex.Create(@"c:/a/**/*.txt");
+            var regex = GlobRegex.Create(Paths.EnsurePlatformPath(@"c:/a/**/*.txt"));
 
-            var result = regex.IsMatch(input);
+            var result = regex.IsMatch(Paths.EnsurePlatformPath(input));
 
             result.Should().Be(expectedResult);
         }
@@ -78,9 +79,9 @@ namespace Sundew.Packaging.Tool.Tests
         [TestCase(@"c:\a\file.txt", true)]
         public void IsMatch_When_MatchingWithNoWildcards_Then_ResultShouldBeAsExpected(string input, bool expectedResult)
         {
-            var regex = GlobRegex.Create(@"c:\a\file.txt");
+            var regex = GlobRegex.Create(Paths.EnsurePlatformPath(@"c:\a\file.txt"));
 
-            var result = regex.IsMatch(input);
+            var result = regex.IsMatch(Paths.EnsurePlatformPath(input));
 
             result.Should().Be(expectedResult);
         }
