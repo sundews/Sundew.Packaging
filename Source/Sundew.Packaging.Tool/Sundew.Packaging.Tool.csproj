@@ -57,6 +57,6 @@
     <PackageVersion>$(SppForceVersion)</PackageVersion>
   </PropertyGroup>
 
-  <!--<Import Project="$(MSBuildProjectDirectory)\..\Sundew.Packaging.Publish\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'" />-->
+  <Import Project="$(MSBuildProjectDirectory)\..\Sundew.Packaging.Publish\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'" />
 
 </Project>
