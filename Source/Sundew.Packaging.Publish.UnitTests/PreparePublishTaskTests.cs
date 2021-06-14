@@ -217,7 +217,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         {
             this.testee.Version = packageVersion;
             this.testee.VersioningMode = versioningMode.ToString();
-            this.testee.LocalSource = @"c:\temp";
+            this.testee.LocalSource = Paths.EnsurePlatformPath(@"c:\temp");
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
