@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       solutionPath: ./Source/Sundew.Packaging.sln
       versioningProjectPath: ./Source/Sundew.Packaging/Sundew.Packaging.csproj
