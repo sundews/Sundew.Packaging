@@ -32,7 +32,7 @@ namespace Sundew.Packaging.Testing
                 {
                     if (m.Value.EndsWith(Colon))
                     {
-                        return $"/{m.Value[0]}";
+                        return Backslash;
                     }
 
                     return Forwardslash;
