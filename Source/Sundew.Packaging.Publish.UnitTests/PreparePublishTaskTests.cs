@@ -37,13 +37,13 @@ namespace Sundew.Packaging.Publish.UnitTests
         private const string ExpectedDefaultPushSource = "http://nuget.org";
         private const string FallbackApiKey = "FallbackKey";
         private const string FallbackSymbolsApiKey = "SymbolsFallbackKey";
-        private const string BuildDateTimeFilePath = @"c:\a\BuildDateTime.path";
+        private static readonly string BuildDateTimeFilePath = Paths.EnsurePlatformPath(@"c:\a\BuildDateTime.path");
 
         private static readonly Dictionary<string, string> UriPrereleasePrefixMap = new()
         {
-            { @"c:\temp", "pre" },
-            { @"c:\temp\packages", string.Empty },
-            { @"c:\dev\packages", "dev" },
+            { Paths.EnsurePlatformPath(@"c:\temp"), "pre" },
+            { Paths.EnsurePlatformPath(@"c:\temp\packages"), string.Empty },
+            { Paths.EnsurePlatformPath(@"c:\dev\packages"), "dev" },
             { PackageSources.DefaultLocalSource, "pre" },
             { ExpectedDefaultPushSource, "pre" },
         };
@@ -69,12 +69,12 @@ namespace Sundew.Packaging.Publish.UnitTests
                 this.logger)
             {
                 BuildInfoFilePath = BuildDateTimeFilePath,
-                PublishInfoFilePath = @"c:\a\PublishInfo.path",
-                VersionFilePath = @"c:\a\Version.path",
-                ReferencedPackageVersionFilePath = @"c:\a\ReferencedPackageVersion.path",
+                PublishInfoFilePath = Paths.EnsurePlatformPath(@"c:\a\PublishInfo.path"),
+                VersionFilePath = Paths.EnsurePlatformPath(@"c:\a\Version.path"),
+                ReferencedPackageVersionFilePath = Paths.EnsurePlatformPath(@"c:\a\ReferencedPackageVersion.path"),
                 AllowLocalSource = true,
                 PackageId = APackageId,
-                SolutionDir = @"Any\LocalSourcePath",
+                SolutionDir = @"Any/LocalSourcePath",
                 IncludeSymbols = true,
             };
 
@@ -240,22 +240,22 @@ namespace Sundew.Packaging.Publish.UnitTests
         [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1")]
         public void Execute_When_ProductionPushSourceIsSetAndPushSourceSelectorMatches_Then_SourceShouldBeExpectedSource(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedVersion)
         {
-            const string ExpectedPushSource = @"c:\temp\packages";
-            const string ExpectedSymbolsPushSource = @"c:\temp\symbols";
+            string expectedPushSource = Paths.EnsurePlatformPath(@"c:\temp\packages");
+            string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\temp\symbols");
             this.testee.Version = packageVersion;
             this.testee.VersioningMode = versioningMode.ToString();
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
 
-            this.testee.Production = $"master=> {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.Production = $"master=> {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "master";
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(ExpectedPushSource);
-            this.testee.PublishInfo.SymbolsPushSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(expectedPushSource);
+            this.testee.PublishInfo.SymbolsPushSource.Should().Be(expectedSymbolsPushSource);
             this.testee.PublishInfo.Version.Should().Be(expectedVersion);
         }
 
@@ -263,7 +263,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         public void Execute_When_LocalSourceIsDisabledAndOthersDidNotMatch_Then_IsPublishEnabledShouldBeFalse()
         {
             this.testee.Version = "1.0";
-            this.testee.Production = @"master => c:\temp\packages|c:\temp\symbols";
+            this.testee.Production = @$"master => {Paths.EnsurePlatformPath(@"c:\temp\packages")}|{Paths.EnsurePlatformPath(@"c:\temp\symbols")}";
             this.testee.AllowLocalSource = false;
             this.testee.Stage = "feature/featureX";
 
@@ -338,10 +338,10 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
-            const string ExpectedPushSource = @"c:\dev\packages";
-            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
+            string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
             this.testee.Production = "master => https://production.com | https://production.com/symbols";
-            this.testee.Development = $@"\w+ => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.Development = $@"\w+ => {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "/feature/NewFeature";
             this.testee.PrereleasePostfix = prereleasePostfix;
             this.testee.VersioningMode = versioningMode.ToString();
@@ -349,8 +349,8 @@ namespace Sundew.Packaging.Publish.UnitTests
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(ExpectedPushSource);
-            this.testee.PublishInfo.SymbolsPushSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(expectedPushSource);
+            this.testee.PublishInfo.SymbolsPushSource.Should().Be(expectedSymbolsPushSource);
             this.testee.PublishInfo.Version.Should().Be(expectedPackageVersion);
         }
 
@@ -366,22 +366,22 @@ namespace Sundew.Packaging.Publish.UnitTests
         [InlineData("1.0.1", VersioningMode.NoChange, false, "1.0.1-New-Feature-WithNumber123-u20160108-173613-dev")]
         public void Execute_When_DeveloperPushSourceIsSetWithPrefixAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string expectedPackageVersion)
         {
-            const string ExpectedPushSource = @"c:\dev\packages";
-            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
+            string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
             this.testee.Version = packageVersion;
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
             this.testee.Production = "master => https://production.com|https://production.com/symbols";
-            this.testee.Development = $@"/feature/(?<Prefix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.Development = $@"/feature/(?<Prefix>.+) => {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "/feature/New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(ExpectedPushSource);
-            this.testee.PublishInfo.SymbolsPushSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(expectedPushSource);
+            this.testee.PublishInfo.SymbolsPushSource.Should().Be(expectedSymbolsPushSource);
             this.testee.PublishInfo.Version.Should().Be(expectedPackageVersion);
         }
 
@@ -401,18 +401,18 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
-            const string ExpectedPushSource = @"c:\dev\packages";
-            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
+            string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
             this.testee.Production = "master => https://production.com|https://production.com/symbols";
-            this.testee.Development = $@"/feature/(?<Postfix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.Development = $@"/feature/(?<Postfix>.+) => {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "/feature/New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(ExpectedPushSource);
-            this.testee.PublishInfo.SymbolsPushSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(expectedPushSource);
+            this.testee.PublishInfo.SymbolsPushSource.Should().Be(expectedSymbolsPushSource);
             this.testee.PublishInfo.Version.Should().Be(expectedPackageVersion);
         }
 
@@ -432,18 +432,18 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
-            const string ExpectedPushSource = @"c:\dev\packages";
-            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
+            string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
             this.testee.Production = "master => https://production.com|https://production.com/symbols";
-            this.testee.Development = $@"/(?<Prefix>feature/TN\d\d)-(?<Postfix>.+) => {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.Development = $@"/(?<Prefix>feature/TN\d\d)-(?<Postfix>.+) => {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "/feature/TN12-New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(ExpectedPushSource);
-            this.testee.PublishInfo.SymbolsPushSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(expectedPushSource);
+            this.testee.PublishInfo.SymbolsPushSource.Should().Be(expectedSymbolsPushSource);
             this.testee.PublishInfo.Version.Should().Be(expectedPackageVersion);
         }
 
@@ -463,25 +463,25 @@ namespace Sundew.Packaging.Publish.UnitTests
             this.packageExistsCommand.Setup(
                     x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
                 .ReturnsAsync(stableReleaseExists);
-            const string ExpectedPushSource = @"c:\dev\packages";
-            const string ExpectedSymbolsPushSource = @"c:\dev\symbols";
+            string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
+            string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
             this.testee.Production = "master => https://production.com|https://production.com/symbols";
-            this.testee.Development = $@"/feature/TN\d\d-.+=> #feat$u{{2:yyyyMMdd-HHmmss-fffff}}-{{0}} {ExpectedPushSource}|{ExpectedSymbolsPushSource}";
+            this.testee.Development = $@"/feature/TN\d\d-.+=> #feat$u{{2:yyyyMMdd-HHmmss-fffff}}-{{0}} {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "/feature/TN12-New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 
             var result = this.testee.Execute();
 
             result.Should().BeTrue();
-            this.testee.PublishInfo!.PushSource.Should().Be(ExpectedPushSource);
-            this.testee.PublishInfo.SymbolsPushSource.Should().Be(ExpectedSymbolsPushSource);
+            this.testee.PublishInfo!.PushSource.Should().Be(expectedPushSource);
+            this.testee.PublishInfo.SymbolsPushSource.Should().Be(expectedSymbolsPushSource);
             this.testee.PublishInfo.Version.Should().Be(expectedPackageVersion);
         }
 
         [Fact]
         public void Execute_When_WorkingDirectoryIsUndefinedAndCurrentDirectoryIsARoot_Then_ArgumentExceptionShouldBeThrown()
         {
-            this.fileSystem.Setup(x => x.GetCurrentDirectory()).Returns("c:\\");
+            this.fileSystem.Setup(x => x.GetCurrentDirectory()).Returns(Paths.EnsurePlatformPath("c:\\"));
             this.testee.SolutionDir = "*Undefined*";
 
             var result = this.testee.Execute();

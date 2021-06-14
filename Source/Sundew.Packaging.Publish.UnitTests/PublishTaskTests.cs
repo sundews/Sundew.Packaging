@@ -26,12 +26,12 @@ namespace Sundew.Packaging.Publish.UnitTests
     public class PublishTaskTests
     {
         private const string ExpectedPackageId = "PackageId";
-        private const string ProjectDir = @"c:\sdb";
-        private const string PackageOutputPath = @"c:\sdb\bin";
-        private const string AnyPackageInfoFilePath = @"c:\anypublishinfo\path";
-        private const string OutputPath = @"c:\sdb\bin\Debug";
         private const string Version = "1.0.0";
         private const int TimeoutInSeconds = 300;
+        private static readonly string ProjectDir = Paths.EnsurePlatformPath(@"c:\sdb");
+        private static readonly string PackageOutputPath = Paths.EnsurePlatformPath(@"c:\sdb\bin");
+        private static readonly string AnyPackageInfoFilePath = Paths.EnsurePlatformPath(@"c:\anypublishinfo\path");
+        private static readonly string OutputPath = Paths.EnsurePlatformPath(@"c:\sdb\bin\Debug");
         private static readonly string ExpectedPackagePath = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.nupkg");
         private static readonly string ExpectedSymbolsPackagePath = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.snupkg");
         private static readonly string ExpectedSymbolsPackagePathLong = Path.Combine(PackageOutputPath, $"{ExpectedPackageId}.{Version}.symbols.nupkg");
@@ -64,7 +64,7 @@ namespace Sundew.Packaging.Publish.UnitTests
                 PackageOutputPath = PackageOutputPath,
                 OutputPath = OutputPath,
                 TimeoutInSeconds = TimeoutInSeconds,
-                SolutionDir = @"Any\LocalSourcePath",
+                SolutionDir = @"Any/LocalSourcePath",
             };
 
             this.fileSystem.Setup(x => x.FileExists(It.IsAny<string>())).Returns(true);
@@ -73,7 +73,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_SourceIsLocalFile_Then_CopyPackageToLocalSourceCommandShouldBeExecuted()
         {
-            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+            var publishInfo = this.ArrangePublishInfo(@"c:/temp/packages", Version);
 
             this.testee.Execute();
 
@@ -105,9 +105,9 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_SourceIsLocalAndCopyPdbToSymbolCacheIsSet_Then_PushPackageCommandShouldBeExecuted()
         {
-            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+            var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
             this.testee.PackInputs = new ITaskItem[] { new TaskItem(ExpectedPdbPath) };
-            this.testee.SymbolCacheDir = @"c:\temp\symbol-cache";
+            this.testee.SymbolCacheDir = @"c:/temp/symbol-cache";
             this.testee.CopyLocalSourcePdbToSymbolCache = true;
 
             this.testee.Execute();
@@ -118,7 +118,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_Then_PackagePathsShouldBeExpectedResult()
         {
-            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+            var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
 
             this.testee.Execute();
 
@@ -140,7 +140,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_PackagePushLogFormatIsSetNotSet_Then_NothingIsLogged()
         {
-            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+            var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
 
             this.testee.Execute();
 
@@ -176,7 +176,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_SourceIsLocalAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
         {
-            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+            var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
             this.testee.PublishLogFormats = "{0}";
             this.testee.AllowLocalSource = false;
 
@@ -199,7 +199,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         [Fact]
         public void Execute_When_NoSymbolPackageExists_Then_PackagePathsShouldBeExpectedResult()
         {
-            var publishInfo = this.ArrangePublishInfo(@"c:\temp\packages", Version);
+            var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
             this.fileSystem.Setup(x => x.FileExists(ExpectedSymbolsPackagePath)).Returns(false);
             this.fileSystem.Setup(x => x.FileExists(ExpectedSymbolsPackagePathLong)).Returns(false);
 
