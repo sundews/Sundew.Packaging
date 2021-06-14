@@ -19,7 +19,7 @@ namespace Sundew.Packaging.Staging
     public static class StageSelector
     {
         internal const string DefaultPushSourceText = "defaultPushSource";
-        internal const string DefaultLocalPackageStage = "local";
+        internal const string DefaultLocalStageName = "local";
         internal const string DefaultDevelopmentPackageStage = "dev";
         internal const string DefaultIntegrationPackageStage = "ci";
         internal const string DefaultProductionPackageStage = "prod";
@@ -32,7 +32,8 @@ namespace Sundew.Packaging.Staging
         private const string NoDefaultPushSourceHasBeenConfiguredText = "No default push source has been configured.";
         private const string PrefixGroupName = "Prefix";
         private const string PostfixGroupName = "Postfix";
-        private static readonly Regex PropertiesRegex = new($@"(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+)(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))*");
+        private const string Stage = "Stage";
+        private static readonly Regex PropertiesRegex = new($@"(?:\#(?<Stage>[^\|\=]+)\s*\|\s*)?(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+)(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))*");
 
         /// <summary>
         /// Selects the source.
@@ -51,7 +52,7 @@ namespace Sundew.Packaging.Staging
         /// <param name="defaultSettings">The default settings.</param>
         /// <param name="allowLocalSource">if set to <c>true</c> [allow local source].</param>
         /// <param name="isSourcePublishEnabled">if set to <c>true</c> [is source publish enabled].</param>
-        /// <param name="fallbackProperties">The fallback properties.</param>
+        /// <param name="fallbackStageAndProperties">The fallback stage and properties.</param>
         /// <returns>
         /// The selected source.
         /// </returns>
@@ -71,13 +72,13 @@ namespace Sundew.Packaging.Staging
             ISettings defaultSettings,
             bool allowLocalSource,
             bool isSourcePublishEnabled,
-            string? fallbackProperties)
+            string? fallbackStageAndProperties)
         {
             if (stage != null && !string.IsNullOrEmpty(stage))
             {
                 if (stage.StartsWith(DefaultStageNameText, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var defaultSource = defaultSettings.GetSection(Stage.ConfigText)?.Items.OfType<AddItem>()
+                    var defaultSource = defaultSettings.GetSection(Staging.Stage.ConfigText)?.Items.OfType<AddItem>()
                         .FirstOrDefault(x =>
                             x.Key.Equals(DefaultPushSourceText, StringComparison.InvariantCultureIgnoreCase))?.Value;
                     if (defaultSource == null)
@@ -90,7 +91,7 @@ namespace Sundew.Packaging.Staging
                         return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled), prereleasePrefix, prereleasePostfix);
                     }
 
-                    return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultLocalPackageStage, string.IsNullOrEmpty(localPackageStage) ? DefaultLocalPackageStage : localPackageStage!, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, true), prereleasePrefix, prereleasePostfix);
+                    return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultLocalStageName, string.IsNullOrEmpty(localPackageStage) ? DefaultLocalStageName : localPackageStage!, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, true), prereleasePrefix, prereleasePostfix);
                 }
 
                 if (stage.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
@@ -98,15 +99,15 @@ namespace Sundew.Packaging.Staging
                     return new SelectedStage(new Stage(default, localSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled), prereleasePrefix, prereleasePostfix);
                 }
 
-                var productionStage = Stage.Parse(production, DefaultProductionStage, DefaultProductionPackageStage, true, null, fallbackApiKey, fallbackSymbolsApiKey, null, isSourcePublishEnabled);
+                var productionStage = Staging.Stage.Parse(production, DefaultProductionStage, DefaultProductionPackageStage, true, null, fallbackApiKey, fallbackSymbolsApiKey, null, isSourcePublishEnabled);
                 var integrationFeedSources = new List<string>();
                 TryAddFeedSource(integrationFeedSources, productionStage);
 
-                var integrationStage = Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled);
+                var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled);
                 var developmentFeedSources = integrationFeedSources.ToList();
                 TryAddFeedSource(developmentFeedSources, integrationStage);
 
-                var developmentStage = Stage.Parse(development, DefaultDevelopmentStage, DefaultDevelopmentPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, developmentFeedSources, isSourcePublishEnabled);
+                var developmentStage = Staging.Stage.Parse(development, DefaultDevelopmentStage, DefaultDevelopmentPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, developmentFeedSources, isSourcePublishEnabled);
                 var sources = new[] { productionStage, integrationStage, developmentStage };
 
                 var (source, match) = sources.Select(x => (source: x, match: x?.StageRegex?.Match(stage))).FirstOrDefault(x => x.match?.Success ?? false);
@@ -121,13 +122,20 @@ namespace Sundew.Packaging.Staging
                 }
             }
 
+            var stageName = string.IsNullOrEmpty(localPackageStage) ? DefaultLocalStageName : localPackageStage!;
             var properties = new Dictionary<string, string>();
-            if (fallbackProperties != null)
+            if (fallbackStageAndProperties != null)
             {
-                var propertiesMatch = PropertiesRegex.Match(fallbackProperties);
+                var propertiesMatch = PropertiesRegex.Match(fallbackStageAndProperties);
                 if (propertiesMatch.Success)
                 {
-                    Stage.FillPropertiesFromMatch(properties, propertiesMatch);
+                    Staging.Stage.FillPropertiesFromMatch(properties, propertiesMatch);
+                }
+
+                var stageGroup = propertiesMatch.Groups[Stage];
+                if (stageGroup.Success && !string.IsNullOrEmpty(stageGroup.Value))
+                {
+                    stageName = stageGroup.Value;
                 }
             }
 
@@ -138,8 +146,8 @@ namespace Sundew.Packaging.Staging
                     default,
                     default,
                     default,
-                    DefaultLocalPackageStage,
-                    string.IsNullOrEmpty(localPackageStage) ? DefaultLocalPackageStage : localPackageStage!,
+                    stageName,
+                    stageName,
                     false,
                     localSource,
                     fallbackPrereleaseFormat,

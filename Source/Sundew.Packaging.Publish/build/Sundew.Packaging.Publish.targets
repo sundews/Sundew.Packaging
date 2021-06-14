@@ -73,7 +73,7 @@
                  Production="$(SppProduction)"
                  Integration="$(SppIntegration)"
                  Development="$(SppDevelopment)"
-                 FallbackProperties="$(SppFallbackProperties)"
+                 FallbackStageAndProperties="$(SppFallbackStageAndProperties)"
                  ApiKey="$(SppApiKey)"
                  SymbolsApiKey="$(SppSymbolsApiKey)"
                  LocalSource="$(SppLocalSource)"

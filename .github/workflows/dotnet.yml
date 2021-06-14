@@ -36,7 +36,7 @@ jobs:
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210614-112314-local
+        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210614-133520-pre
         
         dotnet tool update CommandlineBatcher -g
 
@@ -48,7 +48,7 @@ jobs:
         --production  "refs/heads/release/.+                                                 => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Release"
         --integration "refs/heads/(?:master|main).*                                          => $u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
-        --fallback-properties "Configuration=Release"
+        --no-stage "Configuration=Release"
         --stage "${{ github.ref }}"
         --prerelease-format "u{DateTime}-{Stage}-{Postfix}-${{ steps.build-setup.outputs.git-hash }}"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
@@ -69,7 +69,7 @@ jobs:
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
-      if: ${{ steps.stage-build.outputs.stage != 'local' }}
+      if: ${{ steps.stage-build.outputs.stage != 'none' }}
       run: |
         dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
         dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true

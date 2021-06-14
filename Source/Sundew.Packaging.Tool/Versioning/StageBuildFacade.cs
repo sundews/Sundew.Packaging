@@ -25,6 +25,7 @@ namespace Sundew.Packaging.Tool.Versioning
     /// </summary>
     public class StageBuildFacade
     {
+        private const string LocalStageName = "none";
         private readonly ProjectPackageInfoProvider projectPackageInfoProvider;
         private readonly IPackageVersioner packageVersioner;
         private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
@@ -85,13 +86,13 @@ namespace Sundew.Packaging.Tool.Versioning
                     stageBuildVerb.PrereleaseFormat,
                     null,
                     null,
-                    null,
+                    LocalStageName,
                     stageBuildVerb.PrereleasePrefix,
                     stageBuildVerb.PrereleasePostfix,
                     nuGetSettings.DefaultSettings,
                     false,
                     true,
-                    stageBuildVerb.FallbackProperties);
+                    stageBuildVerb.NoStageProperties);
 
                 var latestVersionSources = this.latestVersionSourcesCommand.GetLatestVersionSources(null, selectedSource, nuGetSettings, false, false);
                 if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))

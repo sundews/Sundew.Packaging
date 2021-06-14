@@ -72,7 +72,7 @@ namespace Sundew.Packaging.Tool.Versioning
             this.Production = production;
             this.Integration = integration;
             this.Development = development;
-            this.FallbackProperties = fallback;
+            this.NoStageProperties = fallback;
             this.Configuration = configuration;
             this.WorkingDirectory = workingDirectory;
             this.VersioningMode = versioningMode;
@@ -163,7 +163,7 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <value>
         /// The fallback.
         /// </value>
-        public string? FallbackProperties { get; private set; }
+        public string? NoStageProperties { get; private set; }
 
         /// <summary>
         /// Gets the configuration.
@@ -249,6 +249,7 @@ namespace Sundew.Packaging.Tool.Versioning
         /// Configures the specified arguments builder.
         /// </summary>
         /// <param name="argumentsBuilder">The arguments builder.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines", Justification = "It's a multiline string.")]
         public void Configure(IArgumentsBuilder argumentsBuilder)
         {
             argumentsBuilder.AddRequired(
@@ -266,12 +267,26 @@ namespace Sundew.Packaging.Tool.Versioning
                 "The project file");
             argumentsBuilder.AddRequired("s", "stage", () => this.Stage, e => this.Stage = e, "The stage used to match against the production, integration and development sources");
             argumentsBuilder.RequireAnyOf(
-                "Source matchers",
+                "Stage selection",
                 builder => builder
-                .Add("p", "production", () => this.Production, s => this.Production = s, "The production stage used to determine the stable version.", true)
-                .Add("i", "integration", () => this.Integration, s => this.Integration = s, "The integration stage used to determine the prerelease version.", true)
-                .Add("d", "development", () => this.Development, s => this.Development = s, "The development stage  used to determine the prerelease version.", true)
-                .Add("fp", "fallback-properties", () => this.FallbackProperties, s => this.FallbackProperties = s, "The fallback properties if no stage matched.", true));
+                .Add(
+                    "p",
+                    "production",
+                    () => this.Production,
+                    s => this.Production = s,
+                    @"The production stage used to determine the stable version.
+Format: Stage Regex =>[ #StagingName][ $PrereleaseVersionFormat] => [ApiKey@]SourceUri[ {LatestVersionUri} ][ | [SymbolApiKey@]SymbolSourceUri][|[|PropertyName=PropertyValue]]*",
+                    true)
+                .Add("i", "integration", () => this.Integration, s => this.Integration = s, @"The integration stage used to determine the prerelease version.", true)
+                .Add("d", "development", () => this.Development, s => this.Development = s, @"The development stage  used to determine the prerelease version.", true)
+                .Add(
+                    "n",
+                    "no-stage",
+                    () => this.NoStageProperties,
+                    s => this.NoStageProperties = s,
+                    @"The fallback stage and properties if no stage is matched.
+[#StagingName][|PropertyName=PropertyValue]*",
+                    true));
             argumentsBuilder.AddOptional("wd", "directory", () => this.WorkingDirectory, s => this.WorkingDirectory = s, "The working directory or file used to determine the base version.", true);
             argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
             argumentsBuilder.AddOptional("pp", "prerelease-prefix", () => this.PrereleasePrefix, s => this.PrereleasePrefix = s, "The prerelease prefix.");
