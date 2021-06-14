@@ -90,7 +90,8 @@ namespace Sundew.Packaging.Tool.Versioning
                     stageBuildVerb.PrereleasePostfix,
                     nuGetSettings.DefaultSettings,
                     false,
-                    true);
+                    true,
+                    stageBuildVerb.FallbackProperties);
 
                 var latestVersionSources = this.latestVersionSourcesCommand.GetLatestVersionSources(null, selectedSource, nuGetSettings, false, false);
                 if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))

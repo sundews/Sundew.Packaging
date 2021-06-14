@@ -10,6 +10,7 @@ namespace Sundew.Packaging.Staging
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using global::NuGet.Configuration;
 
     /// <summary>
@@ -31,6 +32,7 @@ namespace Sundew.Packaging.Staging
         private const string NoDefaultPushSourceHasBeenConfiguredText = "No default push source has been configured.";
         private const string PrefixGroupName = "Prefix";
         private const string PostfixGroupName = "Postfix";
+        private static readonly Regex PropertiesRegex = new($@"(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+)(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))*");
 
         /// <summary>
         /// Selects the source.
@@ -49,7 +51,10 @@ namespace Sundew.Packaging.Staging
         /// <param name="defaultSettings">The default settings.</param>
         /// <param name="allowLocalSource">if set to <c>true</c> [allow local source].</param>
         /// <param name="isSourcePublishEnabled">if set to <c>true</c> [is source publish enabled].</param>
-        /// <returns>The selected source.</returns>
+        /// <param name="fallbackProperties">The fallback properties.</param>
+        /// <returns>
+        /// The selected source.
+        /// </returns>
         /// <exception cref="InvalidOperationException">Thrown if not default push source has been configured.</exception>
         public static SelectedStage Select(
             string? stage,
@@ -65,7 +70,8 @@ namespace Sundew.Packaging.Staging
             string? prereleasePostfix,
             ISettings defaultSettings,
             bool allowLocalSource,
-            bool isSourcePublishEnabled)
+            bool isSourcePublishEnabled,
+            string? fallbackProperties)
         {
             if (stage != null && !string.IsNullOrEmpty(stage))
             {
@@ -115,6 +121,16 @@ namespace Sundew.Packaging.Staging
                 }
             }
 
+            var properties = new Dictionary<string, string>();
+            if (fallbackProperties != null)
+            {
+                var propertiesMatch = PropertiesRegex.Match(fallbackProperties);
+                if (propertiesMatch.Success)
+                {
+                    Stage.FillPropertiesFromMatch(properties, propertiesMatch);
+                }
+            }
+
             return new SelectedStage(
                 new Stage(
                     null,
@@ -128,7 +144,7 @@ namespace Sundew.Packaging.Staging
                     localSource,
                     fallbackPrereleaseFormat,
                     Array.Empty<string>(),
-                    null,
+                    properties,
                     allowLocalSource,
                     allowLocalSource && isSourcePublishEnabled),
                 prereleasePrefix,

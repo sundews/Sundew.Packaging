@@ -26,7 +26,9 @@ namespace Sundew.Packaging.Staging
         private const string SymbolsUriText = "SymbolsUri";
         private const string FeedUriText = "FeedUri";
         private const string PrereleasFormatText = "PrereleaseFormat";
-        private static readonly Regex SourceRegex = new($@"(?<StageRegex>.+?)(?=\s*=\>)\s*=\>\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s+(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
+        private const string PropertyName = "PropertyName";
+        private const string PropertyValue = "PropertyValue";
+        private static readonly Regex StageMatcherRegex = new($@"(?<StageRegex>.+?)(?=\s*=\>)\s*=\>\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s+(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Staging.Stage" /> class.
@@ -220,7 +222,7 @@ namespace Sundew.Packaging.Staging
                 return default;
             }
 
-            var match = SourceRegex.Match(sourceText);
+            var match = StageMatcherRegex.Match(sourceText);
             if (match.Success)
             {
                 var name = new Regex(match.Groups[StageRegexText].Value);
@@ -267,21 +269,26 @@ namespace Sundew.Packaging.Staging
                     prereleaseFormat = prereleaseFormatGroup.Value;
                 }
 
-                var properties = new Dictionary<string, string>();
-                var propertyNameGroup = match.Groups["PropertyName"];
-                var propertyValueGroup = match.Groups["PropertyValue"];
-                if (propertyNameGroup.Success && propertyValueGroup.Success)
-                {
-                    foreach (var pair in propertyNameGroup.Captures.Cast<Capture>().Select(x => x.Value).Zip(propertyValueGroup.Captures.Cast<Capture>().Select(x => x.Value), (x, y) => (x, y)))
-                    {
-                        properties.Add(pair.x, pair.y);
-                    }
-                }
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                FillPropertiesFromMatch(properties, match);
 
                 return new Stage(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled);
             }
 
             return default;
+        }
+
+        internal static void FillPropertiesFromMatch(Dictionary<string, string> properties, Match match)
+        {
+            var propertyNameGroup = match.Groups[PropertyName];
+            var propertyValueGroup = match.Groups[PropertyValue];
+            if (propertyNameGroup.Success && propertyValueGroup.Success)
+            {
+                foreach (var pair in propertyNameGroup.Captures.Cast<Capture>().Select(x => x.Value).Zip(propertyValueGroup.Captures.Cast<Capture>().Select(x => x.Value), (x, y) => (x, y)))
+                {
+                    properties.Add(pair.x, pair.y);
+                }
+            }
         }
     }
 }

@@ -38,6 +38,7 @@ namespace Sundew.Packaging.Tool.Versioning
         /// <param name="production">The production.</param>
         /// <param name="integration">The integration.</param>
         /// <param name="development">The development.</param>
+        /// <param name="fallback">The fallback.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="workingDirectory">The working directory.</param>
         /// <param name="versioningMode">The versioning mode.</param>
@@ -54,6 +55,7 @@ namespace Sundew.Packaging.Tool.Versioning
             string? production = null,
             string? integration = null,
             string? development = null,
+            string? fallback = null,
             string? configuration = null,
             string? workingDirectory = null,
             VersioningMode versioningMode = VersioningMode.AutomaticLatestPatch,
@@ -70,6 +72,7 @@ namespace Sundew.Packaging.Tool.Versioning
             this.Production = production;
             this.Integration = integration;
             this.Development = development;
+            this.FallbackProperties = fallback;
             this.Configuration = configuration;
             this.WorkingDirectory = workingDirectory;
             this.VersioningMode = versioningMode;
@@ -153,6 +156,14 @@ namespace Sundew.Packaging.Tool.Versioning
         /// The development.
         /// </value>
         public string? Development { get; private set; }
+
+        /// <summary>
+        /// Gets the fallback.
+        /// </summary>
+        /// <value>
+        /// The fallback.
+        /// </value>
+        public string? FallbackProperties { get; private set; }
 
         /// <summary>
         /// Gets the configuration.
@@ -257,9 +268,10 @@ namespace Sundew.Packaging.Tool.Versioning
             argumentsBuilder.RequireAnyOf(
                 "Source matchers",
                 builder => builder
-                .Add("p", "production", () => this.Production, s => this.Production = s, "The production source selector used to determine the stable version.", true)
-                .Add("i", "integration", () => this.Integration, s => this.Integration = s, "The integration source selector used to determine the prerelease version.", true)
-                .Add("d", "development", () => this.Development, s => this.Development = s, "The development source selector used to determine the prerelease version.", true));
+                .Add("p", "production", () => this.Production, s => this.Production = s, "The production stage used to determine the stable version.", true)
+                .Add("i", "integration", () => this.Integration, s => this.Integration = s, "The integration stage used to determine the prerelease version.", true)
+                .Add("d", "development", () => this.Development, s => this.Development = s, "The development stage  used to determine the prerelease version.", true)
+                .Add("fp", "fallback-properties", () => this.FallbackProperties, s => this.FallbackProperties = s, "The fallback properties if no stage matched.", true));
             argumentsBuilder.AddOptional("wd", "directory", () => this.WorkingDirectory, s => this.WorkingDirectory = s, "The working directory or file used to determine the base version.", true);
             argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
             argumentsBuilder.AddOptional("pp", "prerelease-prefix", () => this.PrereleasePrefix, s => this.PrereleasePrefix = s, "The prerelease prefix.");
@@ -267,8 +279,8 @@ namespace Sundew.Packaging.Tool.Versioning
             argumentsBuilder.AddOptional(null, "prerelease-format", () => this.PrereleaseFormat, s => this.PrereleaseFormat = s, "The prerelease format.");
             argumentsBuilder.AddOptional("m", "metadata", () => this.Metadata, s => this.Metadata = s, "The version metadata.");
             argumentsBuilder.AddOptionalEnum("vm", "versioning-mode", () => this.VersioningMode, s => this.VersioningMode = s, "The versioning mode");
-            argumentsBuilder.AddOptional("v", "version-format", () => this.VersionFormat, s => this.VersionFormat = s, "The version format");
-            argumentsBuilder.AddOptional("f", "force-version", () => this.ForceVersion, s => this.ForceVersion = s, "Forces the version to the specified value");
+            argumentsBuilder.AddOptional("vf", "version-format", () => this.VersionFormat, s => this.VersionFormat = s, "The version format");
+            argumentsBuilder.AddOptional("fv", "force-version", () => this.ForceVersion, s => this.ForceVersion = s, "Forces the version to the specified value");
             argumentsBuilder.AddOptionalList("o", "output-formats", this.outputFormats, "A list of formats that will be logged to stdout.");
         }
     }

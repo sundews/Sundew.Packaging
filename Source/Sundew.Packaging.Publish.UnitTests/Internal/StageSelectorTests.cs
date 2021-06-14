@@ -61,7 +61,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 New.Mock<ISettings>(),
                 false,
-                true);
+                true,
+                null);
 
             result.PushSource.Should().Be(ExpectedUri);
             result.SymbolsPushSource.Should().Be(expectedSymbolUri);
@@ -141,7 +142,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 null,
                 New.Mock<ISettings>(),
                 false,
-                true);
+                true,
+                null);
 
             result.PushSource.Should().Be(ExpectedUri);
             result.FeedSource.Should().Be(expectedFeedUri);

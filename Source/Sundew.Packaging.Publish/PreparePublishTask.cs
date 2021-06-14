@@ -193,6 +193,14 @@ namespace Sundew.Packaging.Publish
         public string? Development { get; set; }
 
         /// <summary>
+        /// Gets or sets the fallback properties.
+        /// </summary>
+        /// <value>
+        /// The fallback properties.
+        /// </value>
+        public string? FallbackProperties { get; set; }
+
+        /// <summary>
         /// Gets or sets the API key.
         /// </summary>
         /// <value>
@@ -340,7 +348,8 @@ namespace Sundew.Packaging.Publish
                     this.PrereleasePostfix,
                     nuGetSettings.DefaultSettings,
                     this.AllowLocalSource,
-                    this.IsSourcePublishEnabled);
+                    this.IsSourcePublishEnabled,
+                    this.FallbackProperties);
 
                 var latestVersionSources =
                     this.latestVersionSourcesCommand.GetLatestVersionSources(
