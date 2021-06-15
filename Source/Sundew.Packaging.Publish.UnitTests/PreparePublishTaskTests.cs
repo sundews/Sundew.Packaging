@@ -467,7 +467,7 @@ namespace Sundew.Packaging.Publish.UnitTests
             string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
             string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
             this.testee.Production = "master => https://production.com|https://production.com/symbols";
-            this.testee.Development = $@"/feature/TN\d\d-.+=> #feat$u{{2:yyyyMMdd-HHmmss-fffff}}-{{0}} {expectedPushSource}|{expectedSymbolsPushSource}";
+            this.testee.Development = $@"/feature/TN\d\d-.+=> #feat&u{{2:yyyyMMdd-HHmmss-fffff}}-{{0}} {expectedPushSource}|{expectedSymbolsPushSource}";
             this.testee.Stage = "/feature/TN12-New_Feature_WithNumber123";
             this.testee.VersioningMode = versioningMode.ToString();
 

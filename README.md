@@ -71,7 +71,7 @@ The sources can be defined by setting the following MSBuild properties:
 - **SppDevelopment**
 
 All three follow the format:
-**StageMatcherRegex=>\[#StagingName\]\[$PrereleaseVersionFormat\] \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
+**StageMatcherRegex=>\[#StagingName\]\[&PrereleaseVersionFormat\] \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
 
 **StagingName** can be used to override the default staging names.  
 **PrereleaseVersionFormat** and **MetadataFormat** can be used to change how the prerelease part of the version is created:

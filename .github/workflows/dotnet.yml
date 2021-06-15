@@ -36,7 +36,7 @@ jobs:
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210614-133520-pre
+        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210615-193106-pre
         
         dotnet tool update CommandlineBatcher -g
 
@@ -46,7 +46,7 @@ jobs:
       run: >
         spt stage-build --project-file "${{ env.versioningProjectPath }}"
         --production  "refs/heads/release/.+                                                 => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Release"
-        --integration "refs/heads/(?:master|main).*                                          => $u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
+        --integration "refs/heads/(?:master|main).*                                          => &u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --no-stage "Configuration=Release"
         --stage "${{ github.ref }}"
