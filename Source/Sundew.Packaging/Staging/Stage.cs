@@ -28,7 +28,7 @@ namespace Sundew.Packaging.Staging
         private const string PrereleasFormatText = "PrereleaseFormat";
         private const string PropertyName = "PropertyName";
         private const string PropertyValue = "PropertyValue";
-        private static readonly Regex StageMatcherRegex = new($@"(?<StageRegex>.+?)(?=\s*=\>)\s*=\>\s*(?:#\s*(?<StageName>\w*))?\s*(?:\$(?<PrereleaseFormat>\S+))?\s+(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
+        private static readonly Regex StageMatcherRegex = new($@"(?<StageRegex>.+?)(?=\s*=\>)\s*=\>\s*(?:#\s*(?<StageName>\w*))?\s*(?:\&(?<PrereleaseFormat>\S+))?\s+(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Staging.Stage" /> class.
