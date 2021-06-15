@@ -246,12 +246,12 @@ namespace Sundew.Packaging.Publish
                     }
                 }
 
-                if (isValidSource && this.PublishLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+                if (this.PublishLogFormats != null)
                 {
                     this.packagePublicationLogger.Log(this.PublishLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, workingDirectory, this.Parameter ?? string.Empty);
                 }
 
-                if (isValidSource && this.AppendPublishFileLogFormats != null && (!isLocalSource || this.AllowLocalSource))
+                if (this.AppendPublishFileLogFormats != null)
                 {
                     this.appendPublishFileLogCommand.Append(workingDirectory, this.AppendPublishFileLogFormats, packageId, packagePath, symbolPackagePath, publishInfo, this.Parameter ?? string.Empty);
                 }
