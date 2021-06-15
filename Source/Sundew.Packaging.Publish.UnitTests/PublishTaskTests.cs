@@ -175,7 +175,7 @@ namespace Sundew.Packaging.Publish.UnitTests
         }
 
         [Fact]
-        public void Execute_When_SourceIsLocalAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeDisabled()
+        public void Execute_When_SourceIsLocalAndLocalPackageIsNotAllowed_Then_PublishPackageLoggingShouldBeCalled()
         {
             var publishInfo = this.ArrangePublishInfo(Paths.EnsurePlatformPath(@"c:/temp/packages"), Version);
             this.testee.PublishLogFormats = "{0}";
@@ -183,18 +183,18 @@ namespace Sundew.Packaging.Publish.UnitTests
 
             this.testee.Execute();
 
-            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
+            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
-        public void Execute_When_SourceIsEmpty_Then_PublishPackageLoggingShouldBeDisabled()
+        public void Execute_When_SourceIsEmpty_Then_PublishPackageLoggingShouldBeCalled()
         {
             var publishInfo = this.ArrangePublishInfo(string.Empty, Version);
             this.testee.PublishLogFormats = "{0}";
 
             this.testee.Execute();
 
-            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Never);
+            this.logger.Verify(x => x.LogImportant(It.IsAny<string>()), Times.Once);
         }
 
         [Fact]

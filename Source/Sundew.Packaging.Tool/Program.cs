@@ -41,7 +41,7 @@ namespace Sundew.Packaging.Tool
             try
             {
                 var commandLineParser = new CommandLineParser<int, int>();
-                commandLineParser.AddVerb(new StageBuildVerb(), ExecuteGetVersionAsync);
+                commandLineParser.AddVerb(new StageBuildVerb(), ExecuteStageBuildAsync);
                 commandLineParser.AddVerb(new UpdateVerb(), ExecuteUpdateAsync);
                 commandLineParser.AddVerb(new AwaitPublishVerb(), ExecuteAwaitPublishAsync);
                 commandLineParser.AddVerb(new PruneLocalSourceVerb(), v => Result.Error(ParserError.From(-1)), builder =>
@@ -65,13 +65,13 @@ namespace Sundew.Packaging.Tool
             }
         }
 
-        private static async ValueTask<Result<int, ParserError<int>>> ExecuteGetVersionAsync(StageBuildVerb getVersionVerb)
+        private static async ValueTask<Result<int, ParserError<int>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
         {
             var consoleReporter = new ConsoleReporter(false);
             var consoleLogger = new ConsoleLogger();
             var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
             var fileSystem = new Sundew.Packaging.Versioning.IO.FileSystem();
-            var getVersionFacade = new StageBuildFacade(
+            var stageBuildFacade = new StageBuildFacade(
                 new ProjectPackageInfoProvider(),
                 new PackageVersioner(new PackageExistsCommand(nuGetToLoggerAdapter), new LatestPackageVersionCommand(consoleLogger, nuGetToLoggerAdapter), consoleLogger),
                 new NuGetSettingsInitializationCommand(),
@@ -79,7 +79,7 @@ namespace Sundew.Packaging.Tool
                 fileSystem,
                 new PackageVersionLogger(consoleReporter),
                 consoleReporter);
-            await getVersionFacade.GetVersionAsync(getVersionVerb);
+            await stageBuildFacade.GetVersionAsync(stageBuildVerb);
             return Result.Success(0);
         }
 

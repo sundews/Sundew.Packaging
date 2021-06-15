@@ -275,7 +275,8 @@ namespace Sundew.Packaging.Tool.Versioning
                     () => this.Production,
                     s => this.Production = s,
                     @"The production stage used to determine the stable version.
-Format: Stage Regex =>[ #StagingName][ $PrereleaseVersionFormat] => [ApiKey@]SourceUri[ {LatestVersionUri} ][ | [SymbolApiKey@]SymbolSourceUri][|[|PropertyName=PropertyValue]]*",
+Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]SourceUri[ {LatestVersionUri} ]
+[ | [SymbolApiKey@]SymbolSourceUri][|[|PropertyName=PropertyValue]*]",
                     true)
                 .Add("i", "integration", () => this.Integration, s => this.Integration = s, @"The integration stage used to determine the prerelease version.", true)
                 .Add("d", "development", () => this.Development, s => this.Development = s, @"The development stage  used to determine the prerelease version.", true)
@@ -285,7 +286,7 @@ Format: Stage Regex =>[ #StagingName][ $PrereleaseVersionFormat] => [ApiKey@]Sou
                     () => this.NoStageProperties,
                     s => this.NoStageProperties = s,
                     @"The fallback stage and properties if no stage is matched.
-[#StagingName][|PropertyName=PropertyValue]*",
+[#StagingName|][PropertyName=PropertyValue]*",
                     true));
             argumentsBuilder.AddOptional("wd", "directory", () => this.WorkingDirectory, s => this.WorkingDirectory = s, "The working directory or file used to determine the base version.", true);
             argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
