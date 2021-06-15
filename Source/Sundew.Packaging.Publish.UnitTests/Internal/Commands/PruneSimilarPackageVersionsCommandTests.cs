@@ -11,7 +11,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
     using System.Linq;
     using Moq;
     using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
+    using Sundew.Packaging.Versioning.IO;
     using Xunit;
 
     public class PruneSimilarPackageVersionsCommandTests

@@ -2,14 +2,17 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SPP'))">
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <GeneratePackageOnBuild Condition="'$(SppWorkLocally)'=='True'">True</GeneratePackageOnBuild>
     <SppAllowLocalSource Condition="'$(SppAllowLocalSource)'==''">True</SppAllowLocalSource>
+    <SppAllowLocalSource Condition="'$(ContinuousIntegrationBuild)'=='True' OR '$(SppWorkLocally)'=='False'">False</SppAllowLocalSource>
     <SppEnablePublish Condition="'$(SppEnablePublish)'==''">True</SppEnablePublish>
-    <SppEnablePublish Condition="$(DefineConstants.Contains('SPP_DISABLE_PUBLISH'))">False</SppEnablePublish>
+    <SppEnablePublish Condition="$(DefineConstants.Contains('SPP_DISABLE_PUBLISH')) OR '$(GeneratePackageOnBuild)'!='True'">False</SppEnablePublish>
     <SppTimeoutInSeconds Condition="'$(SppTimeoutInSeconds)'==''">300</SppTimeoutInSeconds>
     <SppCopyLocalSourcePdbToSymbolCache Condition="'$(SppCopyLocalSourcePdbToSymbolCache)'==''">True</SppCopyLocalSourcePdbToSymbolCache>
     <SppCopyLocalSourcePdbToSymbolCache Condition="$(DefineConstants.Contains('SPP_DISABLE_COPY_LOCAL_SOURCE_PDB'))">False</SppCopyLocalSourcePdbToSymbolCache>
     <SppVersioningMode Condition="'$(SppVersioningMode)'==''">AutomaticLatestPatch</SppVersioningMode>
-    <SppAddDefaultPushSourceToLatestVersionSources Condition="'$(SppAddDefaultPushSourceToLatestVersionSources)'==''">True</SppAddDefaultPushSourceToLatestVersionSources>
+    <SppAddNuGetOrgSourceToLatestVersionSources Condition="'$(SppAddNuGetOrgSourceToLatestVersionSources)'==''">True</SppAddNuGetOrgSourceToLatestVersionSources>
+    <SppAddAllSourcesToLatestVersionSources Condition="'$(SppAddAllSourcesToLatestVersionSources)'==''">True</SppAddAllSourcesToLatestVersionSources>
     <SppPruneSimilarPackageVersions Condition="'$(SppPruneSimilarPackageVersions)'==''">True</SppPruneSimilarPackageVersions>
     <_SppEnableTargets>false</_SppEnableTargets>
     <_SppBuildInfoFilePath>.vs/Spp/BuildInfo.sppd</_SppBuildInfoFilePath>
@@ -65,22 +68,27 @@
                  IsSourcePublishEnabled="$(SppEnablePublish)"
                  VersioningMode="$(SppVersioningMode)"
                  LatestVersionSources="$(SppLatestVersionSources)"
-                 AddDefaultPushSourceToLatestVersionSources="$(SppAddDefaultPushSourceToLatestVersionSources)"
-                 ProductionSource="$(SppProductionSource)"
-                 IntegrationSource="$(SppIntegrationSource)"
-                 DevelopmentSource="$(SppDevelopmentSource)"
+                 AddNuGetOrgSourceToLatestVersionSources="$(SppAddNuGetOrgSourceToLatestVersionSources)"
+                 AddAllSourcesToLatestVersionSources="$(SppAddAllSourcesToLatestVersionSources)"
+                 Production="$(SppProduction)"
+                 Integration="$(SppIntegration)"
+                 Development="$(SppDevelopment)"
+                 FallbackStageAndProperties="$(SppFallbackStageAndProperties)"
                  ApiKey="$(SppApiKey)"
                  SymbolsApiKey="$(SppSymbolsApiKey)"
                  LocalSource="$(SppLocalSource)"
                  AllowLocalSource="$(SppAllowLocalSource)"
-                 SourceName="$(SppSourceName)"
+                 Stage="$(SppStage)"
                  LocalPackageStage="$(SppLocalPackageStage)"
                  PrereleasePrefix="$(SppPrereleasePrefix)"
                  PrereleasePostfix="$(SppPrereleasePostfix)"
                  PrereleaseFormat="$(SppPrereleaseFormat)"
                  IncludeSymbols="$(IncludeSymbols)"
-                 ForceVersion="$(SppForceVersion)"
-                 Parameter="$(SppParameter)">
+                 Metadata="$(SppMetadata)"
+                 MetadataFormat="$(SppMetadataFormat)"
+                 Parameter="$(SppParameter)"
+                 VersionFormat="$(SppVersionFormat)"
+                 ForceVersion="$(SppForceVersion)">
       <Output PropertyName="_SppPackageVersion" TaskParameter="PackageVersion"/>
     </PreparePublishTask>
     <PropertyGroup>

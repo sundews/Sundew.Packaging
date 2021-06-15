@@ -13,8 +13,8 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using Moq;
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
     using Xunit;
 
     public class PrereleaseDateTimeProviderTests

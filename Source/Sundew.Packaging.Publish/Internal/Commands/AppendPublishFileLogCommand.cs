@@ -10,8 +10,9 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
 
     internal class AppendPublishFileLogCommand : IAppendPublishFileLogCommand
     {
@@ -19,10 +20,12 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         private const string FileNameGroupName = "FileName";
         private static readonly Regex AppendFilesRegex = new(@"(?:(?<Format>[^>]+)\s>\s?(?<FileName>[^|]+)(\s?\|\s?)?)+");
         private readonly IFileSystem fileSystem;
+        private readonly ILogger logger;
 
-        public AppendPublishFileLogCommand(IFileSystem fileSystem)
+        public AppendPublishFileLogCommand(IFileSystem fileSystem, ILogger logger)
         {
             this.fileSystem = fileSystem;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -35,7 +38,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="symbolPackagePath">The symbol package path.</param>
         /// <param name="publishInfo">The publish information.</param>
         /// <param name="parameter">The parameter.</param>
-        /// <param name="logger">The logger.</param>
         public void Append(
             string workingDirectory,
             string packagePushFileAppendFormats,
@@ -43,8 +45,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             string packagePath,
             string? symbolPackagePath,
             PublishInfo publishInfo,
-            string parameter,
-            ILogger logger)
+            string parameter)
         {
             var match = AppendFilesRegex.Match(packagePushFileAppendFormats);
             if (match.Success)
@@ -60,15 +61,15 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                         this.fileSystem.CreateDirectory(directory);
                     }
 
-                    var (log, isValid) = PublishLogger.Format(format, packageId,  packagePath, symbolPackagePath, publishInfo, parameter);
+                    var (log, isValid) = PackagePublicationLogger.Format(format, packageId,  packagePath, symbolPackagePath, publishInfo, workingDirectory, parameter);
                     if (isValid)
                     {
                         this.fileSystem.AppendAllText(filePath, log);
-                        logger.LogInfo($"Appended {log} to {filePath}");
+                        this.logger.LogInfo($"Appended {log} to {filePath}");
                     }
                     else
                     {
-                        logger.LogInfo($"Not logging to {filePath} as the format included null values for indices: {log}");
+                        this.logger.LogInfo($"Not logging to {filePath} as the format included null values for indices: {log}");
                     }
                 }
             }

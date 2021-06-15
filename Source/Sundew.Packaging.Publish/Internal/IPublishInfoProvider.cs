@@ -7,9 +7,12 @@
 
 namespace Sundew.Packaging.Publish.Internal
 {
+    using Sundew.Packaging.Staging;
+    using Sundew.Packaging.Versioning;
+
     internal interface IPublishInfoProvider
     {
-        PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, bool includeSymbols);
+        PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string metadata, bool includeSymbols);
 
         PublishInfo Read(string publishInfoFilePath);
 

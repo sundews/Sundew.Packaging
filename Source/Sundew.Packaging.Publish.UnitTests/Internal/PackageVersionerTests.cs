@@ -11,20 +11,19 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using System.Collections.Generic;
     using FluentAssertions;
     using Moq;
-    using NuGet.Common;
     using NuGet.Versioning;
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish;
-    using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.Commands;
+    using Sundew.Packaging.Staging;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.Commands;
     using Xunit;
 
     public class PackageVersionerTests
     {
         private const string AnyPackageId = "Package.Id";
-        private const string AnyWorkingDirectory = @"c:\Working\Dir";
         private const string AnyPushSource = @"Ignored => c:\temp\ignored";
-        private static readonly DateTime BuildDateTime = new DateTime(2016, 01, 08, 17, 36, 13);
+        private static readonly DateTime BuildDateTime = new(2016, 01, 08, 17, 36, 13);
         private readonly IDateTime dateTime = New.Mock<IDateTime>();
         private readonly PackageVersioner testee;
         private readonly ILatestPackageVersionCommand latestPackageVersionCommand;
@@ -32,7 +31,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
         public PackageVersionerTests()
         {
             this.latestPackageVersionCommand = New.Mock<ILatestPackageVersionCommand>();
-            this.testee = new PackageVersioner(New.Mock<IPackageExistsCommand>(), this.latestPackageVersionCommand);
+            this.testee = new PackageVersioner(New.Mock<IPackageExistsCommand>(), this.latestPackageVersionCommand, New.Mock<Versioning.Logging.ILogger>());
             this.dateTime.SetupGet(x => x.UtcNow).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
         }
 
@@ -44,13 +43,15 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse("4.5.6"),
+                null,
                 expectedVersion,
                 VersioningMode.AlwaysIncrementPatch,
-                new SelectedSource(Source.Parse(AnyPushSource, "beta", false, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, "beta", "beta", false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
-                string.Empty,
-                New.Mock<ILogger>());
+                null,
+                null,
+                string.Empty);
 
             result.ToNormalizedString().Should().Be(expectedVersion);
         }
@@ -69,12 +70,14 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 null,
+                null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
-                string.Empty,
-                New.Mock<ILogger>());
+                null,
+                null,
+                string.Empty);
 
             result.ToNormalizedString().Should().Be(expectedResult);
         }
@@ -92,20 +95,21 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                     It.IsAny<IReadOnlyList<string>>(),
                     It.IsAny<NuGetVersion>(),
                     It.IsAny<bool>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<ILogger>()))
+                    It.IsAny<bool>()))
                 .ReturnsAsync(latestVersion == null ? null : NuGetVersion.Parse(latestVersion));
 
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 null,
+                null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, stage, false, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
-                string.Empty,
-                New.Mock<ILogger>());
+                null,
+                null,
+                string.Empty);
 
             result.ToNormalizedString().Should().Be(expectedResult);
         }
@@ -123,22 +127,84 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
                     It.IsAny<IReadOnlyList<string>>(),
                     It.IsAny<NuGetVersion>(),
                     It.IsAny<bool>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<ILogger>()))
+                    It.IsAny<bool>()))
                 .ReturnsAsync(latestVersion == null ? null : NuGetVersion.Parse(latestVersion));
 
             var result = this.testee.GetVersion(
                 AnyPackageId,
                 NuGetVersion.Parse(versionNumber),
                 null,
+                null,
                 versioningMode,
-                new SelectedSource(Source.Parse(AnyPushSource, "ci", true, null, null, null, null, true)!),
+                new SelectedStage(Stage.Parse(AnyPushSource, "ci", "ci", true, null, null, null, null, true)!),
                 new[] { AnyPushSource },
                 BuildDateTime,
-                string.Empty,
-                New.Mock<ILogger>());
+                null,
+                null,
+                string.Empty);
 
             result.ToNormalizedString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", null, "3.0.0-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", "3.0.2", "3.0.3-u20160108-173613-ci")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", null, "3.0.1-u20160108-173613-ci")]
+        [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "ci", "3.0.2", "3.0.2.1-u20160108-173613-ci")]
+        [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.10", "3.0.1.11-u20160108-173613-ci")]
+        public void GetVersion_When_UsingFallbackPrereleaseFormat_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string? latestVersion, string expectedResult)
+        {
+            this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
+                    AnyPackageId,
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<NuGetVersion>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .ReturnsAsync(latestVersion == null ? null : NuGetVersion.Parse(latestVersion));
+
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse(versionNumber),
+                null,
+                null,
+                versioningMode,
+                new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
+                new[] { AnyPushSource },
+                BuildDateTime,
+                null,
+                null,
+                string.Empty);
+
+            result.ToNormalizedString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("{1}-{3}-{4}-{5}-{0}", "metadata", "3.0.1.11-u20160108-173613-metadata-ci+20160108-173613-metadata-ci")]
+        [InlineData("{1}-{3}-{4}-{5}-{0}", "", "3.0.1.11-u20160108-173613-ci+20160108-173613-ci")]
+        [InlineData("{1}-{3}-{4}-{5}-{0}", null, "3.0.1.11-u20160108-173613-ci+20160108-173613-ci")]
+        public void GetVersion_When_UsingFallbackPrereleaseFormat1_Then_ResultToFullStringShouldBeExpectedResult(string metadataFormat, string? metadata, string expectedResult)
+        {
+            this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
+                    AnyPackageId,
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<NuGetVersion>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .ReturnsAsync(NuGetVersion.Parse("3.0.1.10"));
+            var result = this.testee.GetVersion(
+                AnyPackageId,
+                NuGetVersion.Parse("3.0.1"),
+                null,
+                null,
+                VersioningMode.AutomaticLatestRevision,
+                new SelectedStage(Stage.Parse(AnyPushSource, "ci", "ci", false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true)!),
+                new[] { AnyPushSource },
+                BuildDateTime,
+                metadata,
+                metadataFormat,
+                string.Empty);
+
+            result.ToFullString().Should().Be(expectedResult);
         }
     }
 }

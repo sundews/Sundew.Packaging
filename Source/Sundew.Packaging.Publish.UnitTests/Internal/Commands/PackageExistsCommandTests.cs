@@ -13,7 +13,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
     using NuGet.Common;
     using NuGet.Configuration;
     using NuGet.Versioning;
-    using Sundew.Packaging.Publish.Internal.Commands;
+    using Sundew.Packaging.Versioning.Commands;
     using Xunit;
 
     public class PackageExistsCommandTests
@@ -23,9 +23,9 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
         [InlineData("NonExistingPackage1234", false)]
         public async Task ExistsAsync_Then_ResultShouldBeExpectedResult(string packageId, bool expectedResult)
         {
-            var testee = new PackageExistsCommand();
+            var testee = new PackageExistsCommand(New.Mock<ILogger>());
 
-            var result = await testee.ExistsAsync(packageId, new SemanticVersion(12, 0, 3), NuGetConstants.V3FeedUrl, New.Mock<ILogger>());
+            var result = await testee.ExistsAsync(packageId, new SemanticVersion(12, 0, 3), NuGetConstants.V3FeedUrl);
 
             result.Should().Be(expectedResult);
         }

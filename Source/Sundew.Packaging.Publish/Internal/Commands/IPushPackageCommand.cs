@@ -26,8 +26,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="settings">The settings.</param>
         /// <param name="noServiceEndpoint">The no service endpoint.</param>
         /// <param name="skipDuplicates">Skips duplicate.</param>
-        /// <param name="nuGetLogger">The nuGetLogger.</param>
-        /// <param name="logger">The logger.</param>
         /// <returns>
         /// An async task.
         /// </returns>
@@ -41,8 +39,6 @@ namespace Sundew.Packaging.Publish.Internal.Commands
             int timeoutInSeconds,
             ISettings settings,
             bool noServiceEndpoint,
-            bool skipDuplicates,
-            global::NuGet.Common.ILogger nuGetLogger,
-            global::Sundew.Packaging.Publish.Internal.Logging.ILogger logger);
+            bool skipDuplicates);
     }
 }

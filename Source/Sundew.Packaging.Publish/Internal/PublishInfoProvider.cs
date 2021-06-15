@@ -9,8 +9,10 @@ namespace Sundew.Packaging.Publish.Internal
 {
     using System.IO;
     using Newtonsoft.Json;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Staging;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
 
     internal class PublishInfoProvider : IPublishInfoProvider
     {
@@ -23,17 +25,20 @@ namespace Sundew.Packaging.Publish.Internal
             this.logger = logger;
         }
 
-        public PublishInfo Save(string publishInfoFilePath, SelectedSource selectedSource, string nugetVersion, bool includeSymbols)
+        public PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string metadata, bool includeSymbols)
         {
             var publishInfo = new PublishInfo(
-                selectedSource.Stage,
+                selectedSource.StageName,
+                selectedSource.VersionStageName,
                 selectedSource.FeedSource,
                 selectedSource.PushSource,
                 selectedSource.ApiKey,
-                includeSymbols ? selectedSource.SymbolsPushSource : null,
-                includeSymbols ? selectedSource.SymbolsApiKey : null,
+                selectedSource.SymbolsPushSource,
+                selectedSource.SymbolsApiKey,
                 selectedSource.IsEnabled,
-                nugetVersion);
+                nuGetVersion,
+                fullNuGetVersion,
+                metadata);
             var directoryPath = Path.GetDirectoryName(publishInfoFilePath);
             if (!this.fileSystem.DirectoryExists(directoryPath))
             {
@@ -41,7 +46,7 @@ namespace Sundew.Packaging.Publish.Internal
             }
 
             this.fileSystem.WriteAllText(publishInfoFilePath, JsonConvert.SerializeObject(publishInfo));
-            this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.Stage}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
+            this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.StageName}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
             return publishInfo;
         }
 

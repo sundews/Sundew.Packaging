@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NuGet.Common" Version="5.9.1" />
+    <PackageReference Include="NuGet.Configuration" Version="5.9.1" />
+    <PackageReference Include="NuGet.Protocol" Version="5.9.1" />
+    <PackageReference Include="NuGet.Versioning" Version="5.9.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Base.Collections" Version="8.0.3" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="8.0.3" />
+    <PackageReference Include="Sundew.Base.Text" Version="8.0.3" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <Version>$(SppForceVersion)</Version>
+    <PackageVersion>$(SppForceVersion)</PackageVersion>
+  </PropertyGroup>
+
+</Project>

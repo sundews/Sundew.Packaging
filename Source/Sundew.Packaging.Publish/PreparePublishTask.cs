@@ -9,28 +9,26 @@ namespace Sundew.Packaging.Publish
 {
     using System;
     using System.IO;
-    using System.Reflection;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using NuGet.Versioning;
     using Sundew.Base.Primitives;
     using Sundew.Base.Primitives.Time;
     using Sundew.Packaging.Publish.Internal;
-    using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Publish.Internal.IO;
     using Sundew.Packaging.Publish.Internal.Logging;
-    using Sundew.Packaging.Publish.Internal.NuGet.Configuration;
-    using ILogger = Sundew.Packaging.Publish.Internal.Logging.ILogger;
+    using Sundew.Packaging.Source;
+    using Sundew.Packaging.Staging;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.Commands;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
+    using ILogger = Sundew.Packaging.Versioning.Logging.ILogger;
 
     /// <summary>MSBuild task that prepare for publishing the created NuGet package.</summary>
     /// <seealso cref="Microsoft.Build.Utilities.Task" />
     public class PreparePublishTask : Task
     {
-        internal const string DefaultLocalSourceName = "Local-Sundew";
-        internal static readonly string LocalSourceBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), GetFolderName(Assembly.GetExecutingAssembly().GetName().Name));
-        internal static readonly string DefaultLocalSource = Path.Combine(LocalSourceBasePath, "packages");
-        private const string MergedAssemblyEnding = ".m";
-
         private readonly IFileSystem fileSystem;
 
         private readonly INuGetSettingsInitializationCommand nuGetSettingsInitializationCommand;
@@ -40,6 +38,7 @@ namespace Sundew.Packaging.Publish
         private readonly ILatestVersionSourcesCommand latestVersionSourcesCommand;
 
         private readonly ILogger logger;
+        private readonly NuGetToLoggerAdapter nuGetLogger;
         private readonly IPublishInfoProvider publishInfoProvider;
         private readonly PrereleaseDateTimeProvider prereleaseDateTimeProvider;
 
@@ -65,9 +64,10 @@ namespace Sundew.Packaging.Publish
         {
             this.fileSystem = fileSystem;
             this.logger = logger ?? new MsBuildLogger(this.Log);
-            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(this.fileSystem, settingsFactory);
+            this.nuGetLogger = new NuGetToLoggerAdapter(this.logger);
+            this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(settingsFactory);
             this.publishInfoProvider = new PublishInfoProvider(this.fileSystem, this.logger);
-            this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(), new LatestPackageVersionCommand());
+            this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(this.nuGetLogger), new LatestPackageVersionCommand(this.logger, this.nuGetLogger), this.logger);
             this.nuGetVersionProvider = nuGetVersionProvider ?? new NuGetVersionProvider(this.fileSystem, this.logger);
             this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider(), this.logger);
             this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
@@ -134,12 +134,20 @@ namespace Sundew.Packaging.Publish
         public bool IsSourcePublishEnabled { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether [allow default push source for getting latest version].
+        /// Gets or sets a value indicating whether all should be added to latest version sources.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [allow default push source for getting latest version]; otherwise, <c>false</c>.
+        ///   <c>true</c> if all sources should be added to latest version sources; otherwise, <c>false</c>.
         /// </value>
-        public bool AddDefaultPushSourceToLatestVersionSources { get; set; } = true;
+        public bool AddAllSourcesToLatestVersionSources { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether NuGetOrg should be added to latest version sources.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if NuGetOrg should be added to latest version sources; otherwise, <c>false</c>.
+        /// </value>
+        public bool AddNuGetOrgSourceToLatestVersionSources { get; set; } = true;
 
         /// <summary>Gets or sets the versioning mode.</summary>
         /// <value>The versioning mode.</value>
@@ -155,7 +163,7 @@ namespace Sundew.Packaging.Publish
         /// default: creates a prerelease and pushes it to the default push source.
         /// default-stable: creates a stable version and pushes it the default push source.</summary>
         /// <value>The name of the source.</value>
-        public string? SourceName { get; set; }
+        public string? Stage { get; set; }
 
         /// <summary>Gets or sets the production source.
         /// The production source is a string in the following format:
@@ -164,7 +172,7 @@ namespace Sundew.Packaging.Publish
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
         /// <value>The production source.</value>
-        public string? ProductionSource { get; set; }
+        public string? Production { get; set; }
 
         /// <summary>Gets or sets the integration source.
         /// The integration source is a string in the following format:
@@ -173,7 +181,7 @@ namespace Sundew.Packaging.Publish
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
         /// <value>The integration source.</value>
-        public string? IntegrationSource { get; set; }
+        public string? Integration { get; set; }
 
         /// <summary>Gets or sets the development source.
         /// The development source is a string in the following format:
@@ -182,7 +190,15 @@ namespace Sundew.Packaging.Publish
         /// The Source Uri is an uri of a NuGet server or local folder.
         /// </summary>
         /// <value>The development source.</value>
-        public string? DevelopmentSource { get; set; }
+        public string? Development { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fallback properties.
+        /// </summary>
+        /// <value>
+        /// The fallback properties.
+        /// </value>
+        public string? FallbackStageAndProperties { get; set; }
 
         /// <summary>
         /// Gets or sets the API key.
@@ -258,9 +274,25 @@ namespace Sundew.Packaging.Publish
         /// </value>
         public bool IncludeSymbols { get; set; }
 
+        /// <summary>Gets or sets the metadata.</summary>
+        /// <value>The metadata.</value>
+        public string? Metadata { get; set; }
+
+        /// <summary>Gets or sets the metadata format.</summary>
+        /// <value>The metadata format.</value>
+        public string? MetadataFormat { get; set; }
+
         /// <summary>Gets or sets the parameter.</summary>
         /// <value>The parameter.</value>
         public string? Parameter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the version format.
+        /// </summary>
+        /// <value>
+        /// The version format.
+        /// </value>
+        public string? VersionFormat { get; set; }
 
         /// <summary>
         /// Gets or sets the forced version.
@@ -299,14 +331,14 @@ namespace Sundew.Packaging.Publish
                     return true;
                 }
 
-                var localSourceName = this.LocalSourceName ?? DefaultLocalSourceName;
-                var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, localSourceName, this.LocalSource ?? DefaultLocalSource);
+                var localSourceName = this.LocalSourceName ?? PackageSources.DefaultLocalSourceName;
+                var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, localSourceName, this.LocalSource ?? PackageSources.DefaultLocalSource);
 
-                var selectedSource = SourceSelector.SelectSource(
-                    this.SourceName,
-                    this.ProductionSource,
-                    this.IntegrationSource,
-                    this.DevelopmentSource,
+                var selectedSource = StageSelector.Select(
+                    this.Stage,
+                    this.Production,
+                    this.Integration,
+                    this.Development,
                     nuGetSettings.LocalSourcePath,
                     this.PrereleaseFormat,
                     this.ApiKey,
@@ -316,20 +348,27 @@ namespace Sundew.Packaging.Publish
                     this.PrereleasePostfix,
                     nuGetSettings.DefaultSettings,
                     this.AllowLocalSource,
-                    this.IsSourcePublishEnabled);
+                    this.IsSourcePublishEnabled,
+                    this.FallbackStageAndProperties);
 
                 var latestVersionSources =
-                    this.latestVersionSourcesCommand.GetLatestVersionSources(this.LatestVersionSources, selectedSource, nuGetSettings, this.AddDefaultPushSourceToLatestVersionSources);
+                    this.latestVersionSourcesCommand.GetLatestVersionSources(
+                        this.LatestVersionSources,
+                        selectedSource,
+                        nuGetSettings,
+                        this.AddNuGetOrgSourceToLatestVersionSources,
+                        this.AddAllSourcesToLatestVersionSources);
 
                 if (NuGetVersion.TryParse(this.Version, out var nuGetVersion))
                 {
-                    var versioningMode = Publish.VersioningMode.AutomaticLatestPatch;
+                    var versioningMode = Versioning.VersioningMode.AutomaticLatestPatch;
                     this.VersioningMode?.TryParseEnum(out versioningMode, true);
                     var buildDateTime = this.prereleaseDateTimeProvider.GetBuildDateTime(buildDateTimeFilePath);
-                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Parameter ?? string.Empty, new NuGetToMsBuildLoggerAdapter(this.logger)).ToNormalizedString();
-                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion, this.IncludeSymbols);
-                    this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, packageVersion);
-                    this.PackageVersion = packageVersion;
+                    var packageVersion = this.packageVersioner.GetVersion(this.PackageId!, nuGetVersion, this.VersionFormat, this.ForceVersion, versioningMode, selectedSource, latestVersionSources, buildDateTime, this.Metadata, this.MetadataFormat, this.Parameter ?? string.Empty);
+                    var fullPackageVersion = packageVersion.ToFullString();
+                    this.PublishInfo = this.publishInfoProvider.Save(publishInfoFilePath, selectedSource, packageVersion.ToNormalizedString(), packageVersion.ToFullString(), packageVersion.Metadata, this.IncludeSymbols);
+                    this.nuGetVersionProvider.Save(versionFilePath, referencedPackageVersionFilePath, fullPackageVersion);
+                    this.PackageVersion = fullPackageVersion;
                     return true;
                 }
 
@@ -341,16 +380,6 @@ namespace Sundew.Packaging.Publish
                 this.logger.LogError(e.ToString());
                 return false;
             }
-        }
-
-        private static string GetFolderName(string name)
-        {
-            if (name.EndsWith(MergedAssemblyEnding))
-            {
-                return name.Substring(0, name.Length - MergedAssemblyEnding.Length);
-            }
-
-            return name;
         }
     }
 }

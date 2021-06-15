@@ -15,8 +15,8 @@ namespace Sundew.Packaging.Publish.Internal.Commands
     using System.Reflection.Metadata;
     using System.Text;
     using global::NuGet.Configuration;
-    using Sundew.Packaging.Publish.Internal.IO;
-    using Sundew.Packaging.Publish.Internal.Logging;
+    using Sundew.Packaging.Versioning.IO;
+    using Sundew.Packaging.Versioning.Logging;
 
     /// <summary>
     /// Copies the specified pdb file to the symbol cache.
@@ -31,16 +31,17 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         private const string SppFileExtensionText = ".spp";
         private const string SppFileExtensionPatternText = "*.spp";
         private readonly IFileSystem fileSystem;
+        private readonly ILogger logger;
 
-        /// <summary>Initializes a new instance of the <see cref="CopyPdbToSymbolCacheCommand"/> class.</summary>
-        public CopyPdbToSymbolCacheCommand()
-        : this(new FileSystem())
-        {
-        }
-
-        internal CopyPdbToSymbolCacheCommand(IFileSystem fileSystem)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CopyPdbToSymbolCacheCommand"/> class.
+        /// </summary>
+        /// <param name="fileSystem">The file system.</param>
+        /// <param name="logger">The logger.</param>
+        public CopyPdbToSymbolCacheCommand(IFileSystem fileSystem, ILogger logger)
         {
             this.fileSystem = fileSystem;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -49,8 +50,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
         /// <param name="pdbFilePaths">The PDB file paths.</param>
         /// <param name="symbolCacheDirectoryPath">The symbol cache directory path.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="logger">The logger.</param>
-        public void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings, ILogger logger)
+        public void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings)
         {
             if (symbolCacheDirectoryPath == null || string.IsNullOrEmpty(symbolCacheDirectoryPath))
             {
@@ -68,7 +68,7 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                     {
                         var sppDirectoryPath = Path.GetDirectoryName(sppFilePath);
                         this.fileSystem.DeleteDirectory(sppDirectoryPath, true);
-                        logger.LogMessage($"Deleted pdb directory: {sppDirectoryPath}.");
+                        this.logger.LogMessage($"Deleted pdb directory: {sppDirectoryPath}.");
                     }
                 }
             }
@@ -84,11 +84,11 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                     this.fileSystem.CreateDirectory(pdbDirectoryPath);
                     this.fileSystem.WriteAllText(Path.Combine(pdbDirectoryPath, SppFileExtensionText), string.Empty);
                     this.fileSystem.Copy(pdbFilePath, outputPath, true);
-                    logger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
+                    this.logger.LogInfo($"Successfully copied pdb file to: {outputPath}.");
                 }
                 catch (BadImageFormatException)
                 {
-                    logger.LogWarning("Pdb could not be copied to symbol cache. Only portable pdbs are supported.");
+                    this.logger.LogWarning("Pdb could not be copied to symbol cache. Only portable pdbs are supported.");
                 }
             }
         }
