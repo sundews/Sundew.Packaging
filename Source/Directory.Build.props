@@ -4,9 +4,6 @@
    <Version>7.0</Version>
    <OutputPath>bin/$(Configuration)</OutputPath>
    <Nullable>enable</Nullable>
-   <LangVersion>9</LangVersion>
-   <OutputPath>bin/$(Configuration)</OutputPath>
-   <Nullable>enable</Nullable>
    <LangVersion>latest</LangVersion>
    <Company>Hukano</Company>
    <Authors>Kim Hugener-Ohlsen</Authors>

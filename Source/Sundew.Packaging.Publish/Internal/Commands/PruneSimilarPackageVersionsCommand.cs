@@ -41,7 +41,8 @@ namespace Sundew.Packaging.Publish.Internal.Commands
                 var fileName = Path.GetFileNameWithoutExtension(filePath);
                 if ((extension.Equals(Nupkg, StringComparison.OrdinalIgnoreCase) || extension.Equals(Snupkg, StringComparison.OrdinalIgnoreCase))
                     && fileName.StartsWith(similarVersion, StringComparison.OrdinalIgnoreCase)
-                    && !fileName.EndsWith(version, StringComparison.OrdinalIgnoreCase))
+                    && !fileName.EndsWith(version, StringComparison.OrdinalIgnoreCase)
+                    && !fileName.EndsWith($"{version}.symbols", StringComparison.OrdinalIgnoreCase))
                 {
                     this.fileSystem.DeleteFile(filePath);
                 }
