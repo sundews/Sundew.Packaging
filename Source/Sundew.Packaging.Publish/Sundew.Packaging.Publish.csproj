@@ -6,22 +6,21 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Description>
-      Automated NuGet package publisher:
-      - Publish prerelease package to local NuGet feed
-      - Publish to official NuGet feed
-      - Customizable publish for build server based on development, integration, production stages
-      - Automated versioning of patch-/revision- and prereleases
-      - Local debug support
+    <Description>Automated NuGet package publisher:
+- Publish prerelease package to local NuGet feed
+- Publish to official NuGet feed
+- Customizable publish for build server based on development, integration, production stages
+- Automated versioning of patch-/revision- and prereleases
+- Local debug support
     </Description>
     <RepositoryUrl>https://github.com/hugener/Sundew.Packaging.Publish</RepositoryUrl>
-    <PackageReleaseNotes>
-      6.x - Change local package stage to "local", Force version support, Pass prefix and postfix from MsBuild properties support
-      5.x - Changed default prerelease format and prod stage name for ProductionSource
-      4.x - Added automatic revision increment, source matchers now supports custom prerelease- stage, format and api key.
-      3.x - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
-      2.x - Added support for automatic prerelease patch increment
-      1.x - Initial release
+    <PackageReleaseNotes>7.x - New Stage matcher format,    
+6.x - Change local package stage to "local", Force version support, Pass prefix and postfix from MsBuild properties support
+5.x - Changed default prerelease format and prod stage name for ProductionSource
+4.x - Added automatic revision increment, source matchers now supports custom prerelease- stage, format and api key.
+3.x - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
+2.x - Added support for automatic prerelease patch increment
+1.x - Initial release
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Release-Stable</Configurations>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -111,6 +110,6 @@
     <PackageVersion>$(SppForceVersion)</PackageVersion>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true'" />
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true' AND '$(DisableSelf)' != 'true'" />
 
 </Project>

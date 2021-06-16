@@ -19,6 +19,7 @@ namespace Sundew.Packaging.Tool
     using Sundew.Packaging.Tool.Diagnostics;
     using Sundew.Packaging.Tool.NuGet;
     using Sundew.Packaging.Tool.PruneLocalSource;
+    using Sundew.Packaging.Tool.Push;
     using Sundew.Packaging.Tool.Update;
     using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
     using Sundew.Packaging.Tool.Versioning;
@@ -26,6 +27,7 @@ namespace Sundew.Packaging.Tool
     using Sundew.Packaging.Tool.Versioning.MsBuild;
     using Sundew.Packaging.Versioning.Commands;
     using Sundew.Packaging.Versioning.Logging;
+    using Sundew.Packaging.Versioning.NuGet.Configuration;
 
     /// <summary>
     /// The program.
@@ -42,6 +44,7 @@ namespace Sundew.Packaging.Tool
             {
                 var commandLineParser = new CommandLineParser<int, int>();
                 commandLineParser.AddVerb(new StageBuildVerb(), ExecuteStageBuildAsync);
+                commandLineParser.AddVerb(new PushVerb(), ExecutePushAsync);
                 commandLineParser.AddVerb(new UpdateVerb(), ExecuteUpdateAsync);
                 commandLineParser.AddVerb(new AwaitPublishVerb(), ExecuteAwaitPublishAsync);
                 commandLineParser.AddVerb(new PruneLocalSourceVerb(), v => Result.Error(ParserError.From(-1)), builder =>
@@ -63,6 +66,15 @@ namespace Sundew.Packaging.Tool
                 Console.WriteLine(e.ToString());
                 return -1;
             }
+        }
+
+        private static async ValueTask<Result<int, ParserError<int>>> ExecutePushAsync(PushVerb pushVerb)
+        {
+            var consoleLogger = new ConsoleLogger();
+            var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
+            var pushFacade = new PushFacade(new Sundew.Packaging.Versioning.IO.FileSystem(), new SettingsFactory(), nuGetToLoggerAdapter);
+            await pushFacade.PushAsync(pushVerb);
+            return Result.Success(0);
         }
 
         private static async ValueTask<Result<int, ParserError<int>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
