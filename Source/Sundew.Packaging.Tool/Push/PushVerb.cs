@@ -38,7 +38,7 @@ namespace Sundew.Packaging.Tool
 
         public string? ShortName => null;
 
-        public string HelpText => "Pushes the specified package to the source";
+        public string HelpText => "Pushes the specified package(s) to a source";
 
         public string WorkingDirectory { get; private set; }
 
@@ -64,10 +64,10 @@ namespace Sundew.Packaging.Tool
             argumentsBuilder.AddRequired("k", "api-key", () => this.ApiKey, s => this.ApiKey = s, "The api key to be used for the push.", false);
             argumentsBuilder.AddOptional("ss", "symbol-source", () => this.SymbolsPushSource, s => this.SymbolsPushSource = s, "The source used to push symbol packages.", false);
             argumentsBuilder.AddOptional("sk", "symbol-api-key", () => this.SymbolsApiKey, s => this.SymbolsApiKey = s, "The symbols api key used to push symbols.", false);
-            argumentsBuilder.AddOptional("t", "timeout", () => this.TimeoutSeconds.ToString(), s => this.TimeoutSeconds = int.Parse(s), "Timeout for pushing to a server (seconds).");
+            argumentsBuilder.AddOptional("t", "timeout", () => this.TimeoutSeconds.ToString(), s => this.TimeoutSeconds = int.Parse(s), "Timeout for pushing to a source (seconds).");
             argumentsBuilder.AddSwitch("n", "no-symbols", this.NoSymbols, b => this.NoSymbols = b, "If set no symbols will be pushed.");
             argumentsBuilder.AddSwitch("sd", "skip-duplicate", this.SkipDuplicate, b => this.SkipDuplicate = b, "If a package already exists, skip it.");
-            argumentsBuilder.AddRequiredValues("packages", this.packagePaths, "The packages to push", true);
+            argumentsBuilder.AddRequiredValues("packages", this.packagePaths, "The packages to push (supports wildcards *).", true);
         }
     }
 }

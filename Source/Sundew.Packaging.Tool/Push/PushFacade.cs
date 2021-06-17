@@ -64,7 +64,7 @@ namespace Sundew.Packaging.Tool.Push
                     null,
                     pushVerb.TimeoutSeconds,
                     false,
-                    pushVerb.NoSymbols,
+                    true,
                     true,
                     pushVerb.SkipDuplicate,
                     this.nuGetLogger);

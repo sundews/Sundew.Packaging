@@ -268,6 +268,15 @@ Help
      -vf  | --version-format     | The version format                                                                                        | Default: [none]
      -fv  | --force-version      | Forces the version to the specified value                                                                 | Default: [none]
      -o   | --output-formats     | A list of formats that will be logged to stdout.                                                          | Default: [none]
+   push                          Pushes the specified package(s) to a source
+     -s   | --source             | The source used to push packages.                                                                         | Required
+     -k   | --api-key            | The api key to be used for the push.                                                                      | Required
+     -ss  | --symbol-source      | The source used to push symbol packages.                                                                  | Default: [none]
+     -sk  | --symbol-api-key     | The symbols api key used to push symbols.                                                                 | Default: [none]
+     -t   | --timeout            | Timeout for pushing to a source (seconds).                                                                | Default: 300
+     -n   | --no-symbols         | If set no symbols will be pushed.
+     -sd  | --skip-duplicate     | If a package already exists, skip it.
+     <packages>                  | The packages to push (supports wildcards *).                                                              | Required
    update/u                      Update package references
      -id  | --package-ids        | The package(s) to update. (* Wildcards supported)                                                         | Default: *
                                    Format: Id[.Version] or "Id[ Version]" (Pinning version is optional)
