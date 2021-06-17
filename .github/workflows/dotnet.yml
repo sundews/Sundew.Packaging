@@ -36,9 +36,9 @@ jobs:
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 7.0.0-u20210615-194419-ci
+        dotnet tool update Sundew.Packaging.Tool -g --version 7.*
         
-        dotnet tool update CommandlineBatcher -g
+        dotnet tool update CommandlineBatcher -g --version 3.*
 
         git rev-parse --short=10 HEAD | cb -c "|::set-output name=git-hash::{0}" --batches-stdin
     - name: Stage Build
