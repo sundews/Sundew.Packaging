@@ -110,7 +110,7 @@
 
   <Target Name="SppPublishNuGet" 
           AfterTargets="Pack" 
-          Condition="'$(_SppEnableTargets)' == 'true'">
+          Condition="'$(_SppEnableTargets)' == 'true' AND '$(IsPackable)' != 'false' AND '$(IsPublishable)' != 'false'">
     <PublishTask
                  SolutionDir="$(SolutionDir)"
                  PublishInfoFilePath="$(_SppPublishInfoFilePath)"
