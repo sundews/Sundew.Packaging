@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
       solutionPath: ./Source/Sundew.Packaging.sln
-      versioningProjectPath: ./Source/Sundew.Packaging/Sundew.Packaging.csproj
+      versioningProjectPath: ./Source/Sundew.Packaging/Sundew.Packaging.Publish.csproj
       repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/sundews/Sundew.Packaging.git'
       source: 'https://api.nuget.org/v3/index.json'
       dev-source: 'https://www.myget.org/F/sundew-dev/api/v2/package'
