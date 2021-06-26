@@ -9,8 +9,8 @@ namespace Sundew.Packaging.Tool.Tests
 {
     using FluentAssertions;
     using NUnit.Framework;
+    using Sundew.Packaging.RegularExpression;
     using Sundew.Packaging.Testing;
-    using Sundew.Packaging.Tool.RegularExpression;
 
     [TestFixture]
     public class GlobRegexTests

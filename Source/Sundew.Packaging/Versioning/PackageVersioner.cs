@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish
+namespace Sundew.Packaging.Versioning
 {
     using System;
     using System.Collections.Generic;
@@ -14,7 +14,6 @@ namespace Sundew.Packaging.Publish
     using global::NuGet.Versioning;
     using Sundew.Base.Text;
     using Sundew.Packaging.Staging;
-    using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
 
     /// <summary>
@@ -39,7 +38,6 @@ namespace Sundew.Packaging.Publish
         /// <param name="packageExistsCommand">The package exists command.</param>
         /// <param name="latestPackageVersionCommand">The latest package version command.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="nuGetLogger">The nu get logger.</param>
         public PackageVersioner(
             IPackageExistsCommand packageExistsCommand,
             ILatestPackageVersionCommand latestPackageVersionCommand,

@@ -5,10 +5,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.RegularExpression
+namespace Sundew.Packaging.RegularExpression
 {
     using System.Text.RegularExpressions;
 
+    /// <summary>
+    /// A regex for matching glob patterns.
+    /// </summary>
+    /// <seealso cref="System.Text.RegularExpressions.Regex" />
     public sealed partial class GlobRegex
     {
         private const string Dot = ".";
@@ -30,6 +34,11 @@ namespace Sundew.Packaging.Tool.RegularExpression
         private const string Exclamation = "!";
         private const string Hat = "^";
 
+        /// <summary>
+        /// Converts to regex pattern.
+        /// </summary>
+        /// <param name="pattern">The pattern.</param>
+        /// <returns>A tuple containing the regex expression and a value indicating whether the pattern was converted.</returns>
         public static (string Expression, bool IsPattern) ConvertToRegexPattern(string pattern)
         {
             bool isPattern = false;
@@ -58,6 +67,13 @@ namespace Sundew.Packaging.Tool.RegularExpression
             return (globRegexText, isPattern);
         }
 
+        /// <summary>
+        /// Creates the specified pattern.
+        /// </summary>
+        /// <param name="pattern">The pattern.</param>
+        /// <param name="matchLines">if set to <c>true</c> [match lines].</param>
+        /// <param name="regexOptions">The regex options.</param>
+        /// <returns>A glob regex.</returns>
         public static GlobRegex Create(string pattern, bool matchLines = true, RegexOptions regexOptions = RegexOptions.None)
         {
             var (expression, isPattern) = ConvertToRegexPattern(pattern);

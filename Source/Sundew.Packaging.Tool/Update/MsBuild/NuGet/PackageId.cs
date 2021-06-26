@@ -9,7 +9,7 @@ namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet
 {
     using System.Text.RegularExpressions;
     using global::NuGet.Versioning;
-    using Sundew.Packaging.Tool.RegularExpression;
+    using Sundew.Packaging.RegularExpression;
 
     public record PackageId(string Id, string? VersionPattern = null);
 

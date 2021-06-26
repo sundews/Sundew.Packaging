@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal
+namespace Sundew.Packaging
 {
     using System;
     using System.IO;

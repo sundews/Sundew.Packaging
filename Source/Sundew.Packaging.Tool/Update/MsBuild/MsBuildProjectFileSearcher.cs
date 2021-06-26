@@ -12,7 +12,7 @@ namespace Sundew.Packaging.Tool.Update.MsBuild
     using System.IO.Abstractions;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Sundew.Packaging.Tool.RegularExpression;
+    using Sundew.Packaging.RegularExpression;
 
     public class MsBuildProjectFileSearcher
     {

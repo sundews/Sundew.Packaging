@@ -5,13 +5,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Versioning.Logging
+namespace Sundew.Packaging.Publish.Internal
 {
     using System;
     using System.Globalization;
     using System.Text;
     using Sundew.Base.Memory;
     using Sundew.Base.Text;
+    using Sundew.Packaging.Versioning;
+    using Sundew.Packaging.Versioning.Logging;
 
     internal sealed class PackagePublicationLogger
     {

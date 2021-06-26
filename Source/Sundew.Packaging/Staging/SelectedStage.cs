@@ -11,8 +11,6 @@ namespace Sundew.Packaging.Staging
     /// Represents the selected stage in which to push a package to.
     /// </summary>
     /// <seealso cref="Sundew.Packaging.Staging.Stage" />
-    /// <seealso cref="System.IEquatable{Sundew.Packaging.Staging.Stage}" />
-    /// <seealso cref="System.IEquatable{Sundew.Packaging.Staging.SelectedStage}" />
     public record SelectedStage : Stage
     {
         /// <summary>

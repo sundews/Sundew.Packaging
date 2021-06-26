@@ -13,7 +13,7 @@ namespace Sundew.Packaging.Tool.Push
     using global::NuGet.Commands;
     using global::NuGet.Common;
     using global::NuGet.Configuration;
-    using Sundew.Packaging.Tool.RegularExpression;
+    using Sundew.Packaging.RegularExpression;
     using Sundew.Packaging.Versioning.IO;
     using Sundew.Packaging.Versioning.NuGet.Configuration;
 

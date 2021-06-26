@@ -13,7 +13,6 @@ namespace Sundew.Packaging.Tool
     using Sundew.Base.Primitives.Computation;
     using Sundew.Base.Primitives.Time;
     using Sundew.CommandLine;
-    using Sundew.Packaging.Publish;
     using Sundew.Packaging.Tool.AwaitPublish;
     using Sundew.Packaging.Tool.Delete;
     using Sundew.Packaging.Tool.Diagnostics;
@@ -25,6 +24,7 @@ namespace Sundew.Packaging.Tool
     using Sundew.Packaging.Tool.Versioning;
     using Sundew.Packaging.Tool.Versioning.Logging;
     using Sundew.Packaging.Tool.Versioning.MsBuild;
+    using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Commands;
     using Sundew.Packaging.Versioning.Logging;
     using Sundew.Packaging.Versioning.NuGet.Configuration;

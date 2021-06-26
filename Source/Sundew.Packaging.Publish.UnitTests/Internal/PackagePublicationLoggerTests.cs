@@ -11,6 +11,7 @@ namespace Sundew.Packaging.Publish.UnitTests.Internal
     using FluentAssertions;
     using Moq;
     using Sundew.Base.Text;
+    using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Versioning;
     using Sundew.Packaging.Versioning.Logging;
     using Xunit;

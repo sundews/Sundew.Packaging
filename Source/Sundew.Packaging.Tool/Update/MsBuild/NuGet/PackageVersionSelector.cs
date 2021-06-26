@@ -12,7 +12,7 @@ namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet
     using System.Threading.Tasks;
     using global::NuGet.Versioning;
     using Sundew.Base.Collections;
-    using Sundew.Packaging.Tool.RegularExpression;
+    using Sundew.Packaging.RegularExpression;
 
     public class PackageVersionSelector
     {

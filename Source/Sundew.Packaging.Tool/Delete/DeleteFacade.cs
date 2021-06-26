@@ -14,7 +14,7 @@ namespace Sundew.Packaging.Tool.Delete
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-    using Sundew.Packaging.Tool.RegularExpression;
+    using Sundew.Packaging.RegularExpression;
 
     public class DeleteFacade
     {

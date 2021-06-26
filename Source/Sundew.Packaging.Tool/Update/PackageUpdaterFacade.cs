@@ -13,8 +13,8 @@ namespace Sundew.Packaging.Tool.Update
     using System.IO.Abstractions;
     using System.Linq;
     using System.Threading.Tasks;
+    using Sundew.Packaging.RegularExpression;
     using Sundew.Packaging.Tool.Diagnostics;
-    using Sundew.Packaging.Tool.RegularExpression;
     using Sundew.Packaging.Tool.Update.MsBuild;
     using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
 
