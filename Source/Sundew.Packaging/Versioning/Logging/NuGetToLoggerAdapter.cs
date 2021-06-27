@@ -13,7 +13,6 @@ namespace Sundew.Packaging.Versioning.Logging
     /// <summary>
     /// Adapts NuGet log messages to MSBuild.
     /// </summary>
-    /// <seealso cref="NuGet.Common.ILogger" />
     public class NuGetToLoggerAdapter : global::NuGet.Common.ILogger
     {
         private readonly Versioning.Logging.ILogger log;

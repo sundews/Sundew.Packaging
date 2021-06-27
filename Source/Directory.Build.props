@@ -12,6 +12,8 @@
    <PackageProjectUrl>https://github.com/hugener/Sundew.Packaging</PackageProjectUrl>
    <RepositoryType>git</RepositoryType>
    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+   <WarningsAsErrors />
  </PropertyGroup>
  <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')"/>
 </Project>

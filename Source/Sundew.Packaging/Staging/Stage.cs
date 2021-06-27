@@ -14,7 +14,6 @@ namespace Sundew.Packaging.Staging
     /// <summary>
     /// Defines how packages should be versioned for a source.
     /// </summary>
-    /// <seealso cref="System.IEquatable{Sundew.Packaging.Staging.Stage}" />
     public record Stage
     {
         internal const string ConfigText = "config";

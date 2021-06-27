@@ -12,7 +12,6 @@ namespace Sundew.Packaging.Tool.Versioning
     using System.Threading.Tasks;
     using global::NuGet.Versioning;
     using Sundew.Base.Primitives.Time;
-    using Sundew.Packaging.Publish.Internal;
     using Sundew.Packaging.Source;
     using Sundew.Packaging.Staging;
     using Sundew.Packaging.Tool.Versioning.MsBuild;

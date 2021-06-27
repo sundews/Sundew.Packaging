@@ -23,8 +23,6 @@
 1.x - Initial release
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Release-Stable</Configurations>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
     <SppLocalPackageStage>pre</SppLocalPackageStage>
@@ -41,7 +39,7 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" />
     <PackageReference Include="NuGet.Commands" Version="5.10.0" />
     <PackageReference Include="NuGet.Protocol" Version="5.10.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

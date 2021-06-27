@@ -14,8 +14,8 @@ namespace Sundew.Packaging.Tool.PruneLocalSource
     using System.Linq;
     using System.Threading.Tasks;
     using global::NuGet.Common;
+    using Sundew.Packaging.RegularExpression;
     using Sundew.Packaging.Tool.NuGet;
-    using Sundew.Packaging.Tool.RegularExpression;
 
     public class PruneAllFacade
     {

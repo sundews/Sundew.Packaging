@@ -10,6 +10,7 @@ Sundew.Packaging.Publish is an automatic package publisher that can work standal
 - Customizable publish for CI based on development, integration, production stages
 - Automated patch and prerelease versioning
 - Local debug support
+- Local Paket support with PaketLocalUpdate tool: 
 
 ## **2. Setup**
 Sundew.Packaging.Publish is available on NuGet at: https://www.nuget.org/packages/Sundew.Packaging.Publish
@@ -82,7 +83,7 @@ All three follow the format:
   - **{4,Postfix}** - Postfix (The value of the optional Postfix group in the SourceMatcherRegex)
   - **{5,Metadata}** - Metadata
   - **{6,Parameter}** - The value of the SppParameter MSBuild property (Can be used to pass in a git hash etc.)
-  The following command can be used to get the short hash and send it to a GitHub Action output using git and [CommandlineBatcher](https://github.com/hugener/CommandlineBatcher) (cb).
+  The following command can be used to get the short hash and send it to a GitHub Action output using git and [CommandlineBatcher](https://github.com/sundews/CommandlineBatcher) (cb).
 ```git rev-parse --short=10 HEAD | cb -c "|::set-output name=git_hash::{0}" --batches-stdin```
 
 Leading and trailing dashes "-" will be trimmed.
@@ -213,24 +214,24 @@ The combination of build output and disabling publication allows to override the
 - Use the standard NuGet client
 
 Performing package updates in large repositories can take a long time with the default NuGet client. As an alternative check out Sundew.Packaging.Tool:
-- Sundew.Packaging.Tool (PackageReference only) - https://github.com/hugener/Sundew.Packaging.Tool
+- Sundew.Packaging.Tool (PackageReference only) - https://github.com/sundews/Sundew.Packaging
 
 dotnet tool install -g Sundew.Packaging.Tool
 
 ## **8. Samples**
 The projects listed at the link below use Sundew.Packaging.Publish to automate publishing packages for various stages and tag stable versions in git:  
-https://github.com/hugener/builds
+https://github.com/sundews/builds
 
 **GitHub flow workflow (Libraries and frameworks)**  
 Also compatible with git flow for more manual control over the release process
-https://github.com/hugener/Sundew.Generator/blob/main/.github/workflows/dotnet.yml
+https://github.com/sundews/Sundew.Generator/blob/main/.github/workflows/dotnet.yml
 
-https://github.com/hugener/Sundew.CommandLine/blob/main/.github/workflows/dotnet.yml
+https://github.com/sundews/Sundew.CommandLine/blob/main/.github/workflows/dotnet.yml
 
 **(Scaled) Trunk based development workflow (Applications)**
-https://github.com/hugener/CommandlineBatcher/blob/main/.github/workflows/dotnet.yml
+https://github.com/sundews/CommandlineBatcher/blob/main/.github/workflows/dotnet.yml
 
-https://github.com/hugener/Sundew.Packaging.Tool/blob/main/.github/workflows/dotnet.yml
+https://github.com/sundews/Sundew.Packaging/blob/main/.github/workflows/dotnet.yml
 
 # **Sundew.Packaging.Tool**
 
@@ -240,6 +241,7 @@ https://github.com/hugener/Sundew.Packaging.Tool/blob/main/.github/workflows/dot
 * Prune NuGet packages from a local source.
 
 ## **2. Install**
+Sundew.Packaging.Tool is available on NuGet at: https://www.nuget.org/packages/Sundew.Packaging.Tool
 dotnet tool install -g Sundew.Packaging.Tool
 
 ## **3. Usage**
@@ -322,9 +324,39 @@ Await
 1. ```spt await TransparentMoq.4.16.2``` - Awaits TransparentMoq.4.0.0 to be published to the default push source.
 2. ```spt a -s MySource TransparentMoq.4.16.2``` - Awaits TransparentMoq.4.0.0 to be published to the source named MySource.
 3. ```spt a -t 60 TransparentMoq.4.16.2``` - Awaits TransparentMoq.4.0.0 to be published to the default push source, but times out after one minute.
-4. ```spt``` used with Sundew.Packaging.Publish to ensure that another stable build does not run until packages are published https://github.com/hugener/Sundew.Generator/blob/main/.github/workflows/dotnet.yml
+4. ```spt``` used with Sundew.Packaging.Publish to ensure that another stable build does not run until packages are published https://github.com/sundews/Sundew.Generator/blob/main/.github/workflows/dotnet.yml
 
 Prune
 1. ```spt prune all``` - Prunes the all packages in the default local source.
 2. ```spt p all -p Serilog* -s MySource``` - Prunes all packages starting with Serilog from the source named MySource.
 3. ```spt p all -p TransparentMoq``` - Prunes all TransparentMoq packages from the default local source.
+
+# **PaketLocalUpdate**
+
+## **1. Description**
+If you are using paket as a NuGet Client, working with local packages are not supported for SDK-style projects.
+PaketLocalUpdate (plu) works around this limitation allowing you to work with local packages through the following steps:
+
+1. Temporarily updates your paket.dependencies file:
+2. Adds the specified local source (Default the NuGet configured Local-SPP)
+3. Marks the specified packages as prerelease
+4. Runs a paket update
+5. Reverts paket.dependencies file
+
+Attention! Do not commit your paket.lock file with local dependencies!
+
+## **2. Install**
+PaketLocalUpdate is available on NuGet at: https://www.nuget.org/packages/PaketLocalUpdate
+dotnet tool install -g PaketLocalUpdate
+
+## **3. Usage**
+```
+Help
+ Arguments:      Update and restore local packages without paket.local files
+  -s | --source  | The local source or its name to be temporarily added to search for packages | Default: Local-SPP
+  -g | --group   | The group name                                                              | Default: Main
+  -V | --version | The version constraint                                                      | Default: [none]
+  -f | --filter  | Specifies whether the package id should be treated as a regex
+  -v | --verbose | Enable verbose logging
+  <package-id>   | Package id or pattern                                                       | Default: *
+```
