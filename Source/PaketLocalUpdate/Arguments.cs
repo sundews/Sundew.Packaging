@@ -20,7 +20,7 @@ namespace PaketLocalUpdate
         /// Initializes a new instance of the <see cref="Arguments"/> class.
         /// </summary>
         public Arguments()
-         : this(string.Empty)
+         : this(null)
         {
         }
 
@@ -33,9 +33,9 @@ namespace PaketLocalUpdate
         /// <param name="version">The version.</param>
         /// <param name="isFilter">if set to <c>true</c> [is filter].</param>
         /// <param name="isVerbose">if set to <c>true</c> [is verbose].</param>
-        public Arguments(string packageId, string? source = null, string? group = null, string? version = null, bool isFilter = false, bool isVerbose = false)
+        public Arguments(string? packageId = null, string? source = null, string? group = null, string? version = null, bool isFilter = false, bool isVerbose = false)
         {
-            this.PackageId = packageId;
+            this.PackageId = packageId ?? "*";
             this.Source = source ?? PackageSources.DefaultLocalSourceName;
             this.Group = @group ?? "Main";
             this.Version = version;
@@ -108,9 +108,9 @@ namespace PaketLocalUpdate
             argumentsBuilder.AddOptional("s", "source", () => this.Source, s => this.Source = s, @"The local source or its name to be temporarily added to search for packages.");
             argumentsBuilder.AddOptional("g", "group", () => this.Group, s => this.Group = s, "The group name");
             argumentsBuilder.AddOptional("V", "version", () => this.Version, s => this.Version = s, "The version constraint");
-            argumentsBuilder.AddSwitch("f", "filter", this.IsFilter, b => this.IsFilter = b, "Specifies whether the package id should be treated as a regex.");
-            argumentsBuilder.AddSwitch("v", "verbose", this.IsVerbose, b => this.IsVerbose = b, "Verbose logging.");
-            argumentsBuilder.AddRequiredValue("package-id", () => this.PackageId, s => this.PackageId = s, "Package id or pattern");
+            argumentsBuilder.AddSwitch("f", "filter", this.IsFilter, b => this.IsFilter = b, "Specifies whether the package id should be treated as a regex");
+            argumentsBuilder.AddSwitch("v", "verbose", this.IsVerbose, b => this.IsVerbose = b, "Enable verbose logging");
+            argumentsBuilder.AddOptionalValue("package-id", () => this.PackageId, s => this.PackageId = s, "Package id or pattern");
         }
     }
 }

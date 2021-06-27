@@ -41,6 +41,13 @@ namespace PaketLocalUpdate
         {
             var updateFacade = new UpdateFacade(new NuGetSettingsInitializationCommand());
             await updateFacade.Update(arg);
+            Console.WriteLine(string.Empty);
+            var color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("Attention!");
+            Console.WriteLine("Make sure you do not commit your paket.lock file with local dependencies");
+            Console.WriteLine("Run paket install to get paket.lock back or make sure you have updated dependencies to non-local versions");
+            Console.ForegroundColor = color;
             return Result.Success(0);
         }
     }
