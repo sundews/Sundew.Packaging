@@ -25,7 +25,11 @@ There are two ways to disable the automatic publishing.
 Local builds are NuGet packages that are deployed to the local machine. This allows the packages to be consumed instantenously by other projects.
 
 ### **3.1 Setting up local builds**
-Once installed, Sundew.Packaging.Publish will start producing local builds and output them to the default local source: **(%LocalAppData%\Sundew.Packaging.Publish\packages)**.
+Sundew.Packaging.Publish produced local builds and outputs them to the default local source: **(%LocalAppData%\Sundew.Packaging.Publish\packages)**.
+The are a number of ways to enable local builds
+1. Place an empty SppWorkLocally.user in the solution directory (Should not be checked in).
+2. Set the MSBuild property SppWorkLocally to true in a .props.user file (Should not be checked in).
+3. If GeneratePackageOnBuild is explicitly set to true, local builds are enabled.
 
 ### **3.2 Local source from NuGet.config**
 NuGet.config provides a hierarical way of configuring NuGet from the local solution folder to the machinewide settings.  
