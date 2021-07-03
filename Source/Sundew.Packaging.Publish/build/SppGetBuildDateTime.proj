@@ -10,7 +10,7 @@
     AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
 
   <Target Name="_SppGetBuildDateTime" Outputs="@(SppBuildInfoFile)">
-    <GetBuildDateTimeTask SolutionDir="$(SolutionDir)" BuildInfoFilePath="$(_SppBuildInfoFilePath)" PackageVersionsPath="$(_SppPackageVersionsPath)"/>
+    <GetBuildDateTimeTask SolutionDir="$(_SppSolutionDir)" BuildInfoFilePath="$(_SppBuildInfoFilePath)" PackageVersionsPath="$(_SppPackageVersionsPath)"/>
     <ItemGroup>
       <SppBuildInfoFile Include="$(_SppBuildInfoFilePath)"/>
     </ItemGroup>

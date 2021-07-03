@@ -2,6 +2,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SPP'))">
     <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <_SppSolutionDir>$(SolutionDir)</_SppSolutionDir>
+    <_SppSolutionDir Condition="'$(_SppSolutionDir)' == '' OR '$(_SppSolutionDir)' == '*Undefined*'">$(MSBuildStartupDirectory)</_SppSolutionDir>
+    <SppWorkLocally Condition="'$(SppWorkLocally)' == '' AND Exists('$(_SppSolutionDir)SppWorkLocally.user')">True</SppWorkLocally>
     <GeneratePackageOnBuild Condition="'$(SppWorkLocally)'=='True'">True</GeneratePackageOnBuild>
     <SppAllowLocalSource Condition="'$(SppAllowLocalSource)'==''">True</SppAllowLocalSource>
     <SppAllowLocalSource Condition="'$(ContinuousIntegrationBuild)'=='True' OR '$(SppWorkLocally)'=='False'">False</SppAllowLocalSource>
@@ -47,7 +50,7 @@
           Condition="'$(_SppEnableTargets)' == 'true' AND '$(IsInnerBuild)' != 'true'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\build\SppGetBuildDateTime.proj"
              Targets="_SppGetBuildDateTime" 
-             Properties="_SppPackageVersionsPath=$(_SppPackageVersionsPath); _SppBuildInfoFilePath=$(_SppBuildInfoFilePath); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)"
+             Properties="_SppPackageVersionsPath=$(_SppPackageVersionsPath); _SppBuildInfoFilePath=$(_SppBuildInfoFilePath); _SppSolutionDir=$(_SppSolutionDir); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)"
              RemoveProperties="TargetFramework;Platform" >
       <Output ItemName="_SppBuildDateTimeFile" TaskParameter="TargetOutputs"/>
     </MSBuild>
@@ -58,7 +61,7 @@
           BeforeTargets="PrepareForBuild;DispatchToInnerBuilds"
           Condition="'$(_SppEnableTargets)' == 'true'">
     <PreparePublishTask
-                 SolutionDir="$(SolutionDir)"
+                 SolutionDir="$(_SppSolutionDir)"
                  BuildInfoFilePath="$(_SppBuildInfoFilePath)"
                  PublishInfoFilePath="$(_SppPublishInfoFilePath)"
                  VersionFilePath="$(_SppPackageVersionFilePath)"
@@ -112,7 +115,7 @@
           AfterTargets="Pack" 
           Condition="'$(_SppEnableTargets)' == 'true' AND '$(IsPackable)' != 'false' AND '$(IsPublishable)' != 'false'">
     <PublishTask
-                 SolutionDir="$(SolutionDir)"
+                 SolutionDir="$(_SppSolutionDir)"
                  PublishInfoFilePath="$(_SppPublishInfoFilePath)"
                  ProjectDir="$(MSBuildProjectDirectory)"
                  PackageId="$(PackageId)"
