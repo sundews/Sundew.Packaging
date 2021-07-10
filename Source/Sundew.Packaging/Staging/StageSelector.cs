@@ -153,7 +153,7 @@ namespace Sundew.Packaging.Staging
                     fallbackPrereleaseFormat,
                     Array.Empty<string>(),
                     properties,
-                    allowLocalSource,
+                    allowLocalSource && isSourcePublishEnabled,
                     allowLocalSource && isSourcePublishEnabled),
                 prereleasePrefix,
                 prereleasePostfix);
