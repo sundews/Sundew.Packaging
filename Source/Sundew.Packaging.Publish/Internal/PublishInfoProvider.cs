@@ -53,7 +53,7 @@ namespace Sundew.Packaging.Publish.Internal
         public PublishInfo Read(string publishInfoFilePath)
         {
             var publishInfoText = this.fileSystem.ReadAllText(publishInfoFilePath!);
-            var publishInfo = JsonConvert.DeserializeObject<PublishInfo>(publishInfoText);
+            var publishInfo = JsonConvert.DeserializeObject<PublishInfo>(publishInfoText)!;
             this.logger.LogInfo($"Read publish info: Stage: {publishInfo.Stage}, Feed: {publishInfo.FeedSource}, PushSource: {publishInfo.PushSource}, IsEnabled: {publishInfo.IsEnabled} from {publishInfoFilePath}");
             return publishInfo;
         }

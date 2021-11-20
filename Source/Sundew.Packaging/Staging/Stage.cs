@@ -268,7 +268,7 @@ namespace Sundew.Packaging.Staging
                     prereleaseFormat = prereleaseFormatGroup.Value;
                 }
 
-                Dictionary<string, string> properties = new Dictionary<string, string>();
+                var properties = new Dictionary<string, string>();
                 FillPropertiesFromMatch(properties, match);
 
                 return new Stage(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled);

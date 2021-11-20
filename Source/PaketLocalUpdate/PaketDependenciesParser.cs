@@ -20,7 +20,7 @@ namespace PaketLocalUpdate
         private const string Source = "source";
         private const string Group = "group";
         private const string Main = "Main";
-        private static readonly Regex DependenciesRegex = new Regex(@"^(?:(?: *group )(?<group>[\w]+)\s?|(?: *nuget )(?<package>\S+) *(?<prerelease>prerelease)?\S*\s?|(?<source> *source \S+)\s?)$", RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        private static readonly Regex DependenciesRegex = new(@"^(?:(?: *group )(?<group>[\w]+)\s?|(?: *nuget )(?<package>\S+) *(?<prerelease>prerelease)?\S*\s?|(?<source> *source \S+)\s?)$", RegexOptions.Multiline | RegexOptions.ExplicitCapture);
 
         /// <summary>
         /// Parses the specified file content.
