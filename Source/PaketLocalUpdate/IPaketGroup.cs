@@ -5,29 +5,28 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace PaketLocalUpdate
+namespace PaketLocalUpdate;
+
+using System.Collections.Generic;
+
+/// <summary>
+/// A paket group containing sources and packages.
+/// </summary>
+public interface IPaketGroup
 {
-    using System.Collections.Generic;
+    /// <summary>
+    /// Gets the sources.
+    /// </summary>
+    /// <value>
+    /// The sources.
+    /// </value>
+    IReadOnlyList<Source> Sources { get; }
 
     /// <summary>
-    /// A paket group containing sources and packages.
+    /// Gets the packages.
     /// </summary>
-    public interface IPaketGroup
-    {
-        /// <summary>
-        /// Gets the sources.
-        /// </summary>
-        /// <value>
-        /// The sources.
-        /// </value>
-        IReadOnlyList<Source> Sources { get; }
-
-        /// <summary>
-        /// Gets the packages.
-        /// </summary>
-        /// <value>
-        /// The packages.
-        /// </value>
-        IReadOnlyList<Package> Packages { get; }
-    }
+    /// <value>
+    /// The packages.
+    /// </value>
+    IReadOnlyList<Package> Packages { get; }
 }

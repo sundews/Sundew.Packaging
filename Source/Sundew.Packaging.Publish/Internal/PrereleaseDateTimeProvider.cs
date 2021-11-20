@@ -5,49 +5,48 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal
+namespace Sundew.Packaging.Publish.Internal;
+
+using System;
+using System.Globalization;
+using Sundew.Base.Primitives.Time;
+using Sundew.Packaging.Versioning.IO;
+using Sundew.Packaging.Versioning.Logging;
+
+internal class PrereleaseDateTimeProvider
 {
-    using System;
-    using System.Globalization;
-    using Sundew.Base.Primitives.Time;
-    using Sundew.Packaging.Versioning.IO;
-    using Sundew.Packaging.Versioning.Logging;
+    internal const string UniversalDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";
+    private readonly IFileSystem fileSystem;
+    private readonly IDateTime dateTime;
+    private readonly ILogger logger;
 
-    internal class PrereleaseDateTimeProvider
+    public PrereleaseDateTimeProvider(IFileSystem fileSystem, IDateTime dateTime, ILogger logger)
     {
-        internal const string UniversalDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";
-        private readonly IFileSystem fileSystem;
-        private readonly IDateTime dateTime;
-        private readonly ILogger logger;
+        this.fileSystem = fileSystem;
+        this.dateTime = dateTime;
+        this.logger = logger;
+    }
 
-        public PrereleaseDateTimeProvider(IFileSystem fileSystem, IDateTime dateTime, ILogger logger)
+    public DateTime GetBuildDateTime(string buildInfoFilePath)
+    {
+        if (this.fileSystem.FileExists(buildInfoFilePath))
         {
-            this.fileSystem = fileSystem;
-            this.dateTime = dateTime;
-            this.logger = logger;
+            var dateTimeText = this.fileSystem.ReadAllText(buildInfoFilePath);
+            this.logger.LogInfo($"SPP: Using preset DateTime: {dateTimeText} from {buildInfoFilePath}");
+            return DateTime.ParseExact(dateTimeText, UniversalDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
         }
 
-        public DateTime GetBuildDateTime(string buildInfoFilePath)
-        {
-            if (this.fileSystem.FileExists(buildInfoFilePath))
-            {
-                var dateTimeText = this.fileSystem.ReadAllText(buildInfoFilePath);
-                this.logger.LogInfo($"SPP: Using preset DateTime: {dateTimeText} from {buildInfoFilePath}");
-                return DateTime.ParseExact(dateTimeText, UniversalDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-            }
+        var dateTime = this.dateTime.UtcNow;
+        this.logger.LogInfo($"SPP: Using DateTime.UtcNow: {dateTime}");
+        return dateTime;
+    }
 
-            var dateTime = this.dateTime.UtcNow;
-            this.logger.LogInfo($"SPP: Using DateTime.UtcNow: {dateTime}");
-            return dateTime;
-        }
-
-        public DateTime SaveBuildDateTime(string buildInfoFilePath)
-        {
-            var dateTime = this.dateTime.UtcNow;
-            var dateTimeText = dateTime.ToString(UniversalDateTimeFormat, CultureInfo.InvariantCulture);
-            this.fileSystem.WriteAllText(buildInfoFilePath, dateTimeText);
-            this.logger.LogImportant($"Wrote build time: {dateTimeText} to {buildInfoFilePath}");
-            return dateTime;
-        }
+    public DateTime SaveBuildDateTime(string buildInfoFilePath)
+    {
+        var dateTime = this.dateTime.UtcNow;
+        var dateTimeText = dateTime.ToString(UniversalDateTimeFormat, CultureInfo.InvariantCulture);
+        this.fileSystem.WriteAllText(buildInfoFilePath, dateTimeText);
+        this.logger.LogImportant($"Wrote build time: {dateTimeText} to {buildInfoFilePath}");
+        return dateTime;
     }
 }

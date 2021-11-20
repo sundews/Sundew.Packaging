@@ -5,118 +5,117 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Versioning
+namespace Sundew.Packaging.Tool.Versioning;
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using Sundew.Base.Memory;
+using Sundew.Base.Text;
+using Sundew.Packaging.Versioning;
+using Sundew.Packaging.Versioning.IO;
+
+/// <summary>
+/// Logs information about a package version.
+/// </summary>
+public sealed class PackageVersionLogger
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Text;
-    using Sundew.Base.Memory;
-    using Sundew.Base.Text;
-    using Sundew.Packaging.Versioning;
-    using Sundew.Packaging.Versioning.IO;
+    private const string DoubleQuotes = @"""";
+    private const string IndicesContainedNullValues = "The following indices contained null values: ";
+    private const string UnknownNames = "The following name(s) where not found: ";
+    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
+    private readonly IStageBuildLogger logger;
 
     /// <summary>
-    /// Logs information about a package version.
+    /// Initializes a new instance of the <see cref="PackageVersionLogger" /> class.
     /// </summary>
-    public sealed class PackageVersionLogger
+    /// <param name="logger">The logger.</param>
+    public PackageVersionLogger(IStageBuildLogger logger)
     {
-        private const string DoubleQuotes = @"""";
-        private const string IndicesContainedNullValues = "The following indices contained null values: ";
-        private const string UnknownNames = "The following name(s) where not found: ";
-        private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
-        private readonly IStageBuildLogger logger;
+        this.logger = logger;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PackageVersionLogger" /> class.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        public PackageVersionLogger(IStageBuildLogger logger)
+    /// <summary>
+    /// Logs the specified log formats.
+    /// </summary>
+    /// <param name="logFormats">The log formats.</param>
+    /// <param name="packageId">The package identifier.</param>
+    /// <param name="publishInfo">The publish information.</param>
+    /// <param name="workingDirectory">The working directory.</param>
+    /// <param name="parameter">The parameter.</param>
+    /// <param name="properties">The properties.</param>
+    public void Log(
+        IReadOnlyList<string>? logFormats,
+        string packageId,
+        PublishInfo publishInfo,
+        string workingDirectory,
+        string parameter,
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (logFormats == null)
         {
-            this.logger = logger;
+            return;
         }
 
-        /// <summary>
-        /// Logs the specified log formats.
-        /// </summary>
-        /// <param name="logFormats">The log formats.</param>
-        /// <param name="packageId">The package identifier.</param>
-        /// <param name="publishInfo">The publish information.</param>
-        /// <param name="workingDirectory">The working directory.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="properties">The properties.</param>
-        public void Log(
-            IReadOnlyList<string>? logFormats,
-            string packageId,
-            PublishInfo publishInfo,
-            string workingDirectory,
-            string parameter,
-            IReadOnlyDictionary<string, string>? properties)
+        var valueBuffer = new Buffer<object?>(LogNames.Length + properties?.Count ?? 0);
+        valueBuffer.Write(packageId);
+        valueBuffer.Write(publishInfo.Version);
+        valueBuffer.Write(publishInfo.FullVersion);
+        valueBuffer.Write(publishInfo.Stage);
+        valueBuffer.Write(publishInfo.VersionStage);
+        valueBuffer.Write(publishInfo.PushSource);
+        valueBuffer.Write(publishInfo.ApiKey);
+        valueBuffer.Write(publishInfo.FeedSource);
+        valueBuffer.Write(publishInfo.SymbolsPushSource);
+        valueBuffer.Write(publishInfo.SymbolsApiKey);
+        valueBuffer.Write(publishInfo.Metadata);
+        valueBuffer.Write(workingDirectory);
+        valueBuffer.Write(parameter);
+        valueBuffer.Write(DoubleQuotes);
+        valueBuffer.Write(Environment.NewLine);
+        var logNames = LogNames.ToList();
+        if (properties != null)
         {
-            if (logFormats == null)
+            foreach (var property in properties)
             {
-                return;
-            }
-
-            var valueBuffer = new Buffer<object?>(LogNames.Length + properties?.Count ?? 0);
-            valueBuffer.Write(packageId);
-            valueBuffer.Write(publishInfo.Version);
-            valueBuffer.Write(publishInfo.FullVersion);
-            valueBuffer.Write(publishInfo.Stage);
-            valueBuffer.Write(publishInfo.VersionStage);
-            valueBuffer.Write(publishInfo.PushSource);
-            valueBuffer.Write(publishInfo.ApiKey);
-            valueBuffer.Write(publishInfo.FeedSource);
-            valueBuffer.Write(publishInfo.SymbolsPushSource);
-            valueBuffer.Write(publishInfo.SymbolsApiKey);
-            valueBuffer.Write(publishInfo.Metadata);
-            valueBuffer.Write(workingDirectory);
-            valueBuffer.Write(parameter);
-            valueBuffer.Write(DoubleQuotes);
-            valueBuffer.Write(Environment.NewLine);
-            var logNames = LogNames.ToList();
-            if (properties != null)
-            {
-                foreach (var property in properties)
-                {
-                    logNames.Add(property.Key);
-                    valueBuffer.Write(property.Value);
-                }
-            }
-
-            foreach (var logFormat in logFormats)
-            {
-                var (log, isValid) = Format(logFormat.ToString(), logNames, valueBuffer.ToArray());
-                if (isValid)
-                {
-                    this.logger.ReportMessage(log);
-                }
-                else
-                {
-                    this.logger.ReportMessage(log);
-                }
+                logNames.Add(property.Key);
+                valueBuffer.Write(property.Value);
             }
         }
 
-        internal static (string Log, bool IsValid) Format(
-            string logFormat,
-            IReadOnlyList<string> logNames,
-            object?[] arguments)
+        foreach (var logFormat in logFormats)
         {
-            const string separator = ", ";
-            if (NamedFormatString.TryCreate(logFormat, logNames, out var namedFormatString, out var unknownNames))
+            var (log, isValid) = Format(logFormat.ToString(), logNames, valueBuffer.ToArray());
+            if (isValid)
             {
-                var nullArguments = namedFormatString.GetNullArguments(arguments);
-                if (nullArguments.Count > 0)
-                {
-                    return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
-                }
+                this.logger.ReportMessage(log);
+            }
+            else
+            {
+                this.logger.ReportMessage(log);
+            }
+        }
+    }
 
-                return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);
+    internal static (string Log, bool IsValid) Format(
+        string logFormat,
+        IReadOnlyList<string> logNames,
+        object?[] arguments)
+    {
+        const string separator = ", ";
+        if (NamedFormatString.TryCreate(logFormat, logNames, out var namedFormatString, out var unknownNames))
+        {
+            var nullArguments = namedFormatString.GetNullArguments(arguments);
+            if (nullArguments.Count > 0)
+            {
+                return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
             }
 
-            return (unknownNames.JoinToStringBuilder(new StringBuilder(UnknownNames), (builder, name) => builder.Append(name), separator).ToString(), false);
+            return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);
         }
+
+        return (unknownNames.JoinToStringBuilder(new StringBuilder(UnknownNames), (builder, name) => builder.Append(name), separator).ToString(), false);
     }
 }

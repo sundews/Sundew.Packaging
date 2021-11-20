@@ -5,19 +5,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Versioning.MsBuild
+namespace Sundew.Packaging.Tool.Versioning.MsBuild;
+
+/// <summary>
+/// Provides info about a package.
+/// </summary>
+public interface IProjectPackageInfoProvider
 {
     /// <summary>
-    /// Provides info about a package.
+    /// Gets the package information.
     /// </summary>
-    public interface IProjectPackageInfoProvider
-    {
-        /// <summary>
-        /// Gets the package information.
-        /// </summary>
-        /// <param name="projectPath">The project path.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <returns>The package info.</returns>
-        ProjectPackageInfo GetPackageInfo(string projectPath, string? configuration);
-    }
+    /// <param name="projectPath">The project path.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <returns>The package info.</returns>
+    ProjectPackageInfo GetPackageInfo(string projectPath, string? configuration);
 }

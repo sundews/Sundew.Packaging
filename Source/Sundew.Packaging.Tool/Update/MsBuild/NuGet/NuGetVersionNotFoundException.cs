@@ -5,24 +5,23 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet
+namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using global::NuGet.Versioning;
+using Sundew.Base.Collections;
+
+internal class NuGetVersionNotFoundException : Exception
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using global::NuGet.Versioning;
-    using Sundew.Base.Collections;
-
-    internal class NuGetVersionNotFoundException : Exception
+    public NuGetVersionNotFoundException(string packageId, string versionPattern, bool allowPrerelease, IReadOnlyList<NuGetVersion> versions)
+        : base(FormattableString.Invariant($"Could not find {packageId} version matching the pattern: {versionPattern} ({(allowPrerelease ? "prerelease allowed" : "no prereleases")}) in the available versions:{GetVersions(versions)}"))
     {
-        public NuGetVersionNotFoundException(string packageId, string versionPattern, bool allowPrerelease, IReadOnlyList<NuGetVersion> versions)
-            : base(FormattableString.Invariant($"Could not find {packageId} version matching the pattern: {versionPattern} ({(allowPrerelease ? "prerelease allowed" : "no prereleases")}) in the available versions:{GetVersions(versions)}"))
-        {
-        }
+    }
 
-        private static string GetVersions(IReadOnlyList<NuGetVersion> versions)
-        {
-            return versions.AggregateToStringBuilder(new StringBuilder().AppendLine(), (builder, version) => builder.AppendLine(version.ToFullString())).ToString();
-        }
+    private static string GetVersions(IReadOnlyList<NuGetVersion> versions)
+    {
+        return versions.AggregateToStringBuilder(new StringBuilder().AppendLine(), (builder, version) => builder.AppendLine(version.ToFullString())).ToString();
     }
 }

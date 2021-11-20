@@ -5,30 +5,29 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Tests
+namespace Sundew.Packaging.Tool.Tests;
+
+using System.Linq;
+using FluentAssertions;
+using NSpec;
+using NSpec.Domain;
+using NSpec.Domain.Formatters;
+using NUnit.Framework;
+
+[TestFixture]
+public abstract class nspec : global::NSpec.nspec
 {
-    using System.Linq;
-    using FluentAssertions;
-    using NSpec;
-    using NSpec.Domain;
-    using NSpec.Domain.Formatters;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public abstract class nspec : global::NSpec.nspec
+    [Test]
+    public void debug()
     {
-        [Test]
-        public void debug()
-        {
-            var currentSpec = this.GetType();
-            var finder = new SpecFinder(new[] { currentSpec });
-            var filter = new Tags().Parse(currentSpec.Name);
-            var builder = new ContextBuilder(finder, filter, new DefaultConventions());
-            var runner = new ContextRunner(filter, new ConsoleFormatter(), false);
-            var results = runner.Run(builder.Contexts().Build());
+        var currentSpec = this.GetType();
+        var finder = new SpecFinder(new[] { currentSpec });
+        var filter = new Tags().Parse(currentSpec.Name);
+        var builder = new ContextBuilder(finder, filter, new DefaultConventions());
+        var runner = new ContextRunner(filter, new ConsoleFormatter(), false);
+        var results = runner.Run(builder.Contexts().Build());
 
-            // assert that there aren't any failures
-            results.Failures().Count().Should().Be(0);
-        }
+        // assert that there aren't any failures
+        results.Failures().Count().Should().Be(0);
     }
 }

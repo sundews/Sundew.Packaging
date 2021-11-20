@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet
-{
-    using global::NuGet.Versioning;
+namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet;
 
-    public interface IPackageVersionSelectorReporter
-    {
-        void PackageUpdateSelected(string packageId, NuGetVersion? oldNuGetVersion, NuGetVersion newNuGetVersion);
-    }
+using global::NuGet.Versioning;
+
+public interface IPackageVersionSelectorReporter
+{
+    void PackageUpdateSelected(string packageId, NuGetVersion? oldNuGetVersion, NuGetVersion newNuGetVersion);
 }

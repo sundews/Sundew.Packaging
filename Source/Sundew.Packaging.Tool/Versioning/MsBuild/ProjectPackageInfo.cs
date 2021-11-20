@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Versioning.MsBuild
-{
-    /// <summary>
-    /// The id and version for a package.
-    /// </summary>
-    public record ProjectPackageInfo(string PackageId, string PackageVersion);
-}
+namespace Sundew.Packaging.Tool.Versioning.MsBuild;
+
+/// <summary>
+/// The id and version for a package.
+/// </summary>
+public record ProjectPackageInfo(string PackageId, string PackageVersion);

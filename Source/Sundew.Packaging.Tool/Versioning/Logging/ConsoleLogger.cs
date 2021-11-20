@@ -5,36 +5,35 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Versioning.Logging
+namespace Sundew.Packaging.Tool.Versioning.Logging;
+
+using System;
+using Sundew.Packaging.Versioning.Logging;
+
+internal class ConsoleLogger : ILogger
 {
-    using System;
-    using Sundew.Packaging.Versioning.Logging;
-
-    internal class ConsoleLogger : ILogger
+    public void LogError(string message)
     {
-        public void LogError(string message)
-        {
-            Console.WriteLine(message);
-        }
+        Console.WriteLine(message);
+    }
 
-        public void LogImportant(string message)
-        {
-            Console.WriteLine(message);
-        }
+    public void LogImportant(string message)
+    {
+        Console.WriteLine(message);
+    }
 
-        public void LogInfo(string message)
-        {
-            Console.WriteLine(message);
-        }
+    public void LogInfo(string message)
+    {
+        Console.WriteLine(message);
+    }
 
-        public void LogMessage(string message)
-        {
-            Console.WriteLine(message);
-        }
+    public void LogMessage(string message)
+    {
+        Console.WriteLine(message);
+    }
 
-        public void LogWarning(string message)
-        {
-            Console.WriteLine(message);
-        }
+    public void LogWarning(string message)
+    {
+        Console.WriteLine(message);
     }
 }

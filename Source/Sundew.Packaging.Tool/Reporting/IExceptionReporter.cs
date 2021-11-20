@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Reporting
-{
-    using System;
+namespace Sundew.Packaging.Tool.Reporting;
 
-    public interface IExceptionReporter
-    {
-        void Exception(Exception exception);
-    }
+using System;
+
+public interface IExceptionReporter
+{
+    void Exception(Exception exception);
 }

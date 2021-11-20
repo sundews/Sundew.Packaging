@@ -5,17 +5,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Delete
+namespace Sundew.Packaging.Tool.Delete;
+
+using System;
+using Sundew.Packaging.Tool.Reporting;
+
+public interface IDeleteFacadeReporter : IExceptionReporter
 {
-    using System;
-    using Sundew.Packaging.Tool.Reporting;
+    void StartingDelete(string rootedFileSpecification);
 
-    public interface IDeleteFacadeReporter : IExceptionReporter
-    {
-        void StartingDelete(string rootedFileSpecification);
+    void Deleted(string file);
 
-        void Deleted(string file);
-
-        void CompletedDeleting(bool wasSuccessful, int numberFilesDeleted, TimeSpan stopwatchElapsed);
-    }
+    void CompletedDeleting(bool wasSuccessful, int numberFilesDeleted, TimeSpan stopwatchElapsed);
 }

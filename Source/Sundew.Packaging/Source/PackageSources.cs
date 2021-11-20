@@ -5,24 +5,23 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Source
+namespace Sundew.Packaging.Source;
+
+using System;
+using System.IO;
+
+/// <summary>
+/// Constants for Sundew.Packacking apps.
+/// </summary>
+public static class PackageSources
 {
-    using System;
-    using System.IO;
+    /// <summary>
+    /// The default local source name.
+    /// </summary>
+    public const string DefaultLocalSourceName = "Local-SPP";
 
     /// <summary>
-    /// Constants for Sundew.Packacking apps.
+    /// The default local source.
     /// </summary>
-    public static class PackageSources
-    {
-        /// <summary>
-        /// The default local source name.
-        /// </summary>
-        public const string DefaultLocalSourceName = "Local-SPP";
-
-        /// <summary>
-        /// The default local source.
-        /// </summary>
-        public static readonly string DefaultLocalSource = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sundew.Packaging.Publish"), "packages");
-    }
+    public static readonly string DefaultLocalSource = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sundew.Packaging.Publish"), "packages");
 }

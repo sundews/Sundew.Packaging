@@ -5,95 +5,94 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace PaketLocalUpdate
+namespace PaketLocalUpdate;
+
+using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Paket;
+using Sundew.Packaging.Versioning.IO;
+
+/// <summary>
+/// Injects a local source into paket.dependencies and applies prerelease tag to the specified packages if necessary.
+/// Reverts the change upon disposal.
+/// </summary>
+/// <seealso cref="System.IDisposable" />
+public class PaketDependenciesTemporarySourceInjector : IDisposable
 {
-    using System;
-    using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-    using Paket;
-    using Sundew.Packaging.Versioning.IO;
+    private const string Source = "source ";
+
+    private readonly string backupDependencies;
+    private readonly PaketDependenciesParser paketDependenciesParser;
+    private readonly IFileSystemAsync fileSystem;
 
     /// <summary>
-    /// Injects a local source into paket.dependencies and applies prerelease tag to the specified packages if necessary.
-    /// Reverts the change upon disposal.
+    /// Initializes a new instance of the <see cref="PaketDependenciesTemporarySourceInjector" /> class.
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
-    public class PaketDependenciesTemporarySourceInjector : IDisposable
+    /// <param name="dependencies">The dependencies.</param>
+    /// <param name="paketDependenciesParser">The paket dependencies parser.</param>
+    /// <param name="fileSystem">The file system.</param>
+    public PaketDependenciesTemporarySourceInjector(Dependencies dependencies, PaketDependenciesParser paketDependenciesParser, IFileSystemAsync fileSystem)
     {
-        private const string Source = "source ";
+        this.Dependencies = dependencies;
+        this.paketDependenciesParser = paketDependenciesParser;
+        this.fileSystem = fileSystem;
+        this.backupDependencies = dependencies.DependenciesFile + ".bak";
+    }
 
-        private readonly string backupDependencies;
-        private readonly PaketDependenciesParser paketDependenciesParser;
-        private readonly IFileSystemAsync fileSystem;
+    /// <summary>
+    /// Gets the dependencies.
+    /// </summary>
+    /// <value>
+    /// The dependencies.
+    /// </value>
+    public Dependencies Dependencies { get; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PaketDependenciesTemporarySourceInjector" /> class.
-        /// </summary>
-        /// <param name="dependencies">The dependencies.</param>
-        /// <param name="paketDependenciesParser">The paket dependencies parser.</param>
-        /// <param name="fileSystem">The file system.</param>
-        public PaketDependenciesTemporarySourceInjector(Dependencies dependencies, PaketDependenciesParser paketDependenciesParser, IFileSystemAsync fileSystem)
+    /// <summary>
+    /// Injects the specified source.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="packageId">The package identifier.</param>
+    /// <param name="group">The group.</param>
+    /// <returns>An async task.</returns>
+    public async Task Inject(string source, string packageId, string group)
+    {
+        this.fileSystem.Copy(this.Dependencies.DependenciesFile, this.backupDependencies, true);
+        var fileContent = await this.fileSystem.ReadAllTextAsync(this.Dependencies.DependenciesFile);
+        var paketDependencies = this.paketDependenciesParser.Parse(fileContent);
+        if (paketDependencies.TryGetValue(group, out var paketGroup))
         {
-            this.Dependencies = dependencies;
-            this.paketDependenciesParser = paketDependenciesParser;
-            this.fileSystem = fileSystem;
-            this.backupDependencies = dependencies.DependenciesFile + ".bak";
-        }
-
-        /// <summary>
-        /// Gets the dependencies.
-        /// </summary>
-        /// <value>
-        /// The dependencies.
-        /// </value>
-        public Dependencies Dependencies { get; }
-
-        /// <summary>
-        /// Injects the specified source.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="packageId">The package identifier.</param>
-        /// <param name="group">The group.</param>
-        /// <returns>An async task.</returns>
-        public async Task Inject(string source, string packageId, string group)
-        {
-            this.fileSystem.Copy(this.Dependencies.DependenciesFile, this.backupDependencies, true);
-            var fileContent = await this.fileSystem.ReadAllTextAsync(this.Dependencies.DependenciesFile);
-            var paketDependencies = this.paketDependenciesParser.Parse(fileContent);
-            if (paketDependencies.TryGetValue(group, out var paketGroup))
+            var stringBuilder = new StringBuilder(fileContent);
+            var packages = paketGroup.Packages.Where(x => Regex.IsMatch(x.Id, $"^{packageId}$"));
+            foreach (var package in packages.Reverse())
             {
-                var stringBuilder = new StringBuilder(fileContent);
-                var packages = paketGroup.Packages.Where(x => Regex.IsMatch(x.Id, $"^{packageId}$"));
-                foreach (var package in packages.Reverse())
+                if (!package.IsPrerelease)
                 {
-                    if (!package.IsPrerelease)
-                    {
-                        stringBuilder.Insert(package.PrereleaseIndex + package.PrereleaseLength, " prerelease");
-                    }
+                    stringBuilder.Insert(package.PrereleaseIndex + package.PrereleaseLength, " prerelease");
                 }
-
-                var beginningOfFirstSource = paketGroup.Sources.FirstOrDefault().Index;
-
-                if (beginningOfFirstSource > -1)
-                {
-                    stringBuilder.Insert(beginningOfFirstSource, $"{Source}{source}{Environment.NewLine}");
-                }
-
-                await this.fileSystem.WriteAllTextAsync(this.Dependencies.DependenciesFile, stringBuilder.ToString());
             }
-        }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            if (this.fileSystem.FileExists(this.backupDependencies))
+            var beginningOfFirstSource = paketGroup.Sources.FirstOrDefault().Index;
+
+            if (beginningOfFirstSource > -1)
             {
-                this.fileSystem.Copy(this.backupDependencies, this.Dependencies.DependenciesFile, true);
+                stringBuilder.Insert(beginningOfFirstSource, $"{Source}{source}{Environment.NewLine}");
             }
+
+            await this.fileSystem.WriteAllTextAsync(this.Dependencies.DependenciesFile, stringBuilder.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+        if (this.fileSystem.FileExists(this.backupDependencies))
+        {
+            this.fileSystem.Copy(this.backupDependencies, this.Dependencies.DependenciesFile, true);
         }
     }
 }

@@ -5,38 +5,37 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool
+namespace Sundew.Packaging.Tool;
+
+using System;
+using Sundew.CommandLine;
+
+/// <summary>
+/// Common command line options.
+/// </summary>
+public class CommonOptions
 {
-    using System;
-    using Sundew.CommandLine;
+    internal const string VersionGroupName = "Version";
 
     /// <summary>
-    /// Common command line options.
+    /// Adds the verbose.
     /// </summary>
-    public class CommonOptions
+    /// <param name="argumentsBuilder">The arguments builder.</param>
+    /// <param name="verbose">if set to <c>true</c> [verbose].</param>
+    /// <param name="setValue">The set value.</param>
+    public static void AddVerbose(IArgumentsBuilder argumentsBuilder, bool verbose, Action<bool> setValue)
     {
-        internal const string VersionGroupName = "Version";
+        argumentsBuilder.AddSwitch("v", "verbose", verbose, setValue, "Verbose");
+    }
 
-        /// <summary>
-        /// Adds the verbose.
-        /// </summary>
-        /// <param name="argumentsBuilder">The arguments builder.</param>
-        /// <param name="verbose">if set to <c>true</c> [verbose].</param>
-        /// <param name="setValue">The set value.</param>
-        public static void AddVerbose(IArgumentsBuilder argumentsBuilder, bool verbose, Action<bool> setValue)
-        {
-            argumentsBuilder.AddSwitch("v", "verbose", verbose, setValue, "Verbose");
-        }
-
-        /// <summary>
-        /// Adds the root directory.
-        /// </summary>
-        /// <param name="argumentsBuilder">The arguments builder.</param>
-        /// <param name="serialize">The serialize.</param>
-        /// <param name="deserialize">The deserialize.</param>
-        public static void AddRootDirectory(IArgumentsBuilder argumentsBuilder, Func<string?> serialize, Action<string> deserialize)
-        {
-            argumentsBuilder.AddOptional("d", "root-directory", serialize, deserialize, "The directory to search for projects", true, defaultValueText: "Current directory");
-        }
+    /// <summary>
+    /// Adds the root directory.
+    /// </summary>
+    /// <param name="argumentsBuilder">The arguments builder.</param>
+    /// <param name="serialize">The serialize.</param>
+    /// <param name="deserialize">The deserialize.</param>
+    public static void AddRootDirectory(IArgumentsBuilder argumentsBuilder, Func<string?> serialize, Action<string> deserialize)
+    {
+        argumentsBuilder.AddOptional("d", "root-directory", serialize, deserialize, "The directory to search for projects", true, defaultValueText: "Current directory");
     }
 }

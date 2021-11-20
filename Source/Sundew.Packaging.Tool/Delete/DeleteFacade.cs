@@ -5,75 +5,74 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Delete
+namespace Sundew.Packaging.Tool.Delete;
+
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Sundew.Packaging.RegularExpression;
+
+public class DeleteFacade
 {
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.IO.Abstractions;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-    using Sundew.Packaging.RegularExpression;
+    private const string AllFilesSearchPattern = "*.*";
+    private const string Directory = nameof(Directory);
+    private static readonly Regex DirectoryRegex = new(@"^[^*]*");
+    private readonly IFileSystem fileSystem;
+    private readonly IDeleteFacadeReporter deleteFacadeReporter;
 
-    public class DeleteFacade
+    public DeleteFacade(IFileSystem fileSystem, IDeleteFacadeReporter deleteFacadeReporter)
     {
-        private const string AllFilesSearchPattern = "*.*";
-        private const string Directory = nameof(Directory);
-        private static readonly Regex DirectoryRegex = new(@"^[^*]*");
-        private readonly IFileSystem fileSystem;
-        private readonly IDeleteFacadeReporter deleteFacadeReporter;
+        this.fileSystem = fileSystem;
+        this.deleteFacadeReporter = deleteFacadeReporter;
+    }
 
-        public DeleteFacade(IFileSystem fileSystem, IDeleteFacadeReporter deleteFacadeReporter)
+    public Task<int> Delete(DeleteVerb deleteVerb)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var numberFilesDeleted = 0;
+        try
         {
-            this.fileSystem = fileSystem;
-            this.deleteFacadeReporter = deleteFacadeReporter;
-        }
-
-        public Task<int> Delete(DeleteVerb deleteVerb)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            var numberFilesDeleted = 0;
-            try
+            var rootDirectory = deleteVerb.RootDirectory ?? this.fileSystem.Directory.GetCurrentDirectory();
+            foreach (var fileSpecification in deleteVerb.Files)
             {
-                var rootDirectory = deleteVerb.RootDirectory ?? this.fileSystem.Directory.GetCurrentDirectory();
-                foreach (var fileSpecification in deleteVerb.Files)
+                var rootedFileSpecification = Path.IsPathRooted(fileSpecification) ? fileSpecification : Path.Combine(rootDirectory, fileSpecification);
+                this.deleteFacadeReporter.StartingDelete(rootedFileSpecification);
+                var globRegex = GlobRegex.Create(rootedFileSpecification);
+                var match = DirectoryRegex.Match(Path.GetDirectoryName(globRegex.Glob) ?? string.Empty);
+                var directory = Path.TrimEndingDirectorySeparator(match.Value);
+                if (this.fileSystem.Directory.Exists(directory))
                 {
-                    var rootedFileSpecification = Path.IsPathRooted(fileSpecification) ? fileSpecification : Path.Combine(rootDirectory, fileSpecification);
-                    this.deleteFacadeReporter.StartingDelete(rootedFileSpecification);
-                    var globRegex = GlobRegex.Create(rootedFileSpecification);
-                    var match = DirectoryRegex.Match(Path.GetDirectoryName(globRegex.Glob) ?? string.Empty);
-                    var directory = Path.TrimEndingDirectorySeparator(match.Value);
-                    if (this.fileSystem.Directory.Exists(directory))
+                    var files = this.fileSystem.Directory
+                        .EnumerateFiles(
+                            directory,
+                            AllFilesSearchPattern,
+                            deleteVerb.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+                    foreach (var file in files.Where(x => globRegex.IsMatch(x)))
                     {
-                        var files = this.fileSystem.Directory
-                            .EnumerateFiles(
-                                directory,
-                                AllFilesSearchPattern,
-                                deleteVerb.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-                        foreach (var file in files.Where(x => globRegex.IsMatch(x)))
-                        {
-                            this.fileSystem.File.Delete(file);
-                            this.deleteFacadeReporter.Deleted(file);
-                            numberFilesDeleted++;
-                        }
+                        this.fileSystem.File.Delete(file);
+                        this.deleteFacadeReporter.Deleted(file);
+                        numberFilesDeleted++;
                     }
                 }
-
-                this.deleteFacadeReporter.CompletedDeleting(true, numberFilesDeleted, stopwatch.Elapsed);
-            }
-            catch (OperationCanceledException)
-            {
-                this.deleteFacadeReporter.CompletedDeleting(false, numberFilesDeleted, stopwatch.Elapsed);
-                return Task.FromResult(-3);
-            }
-            catch (Exception e)
-            {
-                this.deleteFacadeReporter.Exception(e);
-                return Task.FromResult(-1);
             }
 
-            return Task.FromResult(0);
+            this.deleteFacadeReporter.CompletedDeleting(true, numberFilesDeleted, stopwatch.Elapsed);
         }
+        catch (OperationCanceledException)
+        {
+            this.deleteFacadeReporter.CompletedDeleting(false, numberFilesDeleted, stopwatch.Elapsed);
+            return Task.FromResult(-3);
+        }
+        catch (Exception e)
+        {
+            this.deleteFacadeReporter.Exception(e);
+            return Task.FromResult(-1);
+        }
+
+        return Task.FromResult(0);
     }
 }

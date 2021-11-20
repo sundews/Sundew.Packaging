@@ -5,20 +5,19 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal.Commands
-{
-    using System.Collections.Generic;
-    using global::NuGet.Configuration;
+namespace Sundew.Packaging.Publish.Internal.Commands;
 
-    /// <summary>Interface for implementing a command that copies pdb files to the symbol cache.</summary>
-    public interface ICopyPdbToSymbolCacheCommand
-    {
-        /// <summary>
-        /// Adds the specified PDB file path.
-        /// </summary>
-        /// <param name="pdbFilePaths">The PDB file paths.</param>
-        /// <param name="symbolCacheDirectoryPath">The symbol cache directory path.</param>
-        /// <param name="settings">The settings.</param>
-        void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings);
-    }
+using System.Collections.Generic;
+using global::NuGet.Configuration;
+
+/// <summary>Interface for implementing a command that copies pdb files to the symbol cache.</summary>
+public interface ICopyPdbToSymbolCacheCommand
+{
+    /// <summary>
+    /// Adds the specified PDB file path.
+    /// </summary>
+    /// <param name="pdbFilePaths">The PDB file paths.</param>
+    /// <param name="symbolCacheDirectoryPath">The symbol cache directory path.</param>
+    /// <param name="settings">The settings.</param>
+    void AddAndCleanCache(IReadOnlyList<string> pdbFilePaths, string? symbolCacheDirectoryPath, ISettings settings);
 }

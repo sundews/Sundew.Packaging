@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild
+namespace Sundew.Packaging.Tool.Update.MsBuild;
+
+public interface IPackageVersionUpdaterReporter
 {
-    public interface IPackageVersionUpdaterReporter
-    {
-        void ProcessedProject(string projectPath, bool wasModified);
-    }
+    void ProcessedProject(string projectPath, bool wasModified);
 }

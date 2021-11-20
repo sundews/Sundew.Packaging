@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Publish", "Sundew.Packaging.Publish\Sundew.Packaging.Publish.csproj", "{8E83995F-3B2D-48ED-B9E6-C2FA67BFCB6B}"
 	ProjectSection(ProjectDependencies) = postProject

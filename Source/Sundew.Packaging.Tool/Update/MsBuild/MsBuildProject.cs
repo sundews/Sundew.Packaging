@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild
-{
-    using System.Collections.Generic;
-    using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+namespace Sundew.Packaging.Tool.Update.MsBuild;
 
-    public record MsBuildProject(string Path, string ProjectContent, IReadOnlyList<PackageUpdateSuggestion> PossiblePackageUpdates);
-}
+using System.Collections.Generic;
+using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+
+public record MsBuildProject(string Path, string ProjectContent, IReadOnlyList<PackageUpdateSuggestion> PossiblePackageUpdates);

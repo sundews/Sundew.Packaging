@@ -5,48 +5,47 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace PaketLocalUpdate
+namespace PaketLocalUpdate;
+
+/// <summary>
+/// Represents a paket source.
+/// </summary>
+public readonly struct Source
 {
     /// <summary>
-    /// Represents a paket source.
+    /// Initializes a new instance of the <see cref="Source"/> struct.
     /// </summary>
-    public readonly struct Source
+    /// <param name="path">The path.</param>
+    /// <param name="index">The index.</param>
+    /// <param name="length">The length.</param>
+    public Source(string path, int index, int length)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Source"/> struct.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="index">The index.</param>
-        /// <param name="length">The length.</param>
-        public Source(string path, int index, int length)
-        {
-            this.Path = path;
-            this.Index = index;
-            this.Length = length;
-        }
-
-        /// <summary>
-        /// Gets the path.
-        /// </summary>
-        /// <value>
-        /// The path.
-        /// </value>
-        public string Path { get; }
-
-        /// <summary>
-        /// Gets the index.
-        /// </summary>
-        /// <value>
-        /// The index.
-        /// </value>
-        public int Index { get; }
-
-        /// <summary>
-        /// Gets the length.
-        /// </summary>
-        /// <value>
-        /// The length.
-        /// </value>
-        public int Length { get; }
+        this.Path = path;
+        this.Index = index;
+        this.Length = length;
     }
+
+    /// <summary>
+    /// Gets the path.
+    /// </summary>
+    /// <value>
+    /// The path.
+    /// </value>
+    public string Path { get; }
+
+    /// <summary>
+    /// Gets the index.
+    /// </summary>
+    /// <value>
+    /// The index.
+    /// </value>
+    public int Index { get; }
+
+    /// <summary>
+    /// Gets the length.
+    /// </summary>
+    /// <value>
+    /// The length.
+    /// </value>
+    public int Length { get; }
 }

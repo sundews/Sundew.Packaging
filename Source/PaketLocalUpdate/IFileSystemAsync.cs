@@ -5,30 +5,29 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace PaketLocalUpdate
+namespace PaketLocalUpdate;
+
+using System.Threading.Tasks;
+using Sundew.Packaging.Versioning.IO;
+
+/// <summary>
+/// Extends <see cref="IFileSystem"/> with async methods.
+/// </summary>
+/// <seealso cref="Sundew.Packaging.Versioning.IO.IFileSystem" />
+public interface IFileSystemAsync : IFileSystem
 {
-    using System.Threading.Tasks;
-    using Sundew.Packaging.Versioning.IO;
+    /// <summary>
+    /// Writes all text asynchronous.
+    /// </summary>
+    /// <param name="filePath">The file path.</param>
+    /// <param name="content">The content.</param>
+    /// <returns>An async task.</returns>
+    Task WriteAllTextAsync(string filePath, string content);
 
     /// <summary>
-    /// Extends <see cref="IFileSystem"/> with async methods.
+    /// Reads all text asynchronous.
     /// </summary>
-    /// <seealso cref="Sundew.Packaging.Versioning.IO.IFileSystem" />
-    public interface IFileSystemAsync : IFileSystem
-    {
-        /// <summary>
-        /// Writes all text asynchronous.
-        /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="content">The content.</param>
-        /// <returns>An async task.</returns>
-        Task WriteAllTextAsync(string filePath, string content);
-
-        /// <summary>
-        /// Reads all text asynchronous.
-        /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <returns>An async task with the text.</returns>
-        Task<string> ReadAllTextAsync(string filePath);
-    }
+    /// <param name="filePath">The file path.</param>
+    /// <returns>An async task with the text.</returns>
+    Task<string> ReadAllTextAsync(string filePath);
 }

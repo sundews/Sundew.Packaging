@@ -5,47 +5,46 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.PruneLocalSource
+namespace Sundew.Packaging.Tool.PruneLocalSource;
+
+using System.Collections.Generic;
+using Sundew.CommandLine;
+using Sundew.Packaging.Source;
+
+public class NewestPrereleasesPruneModeVerb : IPruneModeVerb
 {
-    using System.Collections.Generic;
-    using Sundew.CommandLine;
-    using Sundew.Packaging.Source;
+    private readonly List<string> packageIds;
 
-    public class NewestPrereleasesPruneModeVerb : IPruneModeVerb
+    public NewestPrereleasesPruneModeVerb()
+        : this(new List<string> { "*" }, PackageSources.DefaultLocalSourceName)
     {
-        private readonly List<string> packageIds;
+    }
 
-        public NewestPrereleasesPruneModeVerb()
-            : this(new List<string> { "*" }, PackageSources.DefaultLocalSourceName)
-        {
-        }
+    public NewestPrereleasesPruneModeVerb(List<string> packageIds, string source, bool verbose = false)
+    {
+        this.packageIds = packageIds;
+        this.Source = source;
+        this.Verbose = verbose;
+    }
 
-        public NewestPrereleasesPruneModeVerb(List<string> packageIds, string source, bool verbose = false)
-        {
-            this.packageIds = packageIds;
-            this.Source = source;
-            this.Verbose = verbose;
-        }
+    public string Source { get; private set; }
 
-        public string Source { get; private set; }
+    public IReadOnlyList<string> PackageIds => this.packageIds;
 
-        public IReadOnlyList<string> PackageIds => this.packageIds;
+    public bool Verbose { get; private set; }
 
-        public bool Verbose { get; private set; }
+    public IVerb? NextVerb { get; } = null;
 
-        public IVerb? NextVerb { get; } = null;
+    public string Name { get; } = "newest-prereleases";
 
-        public string Name { get; } = "newest-prereleases";
+    public string? ShortName { get; } = "np";
 
-        public string? ShortName { get; } = "np";
+    public string HelpText { get; } = "Purges all prereleases never than the latest stable version.";
 
-        public string HelpText { get; } = "Purges all prereleases never than the latest stable version.";
-
-        public void Configure(IArgumentsBuilder argumentsBuilder)
-        {
-            argumentsBuilder.AddRequiredList("p", "package-ids", this.packageIds, "The packages to purge (* Wildcards supported)");
-            argumentsBuilder.AddOptional("s", "source", () => this.Source, s => this.Source = s, @"Local source or source name to search for packages");
-            CommonOptions.AddVerbose(argumentsBuilder, this.Verbose, b => this.Verbose = b);
-        }
+    public void Configure(IArgumentsBuilder argumentsBuilder)
+    {
+        argumentsBuilder.AddRequiredList("p", "package-ids", this.packageIds, "The packages to purge (* Wildcards supported)");
+        argumentsBuilder.AddOptional("s", "source", () => this.Source, s => this.Source = s, @"Local source or source name to search for packages");
+        CommonOptions.AddVerbose(argumentsBuilder, this.Verbose, b => this.Verbose = b);
     }
 }

@@ -5,43 +5,42 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal.Logging
+namespace Sundew.Packaging.Publish.Internal.Logging;
+
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
+
+internal class MsBuildLogger : Sundew.Packaging.Versioning.Logging.ILogger
 {
-    using Microsoft.Build.Framework;
-    using Microsoft.Build.Utilities;
+    private readonly TaskLoggingHelper taskLoggingHelper;
 
-    internal class MsBuildLogger : Sundew.Packaging.Versioning.Logging.ILogger
+    public MsBuildLogger(TaskLoggingHelper taskLoggingHelper)
     {
-        private readonly TaskLoggingHelper taskLoggingHelper;
+        this.taskLoggingHelper = taskLoggingHelper;
+    }
 
-        public MsBuildLogger(TaskLoggingHelper taskLoggingHelper)
-        {
-            this.taskLoggingHelper = taskLoggingHelper;
-        }
+    public void LogError(string message)
+    {
+        this.taskLoggingHelper.LogError(message);
+    }
 
-        public void LogError(string message)
-        {
-            this.taskLoggingHelper.LogError(message);
-        }
+    public void LogImportant(string message)
+    {
+        this.taskLoggingHelper.LogMessage(MessageImportance.High, message);
+    }
 
-        public void LogImportant(string message)
-        {
-            this.taskLoggingHelper.LogMessage(MessageImportance.High, message);
-        }
+    public void LogInfo(string message)
+    {
+        this.taskLoggingHelper.LogMessage(MessageImportance.Normal, message);
+    }
 
-        public void LogInfo(string message)
-        {
-            this.taskLoggingHelper.LogMessage(MessageImportance.Normal, message);
-        }
+    public void LogMessage(string message)
+    {
+        this.taskLoggingHelper.LogMessage(MessageImportance.Low, message);
+    }
 
-        public void LogMessage(string message)
-        {
-            this.taskLoggingHelper.LogMessage(MessageImportance.Low, message);
-        }
-
-        public void LogWarning(string message)
-        {
-            this.taskLoggingHelper.LogWarning(message);
-        }
+    public void LogWarning(string message)
+    {
+        this.taskLoggingHelper.LogWarning(message);
     }
 }

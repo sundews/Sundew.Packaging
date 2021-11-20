@@ -5,29 +5,28 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
+namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands;
+
+using System.Threading.Tasks;
+using FluentAssertions;
+using Moq;
+using NuGet.Common;
+using NuGet.Configuration;
+using NuGet.Versioning;
+using Sundew.Packaging.Versioning.Commands;
+using Xunit;
+
+public class PackageExistsCommandTests
 {
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using Moq;
-    using NuGet.Common;
-    using NuGet.Configuration;
-    using NuGet.Versioning;
-    using Sundew.Packaging.Versioning.Commands;
-    using Xunit;
-
-    public class PackageExistsCommandTests
+    [Theory]
+    [InlineData("Newtonsoft.Json", true)]
+    [InlineData("NonExistingPackage1234", false)]
+    public async Task ExistsAsync_Then_ResultShouldBeExpectedResult(string packageId, bool expectedResult)
     {
-        [Theory]
-        [InlineData("Newtonsoft.Json", true)]
-        [InlineData("NonExistingPackage1234", false)]
-        public async Task ExistsAsync_Then_ResultShouldBeExpectedResult(string packageId, bool expectedResult)
-        {
-            var testee = new PackageExistsCommand(New.Mock<ILogger>());
+        var testee = new PackageExistsCommand(New.Mock<ILogger>());
 
-            var result = await testee.ExistsAsync(packageId, new SemanticVersion(12, 0, 3), NuGetConstants.V3FeedUrl);
+        var result = await testee.ExistsAsync(packageId, new SemanticVersion(12, 0, 3), NuGetConstants.V3FeedUrl);
 
-            result.Should().Be(expectedResult);
-        }
+        result.Should().Be(expectedResult);
     }
 }

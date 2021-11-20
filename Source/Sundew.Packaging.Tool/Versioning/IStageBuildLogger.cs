@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Versioning
-{
-    using Sundew.Packaging.Tool.Reporting;
+namespace Sundew.Packaging.Tool.Versioning;
 
-    public interface IStageBuildLogger : IExceptionReporter
-    {
-        void ReportMessage(string message);
-    }
+using Sundew.Packaging.Tool.Reporting;
+
+public interface IStageBuildLogger : IExceptionReporter
+{
+    void ReportMessage(string message);
 }

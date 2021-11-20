@@ -5,49 +5,48 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild
+namespace Sundew.Packaging.Tool.Update.MsBuild;
+
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using Sundew.Packaging.Tool.Diagnostics;
+
+public class PackageRestorer
 {
-    using System.Diagnostics;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Sundew.Packaging.Tool.Diagnostics;
+    private readonly IProcessRunner processRunner;
+    private readonly IPackageRestorerReporter packageRestorerReporter;
 
-    public class PackageRestorer
+    public PackageRestorer(IProcessRunner processRunner, IPackageRestorerReporter packageRestorerReporter)
     {
-        private readonly IProcessRunner processRunner;
-        private readonly IPackageRestorerReporter packageRestorerReporter;
+        this.processRunner = processRunner;
+        this.packageRestorerReporter = packageRestorerReporter;
+    }
 
-        public PackageRestorer(IProcessRunner processRunner, IPackageRestorerReporter packageRestorerReporter)
+    public async Task RestoreAsync(string rootDirectory, bool verbose)
+    {
+        var process = this.processRunner.Run(new ProcessStartInfo("dotnet", $"restore -v{(verbose ? " n" : " m")}")
         {
-            this.processRunner = processRunner;
-            this.packageRestorerReporter = packageRestorerReporter;
-        }
+            WorkingDirectory = rootDirectory,
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+        });
 
-        public async Task RestoreAsync(string rootDirectory, bool verbose)
+        if (process != null)
         {
-            var process = this.processRunner.Run(new ProcessStartInfo("dotnet", $"restore -v{(verbose ? " n" : " m")}")
+            this.packageRestorerReporter.ReportMessage(string.Empty);
+            this.packageRestorerReporter.ReportMessage($"Restoring in path: {rootDirectory}");
+            while (!process.StandardOutput.EndOfStream)
             {
-                WorkingDirectory = rootDirectory,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-            });
-
-            if (process != null)
-            {
-                this.packageRestorerReporter.ReportMessage(string.Empty);
-                this.packageRestorerReporter.ReportMessage($"Restoring in path: {rootDirectory}");
-                while (!process.StandardOutput.EndOfStream)
+                var line = await process.StandardOutput.ReadLineAsync();
+                if (line != null)
                 {
-                    var line = await process.StandardOutput.ReadLineAsync();
-                    if (line != null)
-                    {
-                        this.packageRestorerReporter.ReportMessage(line);
-                    }
+                    this.packageRestorerReporter.ReportMessage(line);
                 }
-
-                process.WaitForExit();
             }
+
+            process.WaitForExit();
         }
     }
 }

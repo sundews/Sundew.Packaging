@@ -5,18 +5,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.AwaitPublish
+namespace Sundew.Packaging.Tool.AwaitPublish;
+
+using System;
+using Sundew.Packaging.Tool.Reporting;
+using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+
+public interface IAwaitPublishFacadeReporter : IExceptionReporter
 {
-    using System;
-    using Sundew.Packaging.Tool.Reporting;
-    using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+    void StartWaitingForPackage(PackageIdAndVersion packageIdAndVersion, string source);
 
-    public interface IAwaitPublishFacadeReporter : IExceptionReporter
-    {
-        void StartWaitingForPackage(PackageIdAndVersion packageIdAndVersion, string source);
+    void PackageExistsResult(PackageIdAndVersion packageIdAndVersion, bool packageExists);
 
-        void PackageExistsResult(PackageIdAndVersion packageIdAndVersion, bool packageExists);
-
-        void CompletedWaitingForPackage(PackageIdAndVersion packageIdAndVersion, bool packageExists, TimeSpan stopwatchElapsed);
-    }
+    void CompletedWaitingForPackage(PackageIdAndVersion packageIdAndVersion, bool packageExists, TimeSpan stopwatchElapsed);
 }

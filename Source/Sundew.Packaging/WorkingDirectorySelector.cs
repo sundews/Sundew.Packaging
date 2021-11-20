@@ -5,40 +5,39 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging
+namespace Sundew.Packaging;
+
+using System;
+using System.IO;
+using Sundew.Packaging.Versioning.IO;
+
+/// <summary>
+/// Selects the working directory.
+/// </summary>
+public static class WorkingDirectorySelector
 {
-    using System;
-    using System.IO;
-    using Sundew.Packaging.Versioning.IO;
+    private const string UndefinedText = "*Undefined*";
 
     /// <summary>
-    /// Selects the working directory.
+    /// Gets the working directory.
     /// </summary>
-    public static class WorkingDirectorySelector
+    /// <param name="proposedWorkingDirectory">The proposed working directory.</param>
+    /// <param name="fileSystem">The file system.</param>
+    /// <returns>The working directory.</returns>
+    /// <exception cref="ArgumentException">The working directory cannot be null. - workingDirectory.</exception>
+    public static string GetWorkingDirectory(string? proposedWorkingDirectory, IFileSystem fileSystem)
     {
-        private const string UndefinedText = "*Undefined*";
-
-        /// <summary>
-        /// Gets the working directory.
-        /// </summary>
-        /// <param name="proposedWorkingDirectory">The proposed working directory.</param>
-        /// <param name="fileSystem">The file system.</param>
-        /// <returns>The working directory.</returns>
-        /// <exception cref="ArgumentException">The working directory cannot be null. - workingDirectory.</exception>
-        public static string GetWorkingDirectory(string? proposedWorkingDirectory, IFileSystem fileSystem)
+        var workingDirectory = proposedWorkingDirectory;
+        if (workingDirectory == UndefinedText)
         {
-            var workingDirectory = proposedWorkingDirectory;
-            if (workingDirectory == UndefinedText)
-            {
-                workingDirectory = Path.GetDirectoryName(fileSystem.GetCurrentDirectory());
-            }
-
-            if (workingDirectory == null)
-            {
-                throw new ArgumentException("The working directory cannot be null.", nameof(workingDirectory));
-            }
-
-            return workingDirectory;
+            workingDirectory = Path.GetDirectoryName(fileSystem.GetCurrentDirectory());
         }
+
+        if (workingDirectory == null)
+        {
+            throw new ArgumentException("The working directory cannot be null.", nameof(workingDirectory));
+        }
+
+        return workingDirectory;
     }
 }

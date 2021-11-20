@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace NuGet.Runtime.Hack
+namespace NuGet.Runtime.Hack;
+
+public static class Program
 {
-    public static class Program
+    static void Main()
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
+        Console.WriteLine("Hello World!");
     }
 }

@@ -5,19 +5,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update
+namespace Sundew.Packaging.Tool.Update;
+
+using System;
+using System.Collections.Generic;
+using Sundew.Packaging.Tool.Reporting;
+using Sundew.Packaging.Tool.Update.MsBuild;
+
+public interface IPackageUpdaterFacadeReporter : IExceptionReporter
 {
-    using System;
-    using System.Collections.Generic;
-    using Sundew.Packaging.Tool.Reporting;
-    using Sundew.Packaging.Tool.Update.MsBuild;
+    void StartingPackageUpdate(string rootDirectory);
 
-    public interface IPackageUpdaterFacadeReporter : IExceptionReporter
-    {
-        void StartingPackageUpdate(string rootDirectory);
+    void UpdatingProject(string project);
 
-        void UpdatingProject(string project);
-
-        void CompletedPackageUpdate(List<MsBuildProject> msBuildProjects, bool argumentsSkipRestore, TimeSpan totalTime);
-    }
+    void CompletedPackageUpdate(List<MsBuildProject> msBuildProjects, bool argumentsSkipRestore, TimeSpan totalTime);
 }

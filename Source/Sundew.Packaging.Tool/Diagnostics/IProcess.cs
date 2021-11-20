@@ -5,31 +5,30 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Diagnostics
+namespace Sundew.Packaging.Tool.Diagnostics;
+
+using System;
+using System.IO;
+
+public interface IProcess
 {
-    using System;
-    using System.IO;
+    public int ExitCode { get; }
 
-    public interface IProcess
-    {
-        public int ExitCode { get; }
+    public bool HasExited { get; }
 
-        public bool HasExited { get; }
+    public DateTime StartTime { get; }
 
-        public DateTime StartTime { get; }
+    public DateTime ExitTime { get; }
 
-        public DateTime ExitTime { get; }
+    public int Id { get; }
 
-        public int Id { get; }
+    public string MachineName { get; }
 
-        public string MachineName { get; }
+    public StreamReader StandardOutput { get; }
 
-        public StreamReader StandardOutput { get; }
+    public StreamReader StandardError { get; }
 
-        public StreamReader StandardError { get; }
+    public StreamWriter StandardInput { get; }
 
-        public StreamWriter StandardInput { get; }
-
-        void WaitForExit();
-    }
+    void WaitForExit();
 }

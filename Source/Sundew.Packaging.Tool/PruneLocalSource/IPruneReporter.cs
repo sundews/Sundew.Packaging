@@ -5,18 +5,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.PruneLocalSource
+namespace Sundew.Packaging.Tool.PruneLocalSource;
+
+using System;
+using System.Collections.Generic;
+using Sundew.Packaging.Tool.Reporting;
+
+public interface IPruneReporter : IExceptionReporter
 {
-    using System;
-    using System.Collections.Generic;
-    using Sundew.Packaging.Tool.Reporting;
+    void StartPruning(string source, IReadOnlyList<string> packageIds);
 
-    public interface IPruneReporter : IExceptionReporter
-    {
-        void StartPruning(string source, IReadOnlyList<string> packageIds);
+    void Deleted(string directory);
 
-        void Deleted(string directory);
-
-        void CompletedPruning(bool wasSuccessful, int numberDirectoriesPurged, TimeSpan stopwatchElapsed);
-    }
+    void CompletedPruning(bool wasSuccessful, int numberDirectoriesPurged, TimeSpan stopwatchElapsed);
 }

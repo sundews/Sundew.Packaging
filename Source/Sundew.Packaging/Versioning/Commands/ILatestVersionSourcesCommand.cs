@@ -5,18 +5,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Versioning.Commands
-{
-    using System.Collections.Generic;
-    using Sundew.Packaging.Staging;
+namespace Sundew.Packaging.Versioning.Commands;
 
-    internal interface ILatestVersionSourcesCommand
-    {
-        IReadOnlyList<string> GetLatestVersionSources(
-            string? latestVersionSourcesText,
-            SelectedStage selectedSource,
-            NuGetSettings nuGetSettings,
-            bool addNuGetOrgSource,
-            bool addAllSources);
-    }
+using System.Collections.Generic;
+using Sundew.Packaging.Staging;
+
+internal interface ILatestVersionSourcesCommand
+{
+    IReadOnlyList<string> GetLatestVersionSources(
+        string? latestVersionSourcesText,
+        SelectedStage selectedSource,
+        NuGetSettings nuGetSettings,
+        bool addNuGetOrgSource,
+        bool addAllSources);
 }

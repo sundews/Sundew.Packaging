@@ -5,22 +5,21 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet
-{
-    using System.Text.RegularExpressions;
-    using global::NuGet.Versioning;
-    using Sundew.Packaging.RegularExpression;
+namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet;
 
-    public record PackageId(string Id, string? VersionPattern = null);
+using System.Text.RegularExpressions;
+using global::NuGet.Versioning;
+using Sundew.Packaging.RegularExpression;
 
-    public record PackageIdAndVersion(string Id, NuGetVersion NuGetVersion);
+public record PackageId(string Id, string? VersionPattern = null);
 
-    public record PackageUpdateSuggestion(
-        string Id,
-        NuGetVersion NuGetVersion,
-        GlobRegex? GlobRegex) : PackageIdAndVersion(Id, NuGetVersion);
+public record PackageIdAndVersion(string Id, NuGetVersion NuGetVersion);
 
-    public record PackageUpdate(string Id, NuGetVersion NuGetVersion, NuGetVersion UpdatedNuGetVersion) : PackageIdAndVersion(Id, NuGetVersion);
+public record PackageUpdateSuggestion(
+    string Id,
+    NuGetVersion NuGetVersion,
+    GlobRegex? GlobRegex) : PackageIdAndVersion(Id, NuGetVersion);
 
-    public record VersionMatcher(Regex Regex, string Pattern);
-}
+public record PackageUpdate(string Id, NuGetVersion NuGetVersion, NuGetVersion UpdatedNuGetVersion) : PackageIdAndVersion(Id, NuGetVersion);
+
+public record VersionMatcher(Regex Regex, string Pattern);

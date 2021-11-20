@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal
+namespace Sundew.Packaging.Publish.Internal;
+
+internal class Constants
 {
-    internal class Constants
-    {
-        public const string SppVersionExtension = ".sppv";
-    }
+    public const string SppVersionExtension = ".sppv";
 }

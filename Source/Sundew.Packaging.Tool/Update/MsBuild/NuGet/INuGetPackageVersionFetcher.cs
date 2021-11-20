@@ -5,14 +5,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using global::NuGet.Versioning;
+namespace Sundew.Packaging.Tool.Update.MsBuild.NuGet;
 
-    public interface INuGetPackageVersionFetcher
-    {
-        Task<IEnumerable<NuGetVersion>> GetAllVersionsAsync(string rootDirectory, string? source, string packageId);
-    }
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using global::NuGet.Versioning;
+
+public interface INuGetPackageVersionFetcher
+{
+    Task<IEnumerable<NuGetVersion>> GetAllVersionsAsync(string rootDirectory, string? source, string packageId);
 }

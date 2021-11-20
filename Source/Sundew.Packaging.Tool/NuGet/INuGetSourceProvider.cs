@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.NuGet
-{
-    public interface INuGetSourceProvider
-    {
-        SourceSettings GetSourceSettings(string rootDirectory, string? source);
+namespace Sundew.Packaging.Tool.NuGet;
 
-        string GetDefaultSource(string source);
-    }
+public interface INuGetSourceProvider
+{
+    SourceSettings GetSourceSettings(string rootDirectory, string? source);
+
+    string GetDefaultSource(string source);
 }

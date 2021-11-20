@@ -5,41 +5,40 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Staging
+namespace Sundew.Packaging.Staging;
+
+/// <summary>
+/// Represents the selected stage in which to push a package to.
+/// </summary>
+/// <seealso cref="Sundew.Packaging.Staging.Stage" />
+public record SelectedStage : Stage
 {
     /// <summary>
-    /// Represents the selected stage in which to push a package to.
+    /// Initializes a new instance of the <see cref="SelectedStage"/> class.
     /// </summary>
-    /// <seealso cref="Sundew.Packaging.Staging.Stage" />
-    public record SelectedStage : Stage
+    /// <param name="source">The source.</param>
+    /// <param name="packagePrefix">The package prefix.</param>
+    /// <param name="packagePostfix">The package postfix.</param>
+    public SelectedStage(Stage source, string? packagePrefix = null, string? packagePostfix = null)
+        : base(source)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SelectedStage"/> class.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="packagePrefix">The package prefix.</param>
-        /// <param name="packagePostfix">The package postfix.</param>
-        public SelectedStage(Stage source, string? packagePrefix = null, string? packagePostfix = null)
-          : base(source)
-        {
-            this.PackagePrefix = packagePrefix ?? string.Empty;
-            this.PackagePostfix = packagePostfix ?? string.Empty;
-        }
-
-        /// <summary>
-        /// Gets the package postfix.
-        /// </summary>
-        /// <value>
-        /// The package postfix.
-        /// </value>
-        public string PackagePostfix { get; }
-
-        /// <summary>
-        /// Gets the package prefix.
-        /// </summary>
-        /// <value>
-        /// The package prefix.
-        /// </value>
-        public string PackagePrefix { get; }
+        this.PackagePrefix = packagePrefix ?? string.Empty;
+        this.PackagePostfix = packagePostfix ?? string.Empty;
     }
+
+    /// <summary>
+    /// Gets the package postfix.
+    /// </summary>
+    /// <value>
+    /// The package postfix.
+    /// </value>
+    public string PackagePostfix { get; }
+
+    /// <summary>
+    /// Gets the package prefix.
+    /// </summary>
+    /// <value>
+    /// The package prefix.
+    /// </value>
+    public string PackagePrefix { get; }
 }

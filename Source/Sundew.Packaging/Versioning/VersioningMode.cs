@@ -5,24 +5,23 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Versioning
+namespace Sundew.Packaging.Versioning;
+
+/// <summary>Determines how packages are versioned.</summary>
+public enum VersioningMode
 {
-    /// <summary>Determines how packages are versioned.</summary>
-    public enum VersioningMode
-    {
-        /// <summary>Specifies that the patch component of the version number is set to the latest incremented by 1.</summary>
-        AutomaticLatestPatch,
+    /// <summary>Specifies that the patch component of the version number is set to the latest incremented by 1.</summary>
+    AutomaticLatestPatch,
 
-        /// <summary>Specifies that the revision component of the version number is set to the latest incremented by 1.</summary>
-        AutomaticLatestRevision,
+    /// <summary>Specifies that the revision component of the version number is set to the latest incremented by 1.</summary>
+    AutomaticLatestRevision,
 
-        /// <summary>Specifies that stable builds are left as is and the patch component of the version number is incremented by 1 for prerelease, if the stable version exists.</summary>
-        IncrementPatchIfStableExistForPrerelease,
+    /// <summary>Specifies that stable builds are left as is and the patch component of the version number is incremented by 1 for prerelease, if the stable version exists.</summary>
+    IncrementPatchIfStableExistForPrerelease,
 
-        /// <summary>Specifies that the patch component of the version number is incremented by 1.</summary>
-        AlwaysIncrementPatch,
+    /// <summary>Specifies that the patch component of the version number is incremented by 1.</summary>
+    AlwaysIncrementPatch,
 
-        /// <summary>Specifies that the major, minor, patch version are not changed.</summary>
-        NoChange,
-    }
+    /// <summary>Specifies that the major, minor, patch version are not changed.</summary>
+    NoChange,
 }

@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Update.MsBuild
+namespace Sundew.Packaging.Tool.Update.MsBuild;
+
+public interface IPackageRestorerReporter
 {
-    public interface IPackageRestorerReporter
-    {
-        void ReportMessage(string message);
-    }
+    void ReportMessage(string message);
 }

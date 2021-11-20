@@ -5,47 +5,46 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.Internal.Commands
+namespace Sundew.Packaging.Publish.Internal.Commands;
+
+using System;
+using System.IO;
+using System.Text;
+using global::NuGet.Versioning;
+using Sundew.Packaging.Versioning.IO;
+
+internal class PruneSimilarPackageVersionsCommand
 {
-    using System;
-    using System.IO;
-    using System.Text;
-    using global::NuGet.Versioning;
-    using Sundew.Packaging.Versioning.IO;
+    private const string AllFiles = "*.*";
+    private const string Nupkg = ".nupkg";
+    private const string Snupkg = ".snupkg";
+    private readonly IFileSystem fileSystem;
 
-    internal class PruneSimilarPackageVersionsCommand
+    public PruneSimilarPackageVersionsCommand(IFileSystem fileSystem)
     {
-        private const string AllFiles = "*.*";
-        private const string Nupkg = ".nupkg";
-        private const string Snupkg = ".snupkg";
-        private readonly IFileSystem fileSystem;
+        this.fileSystem = fileSystem;
+    }
 
-        public PruneSimilarPackageVersionsCommand(IFileSystem fileSystem)
+    public void Prune(string packagePath, string packageId, string version)
+    {
+        var nuGetVersion = NuGetVersion.Parse(version);
+        var stringBuilder = new StringBuilder(packageId).Append('.').Append(nuGetVersion.Major).Append('.').Append(nuGetVersion.Minor).Append('.').Append(nuGetVersion.Patch);
+        if (nuGetVersion.IsLegacyVersion)
         {
-            this.fileSystem = fileSystem;
+            stringBuilder.Append('.').Append(nuGetVersion.Revision);
         }
 
-        public void Prune(string packagePath, string packageId, string version)
+        var similarVersion = stringBuilder.ToString();
+        foreach (var filePath in this.fileSystem.EnumerableFiles(Path.GetDirectoryName(packagePath), AllFiles, SearchOption.TopDirectoryOnly))
         {
-            var nuGetVersion = NuGetVersion.Parse(version);
-            var stringBuilder = new StringBuilder(packageId).Append('.').Append(nuGetVersion.Major).Append('.').Append(nuGetVersion.Minor).Append('.').Append(nuGetVersion.Patch);
-            if (nuGetVersion.IsLegacyVersion)
+            var extension = Path.GetExtension(filePath);
+            var fileName = Path.GetFileNameWithoutExtension(filePath);
+            if ((extension.Equals(Nupkg, StringComparison.OrdinalIgnoreCase) || extension.Equals(Snupkg, StringComparison.OrdinalIgnoreCase))
+                && fileName.StartsWith(similarVersion, StringComparison.OrdinalIgnoreCase)
+                && !fileName.EndsWith(version, StringComparison.OrdinalIgnoreCase)
+                && !fileName.EndsWith($"{version}.symbols", StringComparison.OrdinalIgnoreCase))
             {
-                stringBuilder.Append('.').Append(nuGetVersion.Revision);
-            }
-
-            var similarVersion = stringBuilder.ToString();
-            foreach (var filePath in this.fileSystem.EnumerableFiles(Path.GetDirectoryName(packagePath), AllFiles, SearchOption.TopDirectoryOnly))
-            {
-                var extension = Path.GetExtension(filePath);
-                var fileName = Path.GetFileNameWithoutExtension(filePath);
-                if ((extension.Equals(Nupkg, StringComparison.OrdinalIgnoreCase) || extension.Equals(Snupkg, StringComparison.OrdinalIgnoreCase))
-                    && fileName.StartsWith(similarVersion, StringComparison.OrdinalIgnoreCase)
-                    && !fileName.EndsWith(version, StringComparison.OrdinalIgnoreCase)
-                    && !fileName.EndsWith($"{version}.symbols", StringComparison.OrdinalIgnoreCase))
-                {
-                    this.fileSystem.DeleteFile(filePath);
-                }
+                this.fileSystem.DeleteFile(filePath);
             }
         }
     }

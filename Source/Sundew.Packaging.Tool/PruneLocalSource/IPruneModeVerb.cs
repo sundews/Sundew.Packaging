@@ -5,11 +5,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.PruneLocalSource
-{
-    using Sundew.CommandLine;
+namespace Sundew.Packaging.Tool.PruneLocalSource;
 
-    public interface IPruneModeVerb : IVerb
-    {
-    }
+using Sundew.CommandLine;
+
+public interface IPruneModeVerb : IVerb
+{
 }

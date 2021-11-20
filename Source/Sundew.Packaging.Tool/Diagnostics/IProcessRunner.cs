@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Diagnostics
-{
-    using System.Diagnostics;
+namespace Sundew.Packaging.Tool.Diagnostics;
 
-    public interface IProcessRunner
-    {
-        Process? Run(ProcessStartInfo processStartInfo);
-    }
+using System.Diagnostics;
+
+public interface IProcessRunner
+{
+    Process? Run(ProcessStartInfo processStartInfo);
 }

@@ -2,20 +2,20 @@
 using FluentAssertions;
 using Xunit;
 
-namespace PaketLocalUpdate.Tests
-{
-    public class PaketDependenciesParserTests
-    {
-        private readonly PaketDependenciesParser testee;
+namespace PaketLocalUpdate.Tests;
 
-        public PaketDependenciesParserTests()
-        {
-            this.testee = new PaketDependenciesParser();
-        }
-        [Fact]
-        public void TestMethod1()
-        {
-            var fileContent = @"source https://nuget.org/api/v2
+public class PaketDependenciesParserTests
+{
+    private readonly PaketDependenciesParser testee;
+
+    public PaketDependenciesParserTests()
+    {
+        this.testee = new PaketDependenciesParser();
+    }
+    [Fact]
+    public void TestMethod1()
+    {
+        var fileContent = @"source https://nuget.org/api/v2
 
 nuget Newtonsoft.Json
 nuget UnionArgParser
@@ -42,9 +42,8 @@ group Test
   nuget NUnit.Runners prerelease
   nuget NUnit";
 
-            var result = this.testee.Parse(fileContent);
+        var result = this.testee.Parse(fileContent);
 
-            result.ToString();
-        }
+        result.ToString();
     }
 }

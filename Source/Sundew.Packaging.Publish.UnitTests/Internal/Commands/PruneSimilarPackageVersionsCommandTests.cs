@@ -5,48 +5,47 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands
+namespace Sundew.Packaging.Publish.UnitTests.Internal.Commands;
+
+using System.IO;
+using System.Linq;
+using Moq;
+using Sundew.Packaging.Publish.Internal.Commands;
+using Sundew.Packaging.Versioning.IO;
+using Xunit;
+
+public class PruneSimilarPackageVersionsCommandTests
 {
-    using System.IO;
-    using System.Linq;
-    using Moq;
-    using Sundew.Packaging.Publish.Internal.Commands;
-    using Sundew.Packaging.Versioning.IO;
-    using Xunit;
+    private const string AnyPackageId = "Sundew.Packaging.Publish";
+    private const string AnyPackagePath = @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-221048-pre.nupkg";
+    private const string AnyVersion = "5.1.0-u20210325-221048-pre";
+    private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
+    private readonly PruneSimilarPackageVersionsCommand testee;
 
-    public class PruneSimilarPackageVersionsCommandTests
+    public PruneSimilarPackageVersionsCommandTests()
     {
-        private const string AnyPackageId = "Sundew.Packaging.Publish";
-        private const string AnyPackagePath = @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-221048-pre.nupkg";
-        private const string AnyVersion = "5.1.0-u20210325-221048-pre";
-        private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
-        private readonly PruneSimilarPackageVersionsCommand testee;
+        this.testee = new PruneSimilarPackageVersionsCommand(this.fileSystem);
+    }
 
-        public PruneSimilarPackageVersionsCommandTests()
+    [Fact]
+    public void Prune_Then_ExpectedFilesShouldBeDeleted()
+    {
+        var expectedFilesNotToBeDeleted = new[] { @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-221048-pre.nupkg", @"c:\AnyPackagePath\Sundew.Packaging.Publish.6.1.0-u20210325-181048-pre.nupkg" };
+        var expectedFilesToBeDeleted = new[] { @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-201048-pre.nupkg", @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-181048-pre.nupkg" };
+        this.fileSystem
+            .Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SearchOption>()))
+            .Returns(expectedFilesToBeDeleted.Concat(expectedFilesNotToBeDeleted));
+
+        this.testee.Prune(AnyPackagePath, AnyPackageId, AnyVersion);
+
+        foreach (var s in expectedFilesToBeDeleted)
         {
-            this.testee = new PruneSimilarPackageVersionsCommand(this.fileSystem);
+            this.fileSystem.Verify(x => x.DeleteFile(s), Times.Once);
         }
 
-        [Fact]
-        public void Prune_Then_ExpectedFilesShouldBeDeleted()
+        foreach (var s in expectedFilesNotToBeDeleted)
         {
-            var expectedFilesNotToBeDeleted = new[] { @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-221048-pre.nupkg", @"c:\AnyPackagePath\Sundew.Packaging.Publish.6.1.0-u20210325-181048-pre.nupkg" };
-            var expectedFilesToBeDeleted = new[] { @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-201048-pre.nupkg", @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-181048-pre.nupkg" };
-            this.fileSystem
-                .Setup(x => x.EnumerableFiles(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SearchOption>()))
-                .Returns(expectedFilesToBeDeleted.Concat(expectedFilesNotToBeDeleted));
-
-            this.testee.Prune(AnyPackagePath, AnyPackageId, AnyVersion);
-
-            foreach (var s in expectedFilesToBeDeleted)
-            {
-                this.fileSystem.Verify(x => x.DeleteFile(s), Times.Once);
-            }
-
-            foreach (var s in expectedFilesNotToBeDeleted)
-            {
-                this.fileSystem.Verify(x => x.DeleteFile(s), Times.Never);
-            }
+            this.fileSystem.Verify(x => x.DeleteFile(s), Times.Never);
         }
     }
 }

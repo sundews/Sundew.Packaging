@@ -5,63 +5,63 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Tool.Tests
+namespace Sundew.Packaging.Tool.Tests;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using global::NuGet.Versioning;
+using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+
+public static class TestData
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using global::NuGet.Versioning;
-    using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
+    public const string RootDirectory = @"C:\solutionDir";
+    public static readonly ProjectTestData SundewBuildPublishProject = new(SundewPackagingPublishData.Name, SundewPackagingPublishData.Source, SundewPackagingPublishData.NonPrereleaseUpdatedSource, SundewPackagingPublishData.PrereleaseUpdatedSource);
+    public static readonly ProjectTestData SundewCommandLineProject = new(SundewCommandLineData.Name, SundewCommandLineData.Source, SundewCommandLineData.NonPrereleaseUpdatedSource, SundewCommandLineData.PrereleaseUpdatedSource);
+    public static readonly ProjectTestData TransparentMoqProject = new("TransparentMoq", TransparentMoqData.Source, TransparentMoqData.NonPrereleaseUpdatedSource, TransparentMoqData.Source);
 
-    public static class TestData
+    public static readonly PackageTestData SundewBuildPublishPackage = new(SundewPackagingPublishData.Name, SundewPackagingPublishData.PackageVersions);
+
+    public static readonly PackageTestData SundewBasePackage = new(SundewBaseData.Name, SundewBaseData.PackageVersions);
+
+    public static readonly PackageUpdate SundewBasePackageUpdateForSundewCommandLine = new(SundewBaseData.Name, NuGetVersion.Parse("5.0.0"), NuGetVersion.Parse("6.0.0"));
+
+    public static readonly PackageUpdate SundewBasePackageUpdateForSundewPackagingPublish = new(SundewBaseData.Name, NuGetVersion.Parse("5.0.0"), NuGetVersion.Parse("5.1.1-pre002"));
+
+    public static readonly PackageUpdate SundewBasePinnedPrereleasePackageUpdateForSundewCommandLine = new(SundewBaseData.Name, NuGetVersion.Parse("6.0.0"), NuGetVersion.Parse("5.1.1-pre002"));
+
+    public static readonly PackageUpdate SundewBuildPublishPackageUpdateForSundewCommandLine = new(SundewPackagingPublishData.Name, NuGetVersion.Parse("0.0.1"), NuGetVersion.Parse("2.2.8"));
+
+    public static readonly PackageUpdate SundewBasePrereleasePackageUpdateForSundewCommandLine = new(SundewBaseData.Name, NuGetVersion.Parse("6.0.0"), NuGetVersion.Parse("6.0.1-pre-u20191101-205349"));
+
+    public static IEnumerable<PackageTestData> GetPackages()
     {
-        public const string RootDirectory = @"C:\solutionDir";
-        public static readonly ProjectTestData SundewBuildPublishProject = new(SundewPackagingPublishData.Name, SundewPackagingPublishData.Source, SundewPackagingPublishData.NonPrereleaseUpdatedSource, SundewPackagingPublishData.PrereleaseUpdatedSource);
-        public static readonly ProjectTestData SundewCommandLineProject = new(SundewCommandLineData.Name, SundewCommandLineData.Source, SundewCommandLineData.NonPrereleaseUpdatedSource, SundewCommandLineData.PrereleaseUpdatedSource);
-        public static readonly ProjectTestData TransparentMoqProject = new("TransparentMoq", TransparentMoqData.Source, TransparentMoqData.NonPrereleaseUpdatedSource, TransparentMoqData.Source);
+        yield return SundewBasePackage;
+        yield return SundewBuildPublishPackage;
+    }
 
-        public static readonly PackageTestData SundewBuildPublishPackage = new(SundewPackagingPublishData.Name, SundewPackagingPublishData.PackageVersions);
+    public static IEnumerable<ProjectTestData> GetProjects()
+    {
+        yield return SundewBuildPublishProject;
+        yield return SundewCommandLineProject;
+        yield return TransparentMoqProject;
+    }
 
-        public static readonly PackageTestData SundewBasePackage = new(SundewBaseData.Name, SundewBaseData.PackageVersions);
+    public static void Assert<TTestData>(this TTestData testData, Action<TTestData> assertAction)
+    {
+        assertAction(testData);
+    }
 
-        public static readonly PackageUpdate SundewBasePackageUpdateForSundewCommandLine = new(SundewBaseData.Name, NuGetVersion.Parse("5.0.0"), NuGetVersion.Parse("6.0.0"));
+    public static string GetProjectPath(string project)
+    {
+        return Path.Combine(RootDirectory, project + ".csproj");
+    }
 
-        public static readonly PackageUpdate SundewBasePackageUpdateForSundewPackagingPublish = new(SundewBaseData.Name, NuGetVersion.Parse("5.0.0"), NuGetVersion.Parse("5.1.1-pre002"));
+    public static class SundewPackagingPublishData
+    {
+        public const string Name = "Sundew.Packaging.Publish";
 
-        public static readonly PackageUpdate SundewBasePinnedPrereleasePackageUpdateForSundewCommandLine = new(SundewBaseData.Name, NuGetVersion.Parse("6.0.0"), NuGetVersion.Parse("5.1.1-pre002"));
-
-        public static readonly PackageUpdate SundewBuildPublishPackageUpdateForSundewCommandLine = new(SundewPackagingPublishData.Name, NuGetVersion.Parse("0.0.1"), NuGetVersion.Parse("2.2.8"));
-
-        public static readonly PackageUpdate SundewBasePrereleasePackageUpdateForSundewCommandLine = new(SundewBaseData.Name, NuGetVersion.Parse("6.0.0"), NuGetVersion.Parse("6.0.1-pre-u20191101-205349"));
-
-        public static IEnumerable<PackageTestData> GetPackages()
-        {
-            yield return SundewBasePackage;
-            yield return SundewBuildPublishPackage;
-        }
-
-        public static IEnumerable<ProjectTestData> GetProjects()
-        {
-            yield return SundewBuildPublishProject;
-            yield return SundewCommandLineProject;
-            yield return TransparentMoqProject;
-        }
-
-        public static void Assert<TTestData>(this TTestData testData, Action<TTestData> assertAction)
-        {
-            assertAction(testData);
-        }
-
-        public static string GetProjectPath(string project)
-        {
-            return Path.Combine(RootDirectory, project + ".csproj");
-        }
-
-        public static class SundewPackagingPublishData
-        {
-            public const string Name = "Sundew.Packaging.Publish";
-
-            public const string Source = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
+        public const string Source = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
@@ -164,7 +164,7 @@ namespace Sundew.Packaging.Tool.Tests
   <Import Project=""$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"" />
 </Project>";
 
-            public const string PrereleaseUpdatedSource = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
+        public const string PrereleaseUpdatedSource = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
@@ -267,7 +267,7 @@ namespace Sundew.Packaging.Tool.Tests
   <Import Project=""$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"" />
 </Project>";
 
-            public const string NonPrereleaseUpdatedSource = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
+        public const string NonPrereleaseUpdatedSource = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
@@ -370,7 +370,7 @@ namespace Sundew.Packaging.Tool.Tests
   <Import Project=""$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"" />
 </Project>";
 
-            public const string MajorMinorPinnedSundewBaseUpdatedSource = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
+        public const string MajorMinorPinnedSundewBaseUpdatedSource = @"<Project TreatAsLocalProperty=""NodeReuse"" Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <MSBUILDDISABLENODEREUSE>1</MSBUILDDISABLENODEREUSE>
@@ -473,18 +473,18 @@ namespace Sundew.Packaging.Tool.Tests
   <Import Project=""$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"" />
 </Project>";
 
-            public static readonly NuGetVersion[] PackageVersions = new[]
-            {
-                NuGetVersion.Parse("0.0.2-pre-u20191101-205349"),
-                NuGetVersion.Parse("2.2.8"),
-            };
-        }
-
-        public static class SundewCommandLineData
+        public static readonly NuGetVersion[] PackageVersions = new[]
         {
-            public const string Name = "Sundew.CommandLine";
+            NuGetVersion.Parse("0.0.2-pre-u20191101-205349"),
+            NuGetVersion.Parse("2.2.8"),
+        };
+    }
 
-            public const string Source = @"<Project Sdk=""Microsoft.NET.Sdk"">
+    public static class SundewCommandLineData
+    {
+        public const string Name = "Sundew.CommandLine";
+
+        public const string Source = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -549,7 +549,7 @@ Features:
 
 </Project>";
 
-            public const string PrereleaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
+        public const string PrereleaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -614,7 +614,7 @@ Features:
 
 </Project>";
 
-            public const string NonPrereleaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
+        public const string NonPrereleaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -679,7 +679,7 @@ Features:
 
 </Project>";
 
-            public const string PinnedSundewBaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
+        public const string PinnedSundewBaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -744,7 +744,7 @@ Features:
 
 </Project>";
 
-            public const string MajorMinorPinnedSundewBaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
+        public const string MajorMinorPinnedSundewBaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -808,11 +808,11 @@ Features:
   </ItemGroup>
 
 </Project>";
-        }
+    }
 
-        public static class TransparentMoqData
-        {
-            public const string Source = @"<Project Sdk=""Microsoft.NET.Sdk"">
+    public static class TransparentMoqData
+    {
+        public const string Source = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -867,7 +867,7 @@ fileSystem.Setup(x =&gt; x.Exists(It.IsAny&lt;string&gt;())).Returns(true);</Des
 </Project>
 ";
 
-            public const string NonPrereleaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
+        public const string NonPrereleaseUpdatedSource = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -922,34 +922,33 @@ fileSystem.Setup(x =&gt; x.Exists(It.IsAny&lt;string&gt;())).Returns(true);</Des
 </Project>
 ";
 
-            public static readonly NuGetVersion[] PackageVersions = new[]
-            {
-                NuGetVersion.Parse("4.15.2"),
-                NuGetVersion.Parse("4.16.0"),
-                NuGetVersion.Parse("1.2.1"),
-            };
-        }
-
-        public static class SundewBaseData
+        public static readonly NuGetVersion[] PackageVersions = new[]
         {
-            public const string Name = "Sundew.Base";
-
-            public static readonly NuGetVersion[] PackageVersions = new[]
-            {
-                NuGetVersion.Parse("4.0.0-pre002"),
-                NuGetVersion.Parse("4.0.0"),
-                NuGetVersion.Parse("5.1.0"),
-                NuGetVersion.Parse("5.1.1-pre002"),
-                NuGetVersion.Parse("6.0.0"),
-                NuGetVersion.Parse("6.0.1-pre-u20191101-205349"),
-            };
-        }
+            NuGetVersion.Parse("4.15.2"),
+            NuGetVersion.Parse("4.16.0"),
+            NuGetVersion.Parse("1.2.1"),
+        };
     }
 
-    public record ProjectTestData(string Name, string Source, string ExpectedNonPrereleaseUpdatedSource, string ExpectedPrereleaseUpdatedSource)
+    public static class SundewBaseData
     {
-        public string Path => TestData.GetProjectPath(this.Name);
-    }
+        public const string Name = "Sundew.Base";
 
-    public record PackageTestData(string Id, NuGetVersion[] Versions);
+        public static readonly NuGetVersion[] PackageVersions = new[]
+        {
+            NuGetVersion.Parse("4.0.0-pre002"),
+            NuGetVersion.Parse("4.0.0"),
+            NuGetVersion.Parse("5.1.0"),
+            NuGetVersion.Parse("5.1.1-pre002"),
+            NuGetVersion.Parse("6.0.0"),
+            NuGetVersion.Parse("6.0.1-pre-u20191101-205349"),
+        };
+    }
 }
+
+public record ProjectTestData(string Name, string Source, string ExpectedNonPrereleaseUpdatedSource, string ExpectedPrereleaseUpdatedSource)
+{
+    public string Path => TestData.GetProjectPath(this.Name);
+}
+
+public record PackageTestData(string Id, NuGetVersion[] Versions);
