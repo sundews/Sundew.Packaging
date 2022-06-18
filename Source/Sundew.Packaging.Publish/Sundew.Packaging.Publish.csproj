@@ -34,7 +34,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.17.1" />
+    <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
     <PackageReference Include="NuGet.Commands" Version="6.2.1" />
