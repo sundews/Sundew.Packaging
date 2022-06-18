@@ -67,9 +67,9 @@ jobs:
     - name: 'Publish package(s)'
       if: ${{ steps.stage-build.outputs.stage != 'none' }}
       run: |
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/PaketLocalUpdate.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n true
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Tool.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/PaketLocalUpdate.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
