@@ -40,8 +40,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Memory" Version="8.1.1+c75a9ef95c" />
-    <PackageReference Include="Sundew.CommandLine" Version="9.0.4+2203bd5500" />
+    <PackageReference Include="Sundew.Base.Memory" Version="8.2.0" />
+    <PackageReference Include="Sundew.CommandLine" Version="9.0.5" />
     <PackageReference Include="System.IO.Abstractions" Version="17.1.1" />
   </ItemGroup>
 
