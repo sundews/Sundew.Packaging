@@ -68,59 +68,99 @@ public static class Program
         }
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecutePushAsync(PushVerb pushVerb)
+    private static ValueTask<Result<int, ParserError<int>>> ExecutePushAsync(PushVerb pushVerb)
     {
-        var consoleLogger = new ConsoleLogger();
-        var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
-        var pushFacade = new PushFacade(new Sundew.Packaging.Versioning.IO.FileSystem(), new SettingsFactory(), nuGetToLoggerAdapter);
-        await pushFacade.PushAsync(pushVerb);
-        return Result.Success(0);
+        return RunSafeAsync(
+            async () =>
+            {
+                var consoleLogger = new ConsoleLogger();
+                var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
+                var pushFacade = new PushFacade(new Sundew.Packaging.Versioning.IO.FileSystem(), new SettingsFactory(), nuGetToLoggerAdapter);
+                await pushFacade.PushAsync(pushVerb);
+            });
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
+    private static ValueTask<Result<int, ParserError<int>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
     {
-        var consoleReporter = new ConsoleReporter(false);
-        var consoleLogger = new ConsoleLogger();
-        var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
-        var fileSystem = new Sundew.Packaging.Versioning.IO.FileSystem();
-        var stageBuildFacade = new StageBuildFacade(
-            new ProjectPackageInfoProvider(),
-            new PackageVersioner(new PackageExistsCommand(nuGetToLoggerAdapter), new LatestPackageVersionCommand(consoleLogger, nuGetToLoggerAdapter), consoleLogger),
-            new NuGetSettingsInitializationCommand(),
-            new DateTimeProvider(),
-            fileSystem,
-            new PackageVersionLogger(consoleReporter),
-            consoleReporter);
-        await stageBuildFacade.GetVersionAsync(stageBuildVerb);
-        return Result.Success(0);
+        return RunSafeAsync(
+            async () =>
+            {
+                var consoleReporter = new ConsoleReporter(false);
+                var consoleLogger = new ConsoleLogger();
+                var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
+                var fileSystem = new Sundew.Packaging.Versioning.IO.FileSystem();
+                var stageBuildFacade = new StageBuildFacade(
+                    new ProjectPackageInfoProvider(consoleLogger),
+                    new PackageVersioner(new PackageExistsCommand(nuGetToLoggerAdapter), new LatestPackageVersionCommand(consoleLogger, nuGetToLoggerAdapter), consoleLogger),
+                    new NuGetSettingsInitializationCommand(),
+                    new DateTimeProvider(),
+                    fileSystem,
+                    new PackageVersionLogger(consoleReporter),
+                    consoleReporter);
+                await stageBuildFacade.GetVersionAsync(stageBuildVerb);
+            });
     }
 
     private static async ValueTask<Result<int, ParserError<int>>> ExecuteDeleteAsync(DeleteVerb deleteVerb)
     {
-        var deleteFacade = new DeleteFacade(new FileSystem(), new ConsoleReporter(deleteVerb.Verbose));
-        return Result.Success(await deleteFacade.Delete(deleteVerb));
+        try
+        {
+            var deleteFacade = new DeleteFacade(new FileSystem(), new ConsoleReporter(deleteVerb.Verbose));
+            return Result.Success(await deleteFacade.Delete(deleteVerb));
+        }
+        catch
+        {
+            return Result.Error(ParserError.From(-1));
+        }
     }
 
     private static async ValueTask<Result<int, ParserError<int>>> ExecuteAwaitPublishAsync(AwaitPublishVerb awaitPublishVerb)
     {
-        var consoleReporter = new ConsoleReporter(awaitPublishVerb.Verbose);
-        var awaitPublishFacade = new AwaitPublishFacade(new FileSystem(), new NuGetSourceProvider(), consoleReporter);
-        var result = await awaitPublishFacade.Await(awaitPublishVerb);
-        return Result.From(result == 0, result, new ParserError<int>(result));
+        try
+        {
+            var consoleReporter = new ConsoleReporter(awaitPublishVerb.Verbose);
+            var awaitPublishFacade = new AwaitPublishFacade(new FileSystem(), new NuGetSourceProvider(), consoleReporter);
+            var result = await awaitPublishFacade.Await(awaitPublishVerb);
+            return Result.From(result == 0, result, new ParserError<int>(result));
+        }
+        catch
+        {
+            return Result.Error(ParserError.From(-1));
+        }
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecuteUpdateAsync(UpdateVerb updateVerb)
+    private static ValueTask<Result<int, ParserError<int>>> ExecuteUpdateAsync(UpdateVerb updateVerb)
     {
-        var consoleReporter = new ConsoleReporter(updateVerb.Verbose);
-        var packageUpdaterFacade = new PackageUpdaterFacade(new FileSystem(), new NuGetPackageVersionFetcher(new NuGetSourceProvider()), new ProcessRunner(), consoleReporter, consoleReporter, consoleReporter, consoleReporter);
-        await packageUpdaterFacade.UpdatePackagesInProjectsAsync(updateVerb);
-        return Result.Success(0);
+        return RunSafeAsync(
+            async () =>
+            {
+                var consoleReporter = new ConsoleReporter(updateVerb.Verbose);
+                var packageUpdaterFacade = new PackageUpdaterFacade(new FileSystem(), new NuGetPackageVersionFetcher(new NuGetSourceProvider()), new ProcessRunner(), consoleReporter, consoleReporter, consoleReporter, consoleReporter);
+                await packageUpdaterFacade.UpdatePackagesInProjectsAsync(updateVerb);
+            });
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecutePruneAllAsync(AllVerb allVerb)
+    private static ValueTask<Result<int, ParserError<int>>> ExecutePruneAllAsync(AllVerb allVerb)
     {
-        var pruneAllFacade = new PruneAllFacade(new NuGetSourceProvider(), new FileSystem(), new ConsoleReporter(allVerb.Verbose));
-        await pruneAllFacade.PruneAsync(allVerb);
+        return RunSafeAsync(
+            async () =>
+            {
+                var pruneAllFacade = new PruneAllFacade(new NuGetSourceProvider(), new FileSystem(), new ConsoleReporter(allVerb.Verbose));
+                await pruneAllFacade.PruneAsync(allVerb);
+            });
+    }
+
+    private static async ValueTask<Result<int, ParserError<int>>> RunSafeAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+        }
+        catch
+        {
+            return Result.Error(ParserError.From(-1));
+        }
+
         return Result.Success(0);
     }
 

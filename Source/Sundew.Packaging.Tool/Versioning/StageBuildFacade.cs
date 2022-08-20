@@ -131,6 +131,7 @@ public class StageBuildFacade
         catch (Exception e)
         {
             this.exceptionReporter.Exception(e);
+            throw;
         }
 
         return Task.CompletedTask;

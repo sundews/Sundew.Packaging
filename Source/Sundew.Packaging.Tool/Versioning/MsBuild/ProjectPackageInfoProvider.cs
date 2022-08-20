@@ -9,6 +9,8 @@ namespace Sundew.Packaging.Tool.Versioning.MsBuild;
 
 using System.IO;
 using System.Linq;
+using Microsoft.Build.Locator;
+using Sundew.Packaging.Versioning.Logging;
 
 /// <summary>
 /// Providers info about a package for a project.
@@ -21,15 +23,18 @@ public class ProjectPackageInfoProvider : IProjectPackageInfoProvider
     private const string PackageId = "PackageId";
     private const string PackageVersion = "PackageVersion";
     private const string Version100 = "1.0.0";
+    private readonly ILogger logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProjectPackageInfoProvider"/> class.
     /// </summary>
-    public ProjectPackageInfoProvider()
+    public ProjectPackageInfoProvider(ILogger logger)
     {
-        if (!Microsoft.Build.Locator.MSBuildLocator.IsRegistered)
+        this.logger = logger;
+        if (!MSBuildLocator.IsRegistered)
         {
-            Microsoft.Build.Locator.MSBuildLocator.RegisterDefaults();
+            var visualStudioInstance = MSBuildLocator.RegisterDefaults();
+            this.logger.LogInfo($"Registered Name: {visualStudioInstance.Name}, Version: {visualStudioInstance.Version}, MsBuild: {visualStudioInstance.MSBuildPath}");
         }
     }
 
