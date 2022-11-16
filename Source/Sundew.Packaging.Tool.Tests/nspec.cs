@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="nspec.cs" company="Hukano">
+// <copyright file="Nspec.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -15,7 +15,7 @@ using NSpec.Domain.Formatters;
 using NUnit.Framework;
 
 [TestFixture]
-public abstract class nspec : global::NSpec.nspec
+public abstract class Nspec : global::NSpec.nspec
 {
     [Test]
     public void debug()
