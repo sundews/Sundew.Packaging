@@ -23,7 +23,7 @@ using Sundew.Packaging.Tool.Update;
 using Sundew.Packaging.Tool.Update.MsBuild;
 using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
 
-public class describe_package_updater_facade : Nspec2
+public class describe_package_updater_facade : Nspec
 {
     void when_updating_packages()
     {
