@@ -27,6 +27,7 @@ public record Stage
     private const string PrereleasFormatText = "PrereleaseFormat";
     private const string PropertyName = "PropertyName";
     private const string PropertyValue = "PropertyValue";
+    private const string DisabledSource = "-";
     private static readonly Regex StageMatcherRegex = new($@"(?<StageRegex>.+?)(?=\s*=\>)\s*=\>\s*(?:#\s*(?<StageName>\w*))?\s*(?:\&(?<PrereleaseFormat>\S+))?\s+(?:(?:(?<ApiKey>[^@\|\s]*)@)?(?<Uri>[^\|\s|\{{]+))(?:\s*\{{\s*(?<FeedUri>[^\|\s]+)\s*\}}\s*)?(?:\s*\|\s*(?:(?<SymbolsApiKey>[^@\|\s]*)@)?(?<SymbolsUri>[^\|\s]+))?(?:\|(?:\|(?<PropertyName>[^\|\=]+)\=(?<PropertyValue>[^\|\=]+))+)?");
 
     /// <summary>
@@ -44,7 +45,7 @@ public record Stage
     /// <param name="prereleaseFormat">The prerelease format.</param>
     /// <param name="additionalFeedSources">The additional feed sources.</param>
     /// <param name="properties">The properties.</param>
-    /// <param name="isEnabled">if set to <c>true</c> [is enabled].</param>
+    /// <param name="isPublishEnabled">if set to <c>true</c> [is enabled].</param>
     /// <param name="isFallback">if set to <c>true</c> [is fallback].</param>
     public Stage(
         Regex? stageRegex,
@@ -59,7 +60,7 @@ public record Stage
         string? prereleaseFormat,
         IReadOnlyList<string>? additionalFeedSources,
         IReadOnlyDictionary<string, string>? properties,
-        bool isEnabled,
+        bool isPublishEnabled,
         bool isFallback = false)
     {
         this.StageRegex = stageRegex;
@@ -75,7 +76,8 @@ public record Stage
         this.AdditionalFeedSources = additionalFeedSources;
         this.Properties = properties;
         this.IsFallback = isFallback;
-        this.IsEnabled = isEnabled;
+        this.IsGetVersionEnabled = feedSource != DisabledSource && pushSource != DisabledSource;
+        this.IsPublishEnabled = isPublishEnabled && this.IsGetVersionEnabled;
     }
 
     /// <summary>
@@ -180,7 +182,15 @@ public record Stage
     /// <value>
     ///   <c>true</c> if this instance is enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool IsEnabled { get; }
+    public bool IsPublishEnabled { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the version should be fetched.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this instance is enabled; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsGetVersionEnabled { get; }
 
     /// <summary>
     /// Gets the properties.

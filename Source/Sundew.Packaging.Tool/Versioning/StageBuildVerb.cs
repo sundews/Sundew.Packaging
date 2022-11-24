@@ -246,6 +246,11 @@ public class StageBuildVerb : IVerb
     public IReadOnlyList<string>? OutputFormats => this.outputFormats;
 
     /// <summary>
+    /// Gets the output file.
+    /// </summary>
+    public string? OutputFilePath { get; private set; }
+
+    /// <summary>
     /// Configures the specified arguments builder.
     /// </summary>
     /// <param name="argumentsBuilder">The arguments builder.</param>
@@ -297,6 +302,8 @@ Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]Source
         argumentsBuilder.AddOptionalEnum("vm", "versioning-mode", () => this.VersioningMode, s => this.VersioningMode = s, "The versioning mode");
         argumentsBuilder.AddOptional("vf", "version-format", () => this.VersionFormat, s => this.VersionFormat = s, "The version format");
         argumentsBuilder.AddOptional("fv", "force-version", () => this.ForceVersion, s => this.ForceVersion = s, "Forces the version to the specified value");
-        argumentsBuilder.AddOptionalList("o", "output-formats", this.outputFormats, "A list of formats that will be logged to stdout.");
+        argumentsBuilder.AddOptionalList("o", "output-formats", this.outputFormats, @"A list of formats that will be logged to stdout.
+Use redirection format (>[filename]|output-format) to output to a file.");
+        argumentsBuilder.AddOptional("of", "output-file", () => this.OutputFilePath, s => this.OutputFilePath = s, "The file path to be used for output formats that specifies empty redirection >|");
     }
 }

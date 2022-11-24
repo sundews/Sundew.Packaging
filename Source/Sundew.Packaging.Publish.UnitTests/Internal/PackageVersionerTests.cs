@@ -150,6 +150,8 @@ public class PackageVersionerTests
     [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", null, "3.0.0-u20160108-173613-ci")]
     [InlineData("3.0", VersioningMode.AutomaticLatestPatch, "ci", "3.0.2", "3.0.3-u20160108-173613-ci")]
     [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", null, "3.0.1-u20160108-173613-ci")]
+    [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.0", "3.0.1.1-u20160108-173613-ci")]
+    [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1", "3.0.1.1-u20160108-173613-ci")]
     [InlineData("3.0", VersioningMode.AutomaticLatestRevision, "ci", "3.0.2", "3.0.2.1-u20160108-173613-ci")]
     [InlineData("3.0.1", VersioningMode.AutomaticLatestRevision, "ci", "3.0.1.10", "3.0.1.11-u20160108-173613-ci")]
     public void GetVersion_When_UsingFallbackPrereleaseFormat_Then_ResultToFullStringShouldBeExpectedResult(string versionNumber, VersioningMode versioningMode, string stage, string? latestVersion, string expectedResult)
