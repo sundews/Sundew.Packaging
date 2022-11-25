@@ -274,6 +274,8 @@ Help
      -vf  | --version-format     | The version format                                                                                        | Default: [none]
      -fv  | --force-version      | Forces the version to the specified value                                                                 | Default: [none]
      -o   | --output-formats     | A list of formats that will be logged to stdout.                                                          | Default: [none]
+                                   Use redirection format (>[filename]|output-format) to output to a file.
+     -of  | --output-file        | The file path to be used for output formats that specifies empty redirection >|                           | Default: [none]
    push                          Pushes the specified package(s) to a source
      -s   | --source             | The source used to push packages.                                                                         | Required
      -k   | --api-key            | The api key to be used for the push.                                                                      | Required
