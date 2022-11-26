@@ -14,7 +14,7 @@
    <PackageLicenseExpression>MIT</PackageLicenseExpression>
    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
    <WarningsAsErrors />
-   <SppForceVersion Condition="'$(GlobalVersion)' == ''">$(GlobalVersion)</SppForceVersion>
+   <SppForceVersion>$(GlobalVersion)</SppForceVersion>
  </PropertyGroup>
  <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')"/>
 </Project>
