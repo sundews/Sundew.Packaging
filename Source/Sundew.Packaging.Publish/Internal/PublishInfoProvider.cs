@@ -35,7 +35,7 @@ internal class PublishInfoProvider : IPublishInfoProvider
             selectedSource.ApiKey,
             selectedSource.SymbolsPushSource,
             selectedSource.SymbolsApiKey,
-            selectedSource.IsEnabled,
+            selectedSource.IsPublishEnabled,
             nuGetVersion,
             fullNuGetVersion,
             metadata);
@@ -46,7 +46,7 @@ internal class PublishInfoProvider : IPublishInfoProvider
         }
 
         this.fileSystem.WriteAllText(publishInfoFilePath, JsonConvert.SerializeObject(publishInfo));
-        this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.StageName}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsEnabled} to {publishInfoFilePath}");
+        this.logger.LogInfo($"Wrote publish info: Stage: {selectedSource.StageName}, Feed: {selectedSource.FeedSource}, PushSource: {selectedSource.PushSource}, IsEnabled: {selectedSource.IsPublishEnabled} to {publishInfoFilePath}");
         return publishInfo;
     }
 

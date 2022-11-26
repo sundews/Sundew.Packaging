@@ -93,21 +93,25 @@ public class StageBuildFacade
                 true,
                 stageBuildVerb.NoStageProperties);
 
-            var latestVersionSources = this.latestVersionSourcesCommand.GetLatestVersionSources(null, selectedSource, nuGetSettings, false, false);
             if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))
             {
-                var packageVersion = this.packageVersioner.GetVersion(
-                    packageInfo.PackageId,
-                    nuGetVersion,
-                    stageBuildVerb.VersionFormat,
-                    stageBuildVerb.ForceVersion,
-                    stageBuildVerb.VersioningMode,
-                    selectedSource,
-                    latestVersionSources,
-                    this.dateTime.UtcNow,
-                    stageBuildVerb.Metadata,
-                    null,
-                    null ?? string.Empty);
+                NuGetVersion? semanticVersion = null;
+                if (selectedSource.IsGetVersionEnabled)
+                {
+                    var latestVersionSources = this.latestVersionSourcesCommand.GetLatestVersionSources(null, selectedSource, nuGetSettings, false, false);
+                    semanticVersion = this.packageVersioner.GetVersion(
+                        packageInfo.PackageId,
+                        nuGetVersion,
+                        stageBuildVerb.VersionFormat,
+                        stageBuildVerb.ForceVersion,
+                        stageBuildVerb.VersioningMode,
+                        selectedSource,
+                        latestVersionSources,
+                        this.dateTime.UtcNow,
+                        stageBuildVerb.Metadata,
+                        null,
+                        null ?? string.Empty);
+                }
 
                 var publishInfo = new PublishInfo(
                     selectedSource.StageName,
@@ -117,12 +121,12 @@ public class StageBuildFacade
                     selectedSource.ApiKey,
                     selectedSource.SymbolsPushSource,
                     selectedSource.SymbolsApiKey,
-                    selectedSource.IsEnabled,
-                    packageVersion.ToNormalizedString(),
-                    packageVersion.ToFullString(),
-                    packageVersion.Metadata);
+                    selectedSource.IsPublishEnabled,
+                    semanticVersion?.ToNormalizedString() ?? null,
+                    semanticVersion?.ToFullString() ?? null,
+                    semanticVersion?.Metadata ?? stageBuildVerb.Metadata);
 
-                this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, selectedSource.Properties);
+                this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, semanticVersion, selectedSource.Properties, stageBuildVerb.OutputFilePath);
                 return Task.CompletedTask;
             }
 

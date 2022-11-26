@@ -5,18 +5,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Packaging.Versioning;
-
-using System;
-using global::NuGet.Versioning;
+namespace Sundew.Packaging.Tool.Versioning;
 
 /// <summary>
 /// Contains information for publishing NuGet packages.
 /// </summary>
 public class PublishInfo
 {
-    private Lazy<NuGetVersion> nuGetVersion;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PublishInfo" /> class.
     /// </summary>
@@ -40,8 +35,8 @@ public class PublishInfo
         string? symbolsPushSource,
         string? symbolsApiKey,
         bool isEnabled,
-        string version,
-        string fullVersion,
+        string? version,
+        string? fullVersion,
         string? metadata)
     {
         this.Stage = stage;
@@ -55,7 +50,6 @@ public class PublishInfo
         this.Version = version;
         this.FullVersion = fullVersion;
         this.Metadata = metadata;
-        this.nuGetVersion = new Lazy<NuGetVersion>(() => NuGetVersion.Parse(this.FullVersion));
     }
 
     /// <summary>
@@ -128,12 +122,7 @@ public class PublishInfo
     /// <value>
     /// The normalized version.
     /// </value>
-    public string Version { get; }
-
-    /// <summary>
-    /// Gets the NuGet Version.
-    /// </summary>
-    public NuGetVersion NuGetVersion => this.nuGetVersion.Value;
+    public string? Version { get; }
 
     /// <summary>
     /// Gets the full nuget version.
@@ -141,7 +130,7 @@ public class PublishInfo
     /// <value>
     /// The nuget version.
     /// </value>
-    public string FullVersion { get; }
+    public string? FullVersion { get; }
 
     /// <summary>
     /// Gets the metadata.

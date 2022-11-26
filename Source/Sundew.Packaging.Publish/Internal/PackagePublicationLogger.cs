@@ -19,7 +19,7 @@ internal sealed class PackagePublicationLogger
 {
     private const string DoubleQuotes = @"""";
     private const string IndicesContainedNullValues = "The following indices contained null values: ";
-    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
+    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
     private readonly ILogger logger;
 
     public PackagePublicationLogger(ILogger logger)
@@ -92,7 +92,28 @@ internal sealed class PackagePublicationLogger
     {
         var arguments = new object?[]
         {
-            packageId, publishInfo.Version, publishInfo.FullVersion, packagePath, publishInfo.Stage, publishInfo.VersionStage, publishInfo.PushSource, publishInfo.ApiKey, publishInfo.FeedSource, symbolPackagePath, publishInfo.SymbolsPushSource, publishInfo.SymbolsApiKey, publishInfo.Metadata, workingDirectory, parameter, DoubleQuotes, Environment.NewLine,
+            packageId,
+            publishInfo.Version,
+            publishInfo.FullVersion,
+            packagePath,
+            publishInfo.Stage,
+            publishInfo.VersionStage,
+            publishInfo.PushSource,
+            publishInfo.ApiKey,
+            publishInfo.FeedSource,
+            symbolPackagePath,
+            publishInfo.SymbolsPushSource,
+            publishInfo.SymbolsApiKey,
+            publishInfo.Metadata,
+            workingDirectory,
+            parameter,
+            publishInfo.NuGetVersion.Major,
+            publishInfo.NuGetVersion.Minor,
+            publishInfo.NuGetVersion.Patch,
+            publishInfo.NuGetVersion.Revision,
+            publishInfo.NuGetVersion.Release,
+            DoubleQuotes,
+            Environment.NewLine,
         };
 
         var namedFormatString = new NamedFormatString(logFormat, LogNames);

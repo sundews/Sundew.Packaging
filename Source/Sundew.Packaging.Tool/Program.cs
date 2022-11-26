@@ -42,12 +42,12 @@ public static class Program
     {
         try
         {
-            var commandLineParser = new CommandLineParser<int, int>();
+            var commandLineParser = new CommandLineParser<int, string>();
             commandLineParser.AddVerb(new StageBuildVerb(), ExecuteStageBuildAsync);
             commandLineParser.AddVerb(new PushVerb(), ExecutePushAsync);
             commandLineParser.AddVerb(new UpdateVerb(), ExecuteUpdateAsync);
             commandLineParser.AddVerb(new AwaitPublishVerb(), ExecuteAwaitPublishAsync);
-            commandLineParser.AddVerb(new PruneLocalSourceVerb(), v => Result.Error(ParserError.From(-1)), builder =>
+            commandLineParser.AddVerb(new PruneLocalSourceVerb(), v => Result.Error(ParserError.From("Prune needs sub command.")), builder =>
             {
                 builder.AddVerb(new AllVerb(), ExecutePruneAllAsync);
                 //// builder.AddVerb(new NewestPrereleasesPruneModeVerb(), ExecutePruneNewestPrereleasesAsync);
@@ -59,7 +59,7 @@ public static class Program
                 result.WriteToConsole();
             }
 
-            return result.GetExitCode();
+            return -1;
         }
         catch (Exception e)
         {
@@ -68,7 +68,7 @@ public static class Program
         }
     }
 
-    private static ValueTask<Result<int, ParserError<int>>> ExecutePushAsync(PushVerb pushVerb)
+    private static ValueTask<Result<int, ParserError<string>>> ExecutePushAsync(PushVerb pushVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -80,7 +80,7 @@ public static class Program
             });
     }
 
-    private static ValueTask<Result<int, ParserError<int>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
+    private static ValueTask<Result<int, ParserError<string>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -95,41 +95,41 @@ public static class Program
                     new NuGetSettingsInitializationCommand(),
                     new DateTimeProvider(),
                     fileSystem,
-                    new PackageVersionLogger(consoleReporter),
+                    new PackageVersionLogger(consoleReporter, new Packaging.Versioning.IO.FileSystem()),
                     consoleReporter);
                 await stageBuildFacade.GetVersionAsync(stageBuildVerb);
             });
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecuteDeleteAsync(DeleteVerb deleteVerb)
+    private static async ValueTask<Result<int, ParserError<string>>> ExecuteDeleteAsync(DeleteVerb deleteVerb)
     {
         try
         {
             var deleteFacade = new DeleteFacade(new FileSystem(), new ConsoleReporter(deleteVerb.Verbose));
             return Result.Success(await deleteFacade.Delete(deleteVerb));
         }
-        catch
+        catch (Exception exception)
         {
-            return Result.Error(ParserError.From(-1));
+            return Result.Error(ParserError.From(exception.ToString()));
         }
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecuteAwaitPublishAsync(AwaitPublishVerb awaitPublishVerb)
+    private static async ValueTask<Result<int, ParserError<string>>> ExecuteAwaitPublishAsync(AwaitPublishVerb awaitPublishVerb)
     {
         try
         {
             var consoleReporter = new ConsoleReporter(awaitPublishVerb.Verbose);
             var awaitPublishFacade = new AwaitPublishFacade(new FileSystem(), new NuGetSourceProvider(), consoleReporter);
             var result = await awaitPublishFacade.Await(awaitPublishVerb);
-            return Result.From(result == 0, result, new ParserError<int>(result));
+            return Result.From(result == 0, result, new ParserError<string>($"Await publish error code: {result}"));
         }
-        catch
+        catch (Exception exception)
         {
-            return Result.Error(ParserError.From(-1));
+            return Result.Error(ParserError.From(exception.ToString()));
         }
     }
 
-    private static ValueTask<Result<int, ParserError<int>>> ExecuteUpdateAsync(UpdateVerb updateVerb)
+    private static ValueTask<Result<int, ParserError<string>>> ExecuteUpdateAsync(UpdateVerb updateVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -140,7 +140,7 @@ public static class Program
             });
     }
 
-    private static ValueTask<Result<int, ParserError<int>>> ExecutePruneAllAsync(AllVerb allVerb)
+    private static ValueTask<Result<int, ParserError<string>>> ExecutePruneAllAsync(AllVerb allVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -150,15 +150,15 @@ public static class Program
             });
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> RunSafeAsync(Func<Task> action)
+    private static async ValueTask<Result<int, ParserError<string>>> RunSafeAsync(Func<Task> action)
     {
         try
         {
             await action();
         }
-        catch
+        catch (Exception exception)
         {
-            return Result.Error(ParserError.From(-1));
+            return Result.Error(ParserError.From(exception.ToString()));
         }
 
         return Result.Success(0);

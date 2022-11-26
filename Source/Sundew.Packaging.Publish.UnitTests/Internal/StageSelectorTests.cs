@@ -7,6 +7,8 @@
 
 namespace Sundew.Packaging.Publish.UnitTests.Internal;
 
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 using NuGet.Configuration;
@@ -154,5 +156,47 @@ public class StageSelectorTests
         result.ApiKey.Should().Be(expectedSourceApiKey);
         result.PrereleaseFormat.Should().Be(expectedPrereleaseFormat);
         result.SymbolsApiKey.Should().Be(expectedSymbolSourceApiKey);
+    }
+
+    [Theory]
+    [InlineData(@".+=> -||Configuration=Release", "-", null, null, null, Strings.Empty, "ci", null, Strings.Empty)]
+    public void SelectSource_When_MatchingIntegrationSourceAndSourceDoesNotContainSpace_Then_ResultShouldBeAsExpected2(
+        string source,
+        string expectedFeedUri,
+        string expectedSourceApiKey,
+        string expectedSymbolUri,
+        string expectedSymbolSourceApiKey,
+        string expectedPackagePrefix,
+        string expectedStage,
+        string expectedPrereleaseFormat,
+        string expectedPackagePostfix)
+    {
+        var result = StageSelector.Select(
+            "refs/heads/release/branch",
+            string.Empty,
+            source,
+            string.Empty,
+            string.Empty,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            New.Mock<ISettings>(),
+            false,
+            true,
+            null);
+
+        result.PushSource.Should().Be("-");
+        result.FeedSource.Should().Be(expectedFeedUri);
+        result.SymbolsPushSource.Should().Be(expectedSymbolUri);
+        result.PackagePrefix.Should().Be(expectedPackagePrefix);
+        result.VersionStageName.Should().Be(expectedStage);
+        result.PackagePostfix.Should().Be(expectedPackagePostfix);
+        result.ApiKey.Should().Be(expectedSourceApiKey);
+        result.PrereleaseFormat.Should().Be(expectedPrereleaseFormat);
+        result.SymbolsApiKey.Should().Be(expectedSymbolSourceApiKey);
+        result.Properties.Should().Equal(new Dictionary<string, string>() { { "Configuration", "Release" } });
     }
 }

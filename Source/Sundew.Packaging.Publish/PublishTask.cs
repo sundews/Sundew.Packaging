@@ -14,6 +14,7 @@ using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Common;
+using NuGet.Versioning;
 using Sundew.Packaging.Publish.Internal;
 using Sundew.Packaging.Publish.Internal.Commands;
 using Sundew.Packaging.Publish.Internal.Logging;

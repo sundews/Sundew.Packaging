@@ -35,7 +35,7 @@ public class PushFacade
 
     public async Task PushAsync(PushVerb pushVerb)
     {
-        var workingDirectory = pushVerb.WorkingDirectory ?? this.fileSystem.GetCurrentDirectory();
+        var workingDirectory = pushVerb.WorkingDirectory;
         var settings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
         var packageSourceProvider = new PackageSourceProvider(settings);
         var files = pushVerb.PackagePaths.Select(
