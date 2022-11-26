@@ -57,9 +57,10 @@ public static class Program
             if (!result)
             {
                 result.WriteToConsole();
+                return -1;
             }
 
-            return -1;
+            return 0;
         }
         catch (Exception e)
         {
