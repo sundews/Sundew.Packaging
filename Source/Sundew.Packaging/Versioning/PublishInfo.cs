@@ -7,11 +7,16 @@
 
 namespace Sundew.Packaging.Versioning;
 
+using System;
+using global::NuGet.Versioning;
+
 /// <summary>
 /// Contains information for publishing NuGet packages.
 /// </summary>
 public class PublishInfo
 {
+    private Lazy<NuGetVersion> nuGetVersion;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PublishInfo" /> class.
     /// </summary>
@@ -50,6 +55,7 @@ public class PublishInfo
         this.Version = version;
         this.FullVersion = fullVersion;
         this.Metadata = metadata;
+        this.nuGetVersion = new Lazy<NuGetVersion>(() => NuGetVersion.Parse(this.FullVersion));
     }
 
     /// <summary>
@@ -123,6 +129,11 @@ public class PublishInfo
     /// The normalized version.
     /// </value>
     public string Version { get; }
+
+    /// <summary>
+    /// Gets the NuGet Version.
+    /// </summary>
+    public NuGetVersion NuGetVersion => this.nuGetVersion.Value;
 
     /// <summary>
     /// Gets the full nuget version.

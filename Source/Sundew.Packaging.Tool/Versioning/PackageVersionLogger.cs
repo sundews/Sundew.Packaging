@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using global::NuGet.Versioning;
 using Sundew.Base.Memory;
 using Sundew.Base.Text;
 using Sundew.Packaging.Versioning.IO;
@@ -27,7 +28,7 @@ public sealed class PackageVersionLogger
     private const string UnknownNames = "The following name(s) where not found: ";
     private const string LogFormat = "LogFormat";
     private const string FilePath = "FilePath";
-    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "DQ", "NL" };
+    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
     private static readonly Regex RedirectFormat = new Regex(@"^(?:>(?<FilePath>[^\|]+)?\|)(?<LogFormat>.*)");
     private readonly IStageBuildLogger logger;
     private readonly IFileSystem fileSystem;
@@ -51,6 +52,7 @@ public sealed class PackageVersionLogger
     /// <param name="publishInfo">The publish information.</param>
     /// <param name="workingDirectory">The working directory.</param>
     /// <param name="parameter">The parameter.</param>
+    /// <param name="nuGetVersion">The nuget version.</param>
     /// <param name="properties">The properties.</param>
     /// <param name="outputFilePath">The output file path.</param>
     public void Log(
@@ -59,6 +61,7 @@ public sealed class PackageVersionLogger
         PublishInfo publishInfo,
         string workingDirectory,
         string parameter,
+        NuGetVersion? nuGetVersion,
         IReadOnlyDictionary<string, string>? properties,
         string? outputFilePath)
     {
@@ -81,6 +84,11 @@ public sealed class PackageVersionLogger
         valueBuffer.Write(publishInfo.Metadata);
         valueBuffer.Write(workingDirectory);
         valueBuffer.Write(parameter);
+        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Major : null);
+        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Minor : null);
+        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Patch : null);
+        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Revision : null);
+        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Release : null);
         valueBuffer.Write(DoubleQuotes);
         valueBuffer.Write(Environment.NewLine);
         var logNames = LogNames.ToList();

@@ -63,7 +63,7 @@ public class PackageVersioner : IPackageVersioner
     /// <param name="metadataFormat">The metadata format.</param>
     /// <param name="parameter">The parameter.</param>
     /// <returns>The version.</returns>
-    public SemanticVersion GetVersion(
+    public NuGetVersion GetVersion(
         string packageId,
         NuGetVersion nuGetVersion,
         string? versionFormat,
@@ -110,7 +110,7 @@ public class PackageVersioner : IPackageVersioner
         };
     }
 
-    private SemanticVersion GetAutomaticLatestPatchVersion(
+    private NuGetVersion GetAutomaticLatestPatchVersion(
         DateTime buildDateTime,
         string packageId,
         NuGetVersion nugetVersion,
@@ -138,7 +138,7 @@ public class PackageVersioner : IPackageVersioner
         return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch + patchIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
     }
 
-    private SemanticVersion GetAutomaticLatestRevisionVersion(
+    private NuGetVersion GetAutomaticLatestRevisionVersion(
         DateTime buildDateTime,
         string packageId,
         NuGetVersion nugetVersion,
@@ -166,7 +166,7 @@ public class PackageVersioner : IPackageVersioner
         return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
     }
 
-    private SemanticVersion GetIncrementPatchIfStableExistForPrereleaseVersion(
+    private NuGetVersion GetIncrementPatchIfStableExistForPrereleaseVersion(
         DateTime buildDateTime,
         string packageId,
         NuGetVersion nugetVersion,
@@ -185,7 +185,7 @@ public class PackageVersioner : IPackageVersioner
         return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
     }
 
-    private SemanticVersion GetIncrementPatchVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedStage selectedSource, string metadata, string parameter, string versionMetadata)
+    private NuGetVersion GetIncrementPatchVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedStage selectedSource, string metadata, string parameter, string versionMetadata)
     {
         if (selectedSource.IsStableRelease)
         {
@@ -195,7 +195,7 @@ public class PackageVersioner : IPackageVersioner
         return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch + 1, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
     }
 
-    private SemanticVersion GetNoChangeVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedStage selectedSource, string metadata, string parameter, string versionMetadata)
+    private NuGetVersion GetNoChangeVersion(DateTime buildDateTime, NuGetVersion nugetVersion, SelectedStage selectedSource, string metadata, string parameter, string versionMetadata)
     {
         if (selectedSource.IsStableRelease)
         {

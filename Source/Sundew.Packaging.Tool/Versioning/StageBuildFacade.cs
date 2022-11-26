@@ -95,7 +95,7 @@ public class StageBuildFacade
 
             if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))
             {
-                SemanticVersion? semanticVersion = null;
+                NuGetVersion? semanticVersion = null;
                 if (selectedSource.IsGetVersionEnabled)
                 {
                     var latestVersionSources = this.latestVersionSourcesCommand.GetLatestVersionSources(null, selectedSource, nuGetSettings, false, false);
@@ -126,7 +126,7 @@ public class StageBuildFacade
                     semanticVersion?.ToFullString() ?? null,
                     semanticVersion?.Metadata ?? stageBuildVerb.Metadata);
 
-                this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, selectedSource.Properties, stageBuildVerb.OutputFilePath);
+                this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, semanticVersion, selectedSource.Properties, stageBuildVerb.OutputFilePath);
                 return Task.CompletedTask;
             }
 

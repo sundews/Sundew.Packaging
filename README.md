@@ -166,23 +166,28 @@ Packages for the three sources above are versioned differently:
 - **SppPrereleasePostfix** = (default: **null**) specifies the postfix to be used for prerelease packages.
 - **SppParameter** = (default: **empty**)
 - **SppPublishLogFormat** = (default: **null**) specifies a format with which packages to be pushed can be logged. Multiple formats can be separated by |.
-  - **{0,PackageId}** - The package id.
-  - **{1,Version}** - The normalized package version
-  - **{2,FullVersion}** - The full package version
-  - **{3,PackagePath}** - The package path
-  - **{4,Stage}** - The selected stage
-  - **{5,VersionStage}** - The version stage
-  - **{6,PushSource}** - The selected push source
-  - **{7,ApiKey}** - The api key
-  - **{8,FeedSource}** - The selected feed source
-  - **{9,SymbolsPath}** - The symbol package path
-  - **{10,SymbolsPushSource}** - The selected symbol package source
-  - **{11,SymbolsApiKey}** - The symbol api key
-  - **{12,Metadata}** - The metadata
-  - **{12,WorkingDirectory}** - The working directory
-  - **{13,Parameter}** - The value of the SppParameter MSBuild property
-  - **{14,DQ}** - Double quote
-  - **{15,NL}** - Environment.NewLine
+  - **{PackageId}** - The package id.
+  - **{Version}** - The normalized package version
+  - **{FullVersion}** - The full package version
+  - **{VersionMajor}** - The full package version
+  - **{VersionMinor}** - The full package version
+  - **{VersionPatch}** - The full package version
+  - **{VersionRevision}** - The full package version
+  - **{VersionRelease}** - The package path
+  - **{Stage}** - The selected stage
+  - **{VersionStage}** - The version stage
+  - **{PushSource}** - The selected push source
+  - **{ApiKey}** - The api key
+  - **{FeedSource}** - The selected feed source
+  - **{SymbolsPath}** - The symbol package path
+  - **{SymbolsPushSource}** - The selected symbol package source
+  - **{SymbolsApiKey}** - The symbol api key
+  - **{Metadata}** - The metadata
+  - **{WorkingDirectory}** - The working directory
+  - **{Parameter}** - The value of the SppParameter MSBuild property
+  - **{DQ}** - Double quote
+  - **{NL}** - Environment.NewLine
+  - **{PackagePath}** - The package path
 
    Usefull for CI environments to extract information from the build. E.g. to set a build variable to the select push source and path for pushing packages from the CI environment only.
 

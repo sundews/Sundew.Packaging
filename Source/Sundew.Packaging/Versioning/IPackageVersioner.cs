@@ -32,7 +32,7 @@ public interface IPackageVersioner
     /// <param name="metadataFormat">The metadata format.</param>
     /// <param name="parameter">The parameter.</param>
     /// <returns>The semantic version.</returns>
-    SemanticVersion GetVersion(
+    NuGetVersion GetVersion(
         string packageId,
         NuGetVersion nuGetVersion,
         string? combiningVersion,
