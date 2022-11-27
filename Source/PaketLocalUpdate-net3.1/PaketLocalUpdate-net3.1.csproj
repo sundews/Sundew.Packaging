@@ -9,7 +9,7 @@
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <RuntimeVersion>3</RuntimeVersion>
     <Version>$(RuntimeVersion).$(Version)</Version>
-    <SppForceVersion>$(RuntimeVersion).$(GlobalVersion)</SppForceVersion>
+    <SppVersioningMode>AutomaticLatestRevision</SppVersioningMode>
   </PropertyGroup>
 
   <ItemGroup>

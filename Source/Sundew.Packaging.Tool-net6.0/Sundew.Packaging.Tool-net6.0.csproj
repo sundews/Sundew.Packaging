@@ -19,6 +19,7 @@
     <RuntimeVersion>6</RuntimeVersion>
     <Version>$(RuntimeVersion).$(Version)</Version>
     <SppForceVersion>$(RuntimeVersion).$(GlobalVersion)</SppForceVersion>
+    <SppVersioningMode>AutomaticLatestRevision</SppVersioningMode>
   </PropertyGroup>
 
   <ItemGroup>
