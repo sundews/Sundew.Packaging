@@ -250,8 +250,10 @@ https://github.com/sundews/Sundew.Packaging/blob/main/.github/workflows/dotnet.y
 * Prune NuGet packages from a local source.
 
 ## **2. Install**
-Sundew.Packaging.Tool is available on NuGet at: https://www.nuget.org/packages/Sundew.Packaging.Tool
-dotnet tool install -g Sundew.Packaging.Tool
+Sundew.Packaging.Tool uses multi targetted tool versioning, which means the versioning scheme follows the pattern {SupportedRuntime}.{Major}.{Minor}.{Patch}.
+This means that the install can be fixed to a version of the tool running on a specific runtime version. .NET 3.1 (3), 6 and 7 are supported.
+It is available on NuGet at:  https://www.nuget.org/packages/Sundew.Packaging.Tool
+dotnet tool install Sundew.Packaging.Tool -g --version 7.8.*
 
 ## **3. Usage**
 
@@ -357,8 +359,10 @@ PaketLocalUpdate (plu) works around this limitation allowing you to work with lo
 Attention! Do not commit your paket.lock file with local dependencies!
 
 ## **2. Install**
-PaketLocalUpdate is available on NuGet at: https://www.nuget.org/packages/PaketLocalUpdate
-dotnet tool install -g PaketLocalUpdate
+PaketLocalUpdate uses multi targetted tool versioning, which means the versioning scheme follows the pattern {SupportedRuntime}.{Major}.{Minor}.{Patch}.
+This means that the install can be fixed to a version of the tool running on a specific runtime version. .NET 3.1, 6 and 7 are supported.
+It is available on NuGet at: https://www.nuget.org/packages/PaketLocalUpdate
+dotnet tool install PaketLocalUpdate -g --version 7.4.*
 
 ## **3. Usage**
 ```

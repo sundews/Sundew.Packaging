@@ -2,17 +2,18 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackAsTool>true</PackAsTool>
+    <AssemblyName>PaketLocalUpdate</AssemblyName>
     <ToolCommandName>plu</ToolCommandName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <RuntimeVersion>7</RuntimeVersion>
+    <RuntimeVersion>3</RuntimeVersion>
     <Version>$(RuntimeVersion).$(Version)</Version>
     <SppForceVersion>$(RuntimeVersion).$(GlobalVersion)</SppForceVersion>
   </PropertyGroup>
 
- <ItemGroup>
-    <AdditionalFiles Include="stylecop.json" />
+  <ItemGroup>
+    <AdditionalFiles Include="..\Sundew.Packaging.Tool\stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +29,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <Compile Include="..\PaketLocalUpdate\**\*.cs" />
+    <Compile Remove="..\PaketLocalUpdate\obj\**" />
+    <Compile Remove="..\PaketLocalUpdate\bin\**" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
   </ItemGroup>

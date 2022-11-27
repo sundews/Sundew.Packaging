@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackAsTool>true</PackAsTool>
+    <AssemblyName>Sundew.Packaging.Tool</AssemblyName>
     <ToolCommandName>spt</ToolCommandName>
     <Description>* Get build stage including version, stage and sources from source control parameters.
 * Await NuGet package being published.
@@ -15,13 +16,13 @@
     <NoWarn>1701;1702;1591</NoWarn>
     <SppLocalPackageStage>pre</SppLocalPackageStage>
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
-    <RuntimeVersion>7</RuntimeVersion>
+    <RuntimeVersion>6</RuntimeVersion>
     <Version>$(RuntimeVersion).$(Version)</Version>
     <SppForceVersion>$(RuntimeVersion).$(GlobalVersion)</SppForceVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="stylecop.json" />
+    <AdditionalFiles Include="..\Sundew.Packaging.Tool\stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,7 +30,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Build" Version="17.4.0">
+    <PackageReference Include="Microsoft.Build" Version="17.3.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Locator" Version="1.5.5" />
@@ -46,7 +47,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Reporting\" />
+    <Compile Include="..\Sundew.Packaging.Tool\**\*.cs" />
+    <Compile Remove="..\Sundew.Packaging.Tool\obj\**" />
+    <Compile Remove="..\Sundew.Packaging.Tool\bin\**" />
   </ItemGroup>
 
   <ItemGroup>
