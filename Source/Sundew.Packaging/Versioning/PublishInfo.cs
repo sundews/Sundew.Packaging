@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Versioning;
 
 using System;
 using global::NuGet.Versioning;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Contains information for publishing NuGet packages.
@@ -133,6 +134,7 @@ public class PublishInfo
     /// <summary>
     /// Gets the NuGet Version.
     /// </summary>
+    [JsonIgnore]
     public NuGetVersion NuGetVersion => this.nuGetVersion.Value;
 
     /// <summary>
