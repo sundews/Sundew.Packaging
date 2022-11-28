@@ -8,6 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
       solutionPath: ./Source/Sundew.Packaging.sln
+      toolsSolutionPath: ./Source/MultiTargettedTools.sln
       versioningProjectPath: ./Source/Sundew.Packaging.Publish/Sundew.Packaging.Publish.csproj
       repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/sundews/Sundew.Packaging.git'
       source: 'https://api.nuget.org/v3/index.json'
@@ -59,11 +60,21 @@ jobs:
 
         cb match -p "^refs/tags/release[^/]*$ => ::set-output name=isReleaseCommand::true" -i "${{ github.ref }}"
     - name: Restore
-      run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
+      run: >
+        dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
+        
+        dotnet restore ${{ env.toolsSolutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
       id: build
       run: >
         dotnet build ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-restore
+        -p:"ContinuousIntegrationBuild=true"
+        -p:"GlobalVersion=${{ steps.stage-build.outputs.fullVersion }}"
+        '-p:"SppAppendPublishFileLogFormats={PackageId}:{DQ}{PackagePath}{DQ}{NL} > ${{ env.packages-to-push }}"'
+        -p:GeneratePackageOnBuild=true
+        -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
+
+        dotnet build ${{ env.toolsSolutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-restore
         -p:"ContinuousIntegrationBuild=true"
         -p:"GlobalVersion=${{ steps.stage-build.outputs.fullVersion }}"
         '-p:"SppAppendPublishFileLogFormats={PackageId}:{DQ}{PackagePath}{DQ}{NL} > ${{ env.packages-to-push }}"'
@@ -75,7 +86,7 @@ jobs:
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
       if: ${{ steps.stage-build.outputs.stage != 'none' }}
-      run: cb -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -ss ${{ steps.stage-build.outputs.symbolsPushSource }} -sk ${{ steps.stage-build.outputs.symbolsApiKey }} {1}" -bs NewLine -bvs ':' -bf ${{ env.source-packages-to-push }}
+      run: cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -ss ${{ steps.stage-build.outputs.symbolsPushSource }} -sk ${{ steps.stage-build.outputs.symbolsApiKey }} {1}" -bs NewLine -bvs ':' -bf ${{ env.source-packages-to-push }}
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
