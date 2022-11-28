@@ -62,19 +62,10 @@ jobs:
     - name: Restore
       run: >
         dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
-        
-        dotnet restore ${{ env.toolsSolutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
       id: build
       run: >
         dotnet build ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-restore
-        -p:"ContinuousIntegrationBuild=true"
-        -p:"GlobalVersion=${{ steps.stage-build.outputs.fullVersion }}"
-        '-p:"SppAppendPublishFileLogFormats={PackageId}:{DQ}{PackagePath}{DQ}{NL} > ${{ env.packages-to-push }}"'
-        -p:GeneratePackageOnBuild=true
-        -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
-
-        dotnet build ${{ env.toolsSolutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-restore
         -p:"ContinuousIntegrationBuild=true"
         -p:"GlobalVersion=${{ steps.stage-build.outputs.fullVersion }}"
         '-p:"SppAppendPublishFileLogFormats={PackageId}:{DQ}{PackagePath}{DQ}{NL} > ${{ env.packages-to-push }}"'
