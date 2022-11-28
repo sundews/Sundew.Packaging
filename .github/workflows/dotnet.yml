@@ -54,8 +54,8 @@ jobs:
         --prerelease-format "u{DateTime}-{Stage}-{Postfix}"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version '"${{ secrets.SPP_FORCE_VERSION_IF_SET }}"'
-        --output-formats "Selected stage: {Stage}, {FullVersion}, {Configuration}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}" 
-        "::set-output name=nuGetPackagesPath::{WorkingDirectory}/NuGet" "::set-output name=dev-package-source-if-set::{DevFeedSource}" "::set-output name=feedSource::{FeedSource}" 
+        --output-formats "Selected stage: {Stage}, {FullVersion}, {Configuration}" "::set-output name=stage::{Stage}" "::set-output name=version::{Version}" "::set-output name=buildConfiguration::{Configuration}"
+        "::set-output name=nuGetPackagesPath::{WorkingDirectory}/NuGet" "::set-output name=dev-package-source-if-set::{DevFeedSource}" "::set-output name=feedSource::{FeedSource}"
         "::set-output name=pushSource::{PushSource}" "::set-output name=apiKey::{ApiKey}" "::set-output name=fullVersion::{FullVersion}"
 
         cb match -p "^refs/tags/release[^/]*$ => ::set-output name=isReleaseCommand::true" -i "${{ github.ref }}"
@@ -77,7 +77,7 @@ jobs:
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
       if: ${{ steps.stage-build.outputs.stage != 'none' }}
-      run: cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -ss ${{ steps.stage-build.outputs.symbolsPushSource }} -sk ${{ steps.stage-build.outputs.symbolsApiKey }} {1}" -bs NewLine -bvs '=' -bf ${{ env.source-packages-to-push }}
+      run: cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n {1}" -bs NewLine -bvs '=' -bf ${{ env.source-packages-to-push }}
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
