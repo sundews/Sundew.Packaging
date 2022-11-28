@@ -68,7 +68,7 @@ jobs:
         dotnet build ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-restore
         -p:"ContinuousIntegrationBuild=true"
         -p:"GlobalVersion=${{ steps.stage-build.outputs.fullVersion }}"
-        '-p:"SppAppendPublishFileLogFormats={PackageId}>{DQ}{PackagePath}{DQ}{NL} > ${{ env.packages-to-push }}"'
+        '-p:"SppAppendPublishFileLogFormats={PackageId}=>{DQ}{PackagePath}{DQ}{NL} > ${{ env.packages-to-push }}"'
         -p:GeneratePackageOnBuild=true
         -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
     - name: Test
@@ -77,7 +77,7 @@ jobs:
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
       if: ${{ steps.stage-build.outputs.stage != 'none' }}
-      run: cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -ss ${{ steps.stage-build.outputs.symbolsPushSource }} -sk ${{ steps.stage-build.outputs.symbolsApiKey }} {1}" -bs NewLine -bvs '>' -bf ${{ env.source-packages-to-push }}
+      run: cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -ss ${{ steps.stage-build.outputs.symbolsPushSource }} -sk ${{ steps.stage-build.outputs.symbolsApiKey }} {1}" -bs NewLine -bvs '=>' -bf ${{ env.source-packages-to-push }}
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |
@@ -89,5 +89,5 @@ jobs:
         cb --if "${{ steps.stage-build.outputs.isReleaseCommand }} == true" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}" -b none
     - name: 'Await stable package publish'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
-      run: cb -c "spt|await -s ${{ steps.stage-build.outputs.feedSource }} {0}.${{ steps.stage-build.outputs.version }}" -bs NewLine -bvs '>' -bf ${{ env.source-packages-to-push }}
+      run: cb -c "spt|await -s ${{ steps.stage-build.outputs.feedSource }} {0}.${{ steps.stage-build.outputs.version }}" -bs NewLine -bvs '=>' -bf ${{ env.source-packages-to-push }}
 
