@@ -24,8 +24,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.CommandLine" Version="9.0.6" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.0.3">
+    <PackageReference Include="Sundew.CommandLine" Version="9.0.8" />
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
