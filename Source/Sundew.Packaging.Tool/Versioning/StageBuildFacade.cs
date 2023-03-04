@@ -126,7 +126,7 @@ public class StageBuildFacade
                     semanticVersion?.ToFullString() ?? null,
                     semanticVersion?.Metadata ?? stageBuildVerb.Metadata);
 
-                this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, semanticVersion, selectedSource.Properties, stageBuildVerb.OutputFilePath);
+                this.packageVersionLogger.Log(stageBuildVerb.OutputFormats, packageInfo.PackageId, publishInfo, workingDirectory, string.Empty, semanticVersion, selectedSource.Properties, stageBuildVerb.OutputFilePath, stageBuildVerb.FileEncoding);
                 return Task.CompletedTask;
             }
 

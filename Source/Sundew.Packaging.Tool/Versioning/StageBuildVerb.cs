@@ -238,6 +238,11 @@ public class StageBuildVerb : IVerb
     public string? ForceVersion { get; private set; }
 
     /// <summary>
+    /// Gets the file encoding.
+    /// </summary>
+    public string? FileEncoding { get; private set; }
+
+    /// <summary>
     /// Gets the output formats.
     /// </summary>
     /// <value>
@@ -302,6 +307,7 @@ Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]Source
         argumentsBuilder.AddOptionalEnum("vm", "versioning-mode", () => this.VersioningMode, s => this.VersioningMode = s, "The versioning mode");
         argumentsBuilder.AddOptional("vf", "version-format", () => this.VersionFormat, s => this.VersionFormat = s, "The version format");
         argumentsBuilder.AddOptional("fv", "force-version", () => this.ForceVersion, s => this.ForceVersion = s, "Forces the version to the specified value");
+        argumentsBuilder.AddOptional("fe", "file-encoding", () => this.FileEncoding, s => this.FileEncoding = s, @$"The name of the encoding e.g. utf-8, utf-16/unicode.");
         argumentsBuilder.AddOptionalList("o", "output-formats", this.outputFormats, @"A list of formats that will be logged to stdout.
 Use redirection format (>[filename]|output-format) to output to a file.");
         argumentsBuilder.AddOptional("of", "output-file", () => this.OutputFilePath, s => this.OutputFilePath = s, "The file path to be used for output formats that specifies empty redirection >|");

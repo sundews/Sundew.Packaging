@@ -55,6 +55,7 @@ public sealed class PackageVersionLogger
     /// <param name="nuGetVersion">The nuget version.</param>
     /// <param name="properties">The properties.</param>
     /// <param name="outputFilePath">The output file path.</param>
+    /// <param name="fileEncoding">The file encoding.</param>
     public void Log(
         IReadOnlyList<string>? logFormats,
         string packageId,
@@ -63,7 +64,8 @@ public sealed class PackageVersionLogger
         string parameter,
         NuGetVersion? nuGetVersion,
         IReadOnlyDictionary<string, string>? properties,
-        string? outputFilePath)
+        string? outputFilePath,
+        string? fileEncoding)
     {
         if (logFormats == null)
         {
@@ -121,7 +123,7 @@ public sealed class PackageVersionLogger
                 var (log, isValid) = Format(match.Groups[LogFormat].Value, logNames, valueBuffer.ToArray());
                 if (isValid)
                 {
-                    this.fileSystem.AppendAllText(filePath, log);
+                    this.fileSystem.AppendAllText(filePath, log, EncodingHelper.GetEncoding(fileEncoding));
                 }
                 else
                 {

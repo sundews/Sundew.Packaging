@@ -8,6 +8,7 @@
 namespace Sundew.Packaging.Publish.Internal;
 
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using Sundew.Packaging.Staging;
 using Sundew.Packaging.Versioning;
