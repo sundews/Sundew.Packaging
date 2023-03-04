@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Publish.UnitTests;
 
 using System.IO;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;

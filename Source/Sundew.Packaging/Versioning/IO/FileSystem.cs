@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Versioning.IO;
 
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 /// <summary>
 /// File system implementation.
@@ -55,6 +56,28 @@ public class FileSystem : IFileSystem
     public void AppendAllText(string path, string contents)
     {
         File.AppendAllText(path, contents);
+    }
+
+    /// <summary>
+    /// Writes all text.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="contents">The contents.</param>
+    /// <param name="encoding">The encoding.</param>
+    public void WriteAllText(string path, string contents, Encoding encoding)
+    {
+        File.WriteAllText(path, contents, encoding);
+    }
+
+    /// <summary>
+    /// Appends all text.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="contents">The contents.</param>
+    /// <param name="encoding">The encoding.</param>
+    public void AppendAllText(string path, string contents, Encoding encoding)
+    {
+        File.AppendAllText(path, contents, encoding);
     }
 
     /// <summary>
