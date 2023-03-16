@@ -58,7 +58,7 @@ public class LatestPackageVersionCommand : ILatestPackageVersionCommand
         bool includePatchInMatch,
         bool allowPrerelease)
     {
-        this.logger?.LogInfo(sources.JoinToStringBuilder(new StringBuilder(DeterminingLatestVersionFromSources), Separator).ToString());
+        this.logger?.LogInfo(new StringBuilder(DeterminingLatestVersionFromSources).AppendItems(sources, Separator).ToString());
         var latestVersion = (await sources.SelectAsync(async sourceUri =>
             {
                 PackageSource packageSource = new(sourceUri);

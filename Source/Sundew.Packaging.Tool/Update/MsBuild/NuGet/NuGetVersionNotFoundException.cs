@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using global::NuGet.Versioning;
 using Sundew.Base.Collections;
+using Sundew.Base.Text;
 
 internal class NuGetVersionNotFoundException : Exception
 {
@@ -22,6 +23,6 @@ internal class NuGetVersionNotFoundException : Exception
 
     private static string GetVersions(IReadOnlyList<NuGetVersion> versions)
     {
-        return versions.AggregateToStringBuilder(new StringBuilder().AppendLine(), (builder, version) => builder.AppendLine(version.ToFullString())).ToString();
+        return new StringBuilder().AppendLine().AppendItems(versions, (builder, version) => builder.AppendLine(version.ToFullString())).ToString();
     }
 }

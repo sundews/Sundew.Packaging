@@ -304,7 +304,8 @@ Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]Source
         argumentsBuilder.AddOptional("ps", "prerelease-postfix", () => this.PrereleasePostfix, s => this.PrereleasePostfix = s, "The prerelease postfix.");
         argumentsBuilder.AddOptional(null, "prerelease-format", () => this.PrereleaseFormat, s => this.PrereleaseFormat = s, "The prerelease format.");
         argumentsBuilder.AddOptional("m", "metadata", () => this.Metadata, s => this.Metadata = s, "The version metadata.");
-        argumentsBuilder.AddOptionalEnum("vm", "versioning-mode", () => this.VersioningMode, s => this.VersioningMode = s, "The versioning mode");
+        argumentsBuilder.AddOptionalEnum("vm", "versioning-mode", () => this.VersioningMode, s => this.VersioningMode = s, @"The versioning mode: {1}, {2},
+{3}, {4}, {5}");
         argumentsBuilder.AddOptional("vf", "version-format", () => this.VersionFormat, s => this.VersionFormat = s, "The version format");
         argumentsBuilder.AddOptional("fv", "force-version", () => this.ForceVersion, s => this.ForceVersion = s, "Forces the version to the specified value");
         argumentsBuilder.AddOptional("fe", "file-encoding", () => this.FileEncoding, s => this.FileEncoding = s, @$"The name of the encoding e.g. utf-8, utf-16/unicode.");

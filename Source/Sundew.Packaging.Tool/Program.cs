@@ -8,7 +8,9 @@
 namespace Sundew.Packaging.Tool;
 
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
 using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Primitives.Time;
@@ -47,7 +49,7 @@ public static class Program
             commandLineParser.AddVerb(new PushVerb(), ExecutePushAsync);
             commandLineParser.AddVerb(new UpdateVerb(), ExecuteUpdateAsync);
             commandLineParser.AddVerb(new AwaitPublishVerb(), ExecuteAwaitPublishAsync);
-            commandLineParser.AddVerb(new PruneLocalSourceVerb(), v => Result.Error(ParserError.From("Prune needs sub command.")), builder =>
+            commandLineParser.AddVerb(new PruneLocalSourceVerb(), v => R.Error(ParserError.From("Prune needs sub command.")), builder =>
             {
                 builder.AddVerb(new AllVerb(), ExecutePruneAllAsync);
                 //// builder.AddVerb(new NewestPrereleasesPruneModeVerb(), ExecutePruneNewestPrereleasesAsync);
@@ -69,19 +71,28 @@ public static class Program
         }
     }
 
-    private static ValueTask<Result<int, ParserError<string>>> ExecutePushAsync(PushVerb pushVerb)
+    private static ValueTask<R<int, ParserError<string>>> ExecutePushAsync(PushVerb pushVerb)
     {
+        var consoleLogger = new ConsoleLogger();
         return RunSafeAsync(
-            async () =>
+            () =>
             {
-                var consoleLogger = new ConsoleLogger();
-                var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
-                var pushFacade = new PushFacade(new Sundew.Packaging.Versioning.IO.FileSystem(), new SettingsFactory(), nuGetToLoggerAdapter);
-                await pushFacade.PushAsync(pushVerb);
+                var attempter = new Attempter(pushVerb.Retries + 1);
+                return attempter.AttemptAsync(
+                    async (attempt, token) =>
+                    {
+                        var nuGetToLoggerAdapter = new NuGetToLoggerAdapter(consoleLogger);
+                        var pushFacade = new PushFacade(new Sundew.Packaging.Versioning.IO.FileSystem(), new SettingsFactory(), nuGetToLoggerAdapter);
+                        await pushFacade.PushAsync(pushVerb);
+                    },
+                    ExceptionFilter.HandleAll(),
+                    failedAttempt =>
+                        consoleLogger.LogError(
+                            $"Attempt {failedAttempt.Attempt} of {failedAttempt.MaxAttempts} to push package failed with message: {failedAttempt.Exception.Message}"));
             });
     }
 
-    private static ValueTask<Result<int, ParserError<string>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
+    private static ValueTask<R<int, ParserError<string>>> ExecuteStageBuildAsync(StageBuildVerb stageBuildVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -102,35 +113,35 @@ public static class Program
             });
     }
 
-    private static async ValueTask<Result<int, ParserError<string>>> ExecuteDeleteAsync(DeleteVerb deleteVerb)
+    private static async ValueTask<R<int, ParserError<string>>> ExecuteDeleteAsync(DeleteVerb deleteVerb)
     {
         try
         {
             var deleteFacade = new DeleteFacade(new FileSystem(), new ConsoleReporter(deleteVerb.Verbose));
-            return Result.Success(await deleteFacade.Delete(deleteVerb));
+            return R.Success(await deleteFacade.Delete(deleteVerb));
         }
         catch (Exception exception)
         {
-            return Result.Error(ParserError.From(exception.ToString()));
+            return R.Error(ParserError.From(exception.ToString()));
         }
     }
 
-    private static async ValueTask<Result<int, ParserError<string>>> ExecuteAwaitPublishAsync(AwaitPublishVerb awaitPublishVerb)
+    private static async ValueTask<R<int, ParserError<string>>> ExecuteAwaitPublishAsync(AwaitPublishVerb awaitPublishVerb)
     {
         try
         {
             var consoleReporter = new ConsoleReporter(awaitPublishVerb.Verbose);
             var awaitPublishFacade = new AwaitPublishFacade(new FileSystem(), new NuGetSourceProvider(), consoleReporter);
             var result = await awaitPublishFacade.Await(awaitPublishVerb);
-            return Result.From(result == 0, result, new ParserError<string>($"Await publish error code: {result}"));
+            return R.From(result == 0, result, new ParserError<string>($"Await publish error code: {result}"));
         }
         catch (Exception exception)
         {
-            return Result.Error(ParserError.From(exception.ToString()));
+            return R.Error(ParserError.From(exception.ToString()));
         }
     }
 
-    private static ValueTask<Result<int, ParserError<string>>> ExecuteUpdateAsync(UpdateVerb updateVerb)
+    private static ValueTask<R<int, ParserError<string>>> ExecuteUpdateAsync(UpdateVerb updateVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -141,7 +152,7 @@ public static class Program
             });
     }
 
-    private static ValueTask<Result<int, ParserError<string>>> ExecutePruneAllAsync(AllVerb allVerb)
+    private static ValueTask<R<int, ParserError<string>>> ExecutePruneAllAsync(AllVerb allVerb)
     {
         return RunSafeAsync(
             async () =>
@@ -151,7 +162,7 @@ public static class Program
             });
     }
 
-    private static async ValueTask<Result<int, ParserError<string>>> RunSafeAsync(Func<Task> action)
+    private static async ValueTask<R<int, ParserError<string>>> RunSafeAsync(Func<Task> action)
     {
         try
         {
@@ -159,16 +170,16 @@ public static class Program
         }
         catch (Exception exception)
         {
-            return Result.Error(ParserError.From(exception.ToString()));
+            return R.Error(ParserError.From(exception.ToString()));
         }
 
-        return Result.Success(0);
+        return R.Success(0);
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> ExecutePruneNewestPrereleasesAsync(NewestPrereleasesPruneModeVerb newestPrereleasesPruneModeVerb)
+    private static async ValueTask<R<int, ParserError<int>>> ExecutePruneNewestPrereleasesAsync(NewestPrereleasesPruneModeVerb newestPrereleasesPruneModeVerb)
     {
         var pruneNewestPrereleaseFacade = new NewestPrereleasesPruneFacade(new NuGetSourceProvider());
         await pruneNewestPrereleaseFacade.PruneAsync(newestPrereleasesPruneModeVerb);
-        return Result.Success(-1);
+        return R.Success(-1);
     }
 }

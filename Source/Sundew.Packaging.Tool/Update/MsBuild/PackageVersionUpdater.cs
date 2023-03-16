@@ -28,7 +28,7 @@ internal class PackageVersionUpdater
         this.packageVersionUpdaterReporter = packageVersionUpdaterReporter;
     }
 
-    public Result.IfSuccess<MsBuildProject> TryUpdateAsync(MsBuildProject msBuildProject, IEnumerable<PackageUpdate> packageUpdates)
+    public O<MsBuildProject> TryUpdateAsync(MsBuildProject msBuildProject, IEnumerable<PackageUpdate> packageUpdates)
     {
         var fileContent = msBuildProject.ProjectContent;
         var wasModified = false;
@@ -45,6 +45,6 @@ internal class PackageVersionUpdater
         }
 
         this.packageVersionUpdaterReporter.ProcessedProject(msBuildProject.Path, wasModified);
-        return Result.FromValue(wasModified, msBuildProject with { ProjectContent = fileContent });
+        return O.From(wasModified, msBuildProject with { ProjectContent = fileContent });
     }
 }

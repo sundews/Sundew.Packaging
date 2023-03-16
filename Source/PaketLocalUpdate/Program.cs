@@ -37,7 +37,7 @@ public static class Program
         return result.Value;
     }
 
-    private static async ValueTask<Result<int, ParserError<int>>> Handle(Arguments arg)
+    private static async ValueTask<R<int, ParserError<int>>> Handle(Arguments arg)
     {
         var updateFacade = new UpdateFacade(new NuGetSettingsInitializationCommand());
         await updateFacade.Update(arg);
@@ -48,6 +48,6 @@ public static class Program
         Console.WriteLine("Make sure you do not commit your paket.lock file with local dependencies");
         Console.WriteLine("Run paket install to get paket.lock back or make sure you have updated dependencies to non-local versions");
         Console.ForegroundColor = color;
-        return Result.Success(0);
+        return R.Success(0);
     }
 }

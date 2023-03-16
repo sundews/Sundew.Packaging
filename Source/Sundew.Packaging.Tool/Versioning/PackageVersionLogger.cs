@@ -156,12 +156,12 @@ public sealed class PackageVersionLogger
             var nullArguments = namedFormatString.GetNullArguments(arguments);
             if (nullArguments.Count > 0)
             {
-                return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
+                return (new StringBuilder(IndicesContainedNullValues).AppendItems(nullArguments, (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
             }
 
             return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);
         }
 
-        return (unknownNames.JoinToStringBuilder(new StringBuilder(UnknownNames), (builder, name) => builder.Append(name), separator).ToString(), false);
+        return (new StringBuilder(UnknownNames).AppendItems(unknownNames, (builder, name) => builder.Append(name), separator).ToString(), false);
     }
 }

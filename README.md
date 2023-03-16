@@ -277,9 +277,11 @@ Help
      -ps  | --prerelease-postfix | The prerelease postfix.                                                                                   | Default: [none]
           | --prerelease-format  | The prerelease format.                                                                                    | Default: [none]
      -m   | --metadata           | The version metadata.                                                                                     | Default: [none]
-     -vm  | --versioning-mode    | The versioning mode                                                                                       | Default: automatic-latest-patch
+     -vm  | --versioning-mode    | The versioning mode: [a]utomatic-latest-patch, [automatic]-latest-revision,                               | Default: automatic-latest-patch
+                                   [i]ncrement-patch-if-stable-exist-for-prerelease, [always]-increment-patch, [n]o-change
      -vf  | --version-format     | The version format                                                                                        | Default: [none]
      -fv  | --force-version      | Forces the version to the specified value                                                                 | Default: [none]
+     -fe  | --file-encoding      | The name of the encoding e.g. utf-8, utf-16/unicode.                                                      | Default: [none]
      -o   | --output-formats     | A list of formats that will be logged to stdout.                                                          | Default: [none]
                                    Use redirection format (>[filename]|output-format) to output to a file.
      -of  | --output-file        | The file path to be used for output formats that specifies empty redirection >|                           | Default: [none]
@@ -290,6 +292,7 @@ Help
      -ss  | --symbol-source      | The source used to push symbol packages.                                                                  | Default: [none]
      -sk  | --symbol-api-key     | The symbols api key used to push symbols.                                                                 | Default: [none]
      -t   | --timeout            | Timeout for pushing to a source (seconds).                                                                | Default: 300
+     -r   | --retries            | The number of retries to push the package in case of a failure.                                           | Default: 0
      -n   | --no-symbols         | If set no symbols will be pushed.
      -sd  | --skip-duplicate     | If a package already exists, skip it.
      <packages>                  | The packages to push (supports wildcards *).                                                              | Required

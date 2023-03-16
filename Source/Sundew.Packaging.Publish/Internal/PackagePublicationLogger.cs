@@ -116,12 +116,12 @@ internal sealed class PackagePublicationLogger
             Environment.NewLine,
         };
 
-        var namedFormatString = new NamedFormatString(logFormat, LogNames);
+        var namedFormatString = NamedFormatString.Create(logFormat, LogNames);
         var nullArguments = namedFormatString.GetNullArguments(arguments);
         if (nullArguments.Count > 0)
         {
             const string separator = ", ";
-            return (nullArguments.JoinToStringBuilder(new StringBuilder(IndicesContainedNullValues), (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
+            return (new StringBuilder(IndicesContainedNullValues).AppendItems(nullArguments, (builder, namedIndex) => builder.Append($"{namedIndex.Name}({namedIndex.Index})"), separator).ToString(), false);
         }
 
         return (string.Format(CultureInfo.CurrentCulture, namedFormatString, arguments), true);

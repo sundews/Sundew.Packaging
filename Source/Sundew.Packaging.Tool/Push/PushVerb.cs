@@ -19,7 +19,7 @@ public class PushVerb : IVerb
     {
     }
 
-    public PushVerb(List<string> packagePaths, string pushSource, string apiKey, string? symbolsPushSource = null, string? symbolsApiKey = null, string? workingDirectory = null, bool noSymbols = false, bool skipDuplicate = false, int timeoutSeconds = 300)
+    public PushVerb(List<string> packagePaths, string pushSource, string apiKey, string? symbolsPushSource = null, string? symbolsApiKey = null, string? workingDirectory = null, bool noSymbols = false, bool skipDuplicate = false, int timeoutSeconds = 300, int retries = 0)
     {
         this.packagePaths = packagePaths;
         this.PushSource = pushSource;
@@ -30,6 +30,7 @@ public class PushVerb : IVerb
         this.NoSymbols = noSymbols;
         this.SkipDuplicate = skipDuplicate;
         this.TimeoutSeconds = timeoutSeconds;
+        this.Retries = retries;
     }
 
     public IVerb? NextVerb => null;
@@ -54,6 +55,8 @@ public class PushVerb : IVerb
 
     public int TimeoutSeconds { get; private set; }
 
+    public int Retries { get; private set; }
+
     public bool NoSymbols { get; private set; }
 
     public bool SkipDuplicate { get; private set; }
@@ -65,6 +68,7 @@ public class PushVerb : IVerb
         argumentsBuilder.AddOptional("ss", "symbol-source", () => this.SymbolsPushSource, s => this.SymbolsPushSource = s, "The source used to push symbol packages.", false);
         argumentsBuilder.AddOptional("sk", "symbol-api-key", () => this.SymbolsApiKey, s => this.SymbolsApiKey = s, "The symbols api key used to push symbols.", false);
         argumentsBuilder.AddOptional("t", "timeout", () => this.TimeoutSeconds.ToString(), s => this.TimeoutSeconds = int.Parse(s), "Timeout for pushing to a source (seconds).");
+        argumentsBuilder.AddOptional("r", "retries", () => this.Retries.ToString(), s => this.Retries = int.Parse(s), "The number of retries to push the package in case of a failure.");
         argumentsBuilder.AddSwitch("n", "no-symbols", this.NoSymbols, b => this.NoSymbols = b, "If set no symbols will be pushed.");
         argumentsBuilder.AddSwitch("sd", "skip-duplicate", this.SkipDuplicate, b => this.SkipDuplicate = b, "If a package already exists, skip it.");
         argumentsBuilder.AddRequiredValues("packages", this.packagePaths, "The packages to push (supports wildcards *).", true);

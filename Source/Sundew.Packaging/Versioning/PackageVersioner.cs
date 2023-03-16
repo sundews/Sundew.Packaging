@@ -78,7 +78,7 @@ public class PackageVersioner : IPackageVersioner
     {
         if (!forceVersion.IsNullOrEmpty())
         {
-            var versionFormatter = new NamedFormatString(forceVersion, VersionFormatNames);
+            var versionFormatter = NamedFormatString.Create(forceVersion, VersionFormatNames);
             if (NuGetVersion.TryParse(versionFormatter.Format(nuGetVersion.Major, nuGetVersion.Minor, nuGetVersion.Patch, nuGetVersion.Revision), out NuGetVersion forcedVersion))
             {
                 this.logger.LogImportant($"SPP: Forced version to: {forcedVersion}");
@@ -88,7 +88,7 @@ public class PackageVersioner : IPackageVersioner
 
         if (!versionFormat.IsNullOrEmpty())
         {
-            var versionFormatter = new NamedFormatString(versionFormat, VersionFormatNames);
+            var versionFormatter = NamedFormatString.Create(versionFormat, VersionFormatNames);
             if (NuGetVersion.TryParse(versionFormatter.Format(nuGetVersion.Major, nuGetVersion.Minor, nuGetVersion.Patch, nuGetVersion.Revision), out NuGetVersion formattedNuGetVersion))
             {
                 nuGetVersion = formattedNuGetVersion;
@@ -209,7 +209,7 @@ public class PackageVersioner : IPackageVersioner
     {
         if (!string.IsNullOrEmpty(metadataFormat) && metadataFormat != null)
         {
-            var metadataFormatter = new NamedFormatString(metadataFormat, MetadataAndPrereleaseFormatNames);
+            var metadataFormatter = NamedFormatString.Create(metadataFormat, MetadataAndPrereleaseFormatNames);
             return RemoveDuplicates.Replace(
                 metadataFormatter.Format(selectedSource.VersionStageName, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
                 match => match.Value[0].ToString()).Trim('-');
@@ -222,7 +222,7 @@ public class PackageVersioner : IPackageVersioner
     {
         if (!string.IsNullOrEmpty(selectedSource.PrereleaseFormat) && selectedSource.PrereleaseFormat != null)
         {
-            var prereleaseFormatter = new NamedFormatString(selectedSource.PrereleaseFormat, MetadataAndPrereleaseFormatNames);
+            var prereleaseFormatter = NamedFormatString.Create(selectedSource.PrereleaseFormat, MetadataAndPrereleaseFormatNames);
             return RemoveDuplicates.Replace(
                 prereleaseFormatter.Format(selectedSource.VersionStageName, dateTime.ToString(PrereleasePackageDateTimeFormat), dateTime, selectedSource.PackagePrefix, selectedSource.PackagePostfix, metadata, parameter),
                 match => match.Value[0].ToString()).Trim('-');

@@ -36,7 +36,7 @@ public class UpdateVerbTests
     public void Parse_When_PackageIdIsSpecifiedWithVersion_Then_VersionShouldBeParsedSuccessfully(string input, string expectedId, string? expectedVersion)
     {
         var commandLineParser = new CommandLineParser<int, int>();
-        var arguments = commandLineParser.AddVerb(new UpdateVerb(), updateVerb => Result.Success(0));
+        var arguments = commandLineParser.AddVerb(new UpdateVerb(), updateVerb => R.Success(0));
 
         commandLineParser.Parse(input);
 
@@ -52,7 +52,7 @@ public class UpdateVerbTests
     public void Parse_When_PackageIdAndVersionAreSpecifiedSeparately_Then_VersionShouldBeParsedSuccessfully(string input, string expectedId, string? expectedVersion)
     {
         var commandLineParser = new CommandLineParser<int, int>();
-        var arguments = commandLineParser.AddVerb(new UpdateVerb(), updateVerb => Result.Success(0));
+        var arguments = commandLineParser.AddVerb(new UpdateVerb(), updateVerb => R.Success(0));
 
         commandLineParser.Parse(input);
 

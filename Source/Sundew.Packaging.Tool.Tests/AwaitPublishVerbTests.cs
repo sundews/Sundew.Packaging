@@ -33,7 +33,7 @@ public class AwaitPublishVerbTests
     public void Parse_When_PackageIdIsSpecifiedWithVersion_Then_VersionShouldBeParsedSuccessfully(string input, string expectedId, string expectedVersion)
     {
         var commandLineParser = new CommandLineParser<int, int>();
-        var awaitPublishVerb = commandLineParser.AddVerb(new AwaitPublishVerb(), updateVerb => Result.Success(0));
+        var awaitPublishVerb = commandLineParser.AddVerb(new AwaitPublishVerb(), updateVerb => R.Success(0));
 
         commandLineParser.Parse(input);
 
