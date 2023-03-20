@@ -60,7 +60,7 @@ jobs:
         --force-version '"${{ secrets.SPP_FORCE_VERSION_IF_SET }}"'
         --output-formats "Selected stage: {Stage}, {FullVersion}, {Configuration}" ">|stage={Stage}{NL}" ">|version={Version}{NL}" ">|buildConfiguration={Configuration}{NL}"
         ">|nuGetPackagesPath={WorkingDirectory}/NuGet{NL}" ">|dev-package-source-if-set={DevFeedSource}{NL}" ">|feedSource={FeedSource}{NL}"
-        ">|pushSource={PushSource}{NL}" ">|apiKey={ApiKey}{NL}" ">|fullVersion::{FullVersion}{NL}"
+        ">|pushSource={PushSource}{NL}" ">|apiKey={ApiKey}{NL}" ">|fullVersion={FullVersion}{NL}"
         --output-file $Env:GITHUB_OUTPUT
 
         cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
