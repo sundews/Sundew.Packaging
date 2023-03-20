@@ -22,9 +22,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="9.0.0" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="9.0.0" />
-    <PackageReference Include="Sundew.Base.Text" Version="9.0.0" />
+    <PackageReference Include="Sundew.Base.Collections" Version="9.0.1" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="9.0.1" />
+    <PackageReference Include="Sundew.Base.Text" Version="9.0.1" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
