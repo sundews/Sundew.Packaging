@@ -9,6 +9,8 @@ namespace Sundew.Packaging.Tool.NuGet;
 
 public interface INuGetSourceProvider
 {
+    SourceSettings GetPushSourceSettings(string rootDirectory, string? source);
+
     SourceSettings GetSourceSettings(string rootDirectory, string? source);
 
     string GetDefaultSource(string source);

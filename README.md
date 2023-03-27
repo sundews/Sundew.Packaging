@@ -285,7 +285,6 @@ Help
      -o   | --output-formats     | A list of formats that will be logged to stdout.                                                          | Default: [none]
                                    Use redirection format (>[filename]|output-format) to output to a file.
      -of  | --output-file        | The file path to be used for output formats that specifies empty redirection >|                           | Default: [none]
-     -fe  | --file-encoding      | The name of the encoding e.g. utf-8, utf-16/unicode. 
    push                          Pushes the specified package(s) to a source
      -s   | --source             | The source used to push packages.                                                                         | Required
      -k   | --api-key            | The api key to be used for the push.                                                                      | Required
@@ -300,7 +299,7 @@ Help
      -id  | --package-ids        | The package(s) to update. (* Wildcards supported)                                                         | Default: *
                                    Format: Id[.Version] or "Id[ Version]" (Pinning version is optional)
      -p   | --projects           | The project(s) to update (* Wildcards supported)                                                          | Default: *
-     -s   | --source             | The source or source name to search for packages ("All" supported)                                        | Default: NuGet.config: defaultPushSource
+     -s   | --source             | The source or source name to search for packages ("All" supported)                                        | Default: NuGet.config: All
           | --version            | The NuGet package version (* Wildcards supported).                                                        | Default: Latest version
      -d   | --root-directory     | The directory to search for projects                                                                      | Default: Current directory
      -pr  | --prerelease         | Allow updating to latest prerelease version

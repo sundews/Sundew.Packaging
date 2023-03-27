@@ -36,7 +36,7 @@ public class AwaitPublishFacade
         try
         {
             var rootDirectory = awaitPublishVerb.RootDirectory ?? this.fileSystem.Directory.GetCurrentDirectory();
-            var (source, _) = this.nuGetSourceProvider.GetSourceSettings(rootDirectory, awaitPublishVerb.Source);
+            var (source, _) = this.nuGetSourceProvider.GetPushSourceSettings(rootDirectory, awaitPublishVerb.Source);
 
             var logger = NullLogger.Instance;
             var sourceRepository = Repository.Factory.GetCoreV3(source);

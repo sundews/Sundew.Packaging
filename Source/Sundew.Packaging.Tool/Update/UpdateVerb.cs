@@ -23,6 +23,7 @@ public class UpdateVerb : IVerb
 {
     private const string Star = "*";
     private const string VersionRegexText = @"(?<Version>[\d\.\*]+(?:(?:-(?<Prerelease>[^\.\s]+))|$))";
+    private const string All = "All";
     private static readonly Regex PackageIdAndVersionRegex = new(@$"(?: |\.){VersionRegexText}");
     private static readonly Regex VersionRegex = new(VersionRegexText);
     private readonly List<PackageId> packageIds;
@@ -53,7 +54,7 @@ public class UpdateVerb : IVerb
     {
         this.packageIds = packageIds;
         this.projects = projects;
-        this.Source = source;
+        this.Source = source ?? All;
         this.VersionPattern = versionPattern;
         this.RootDirectory = rootDirectory;
         this.AllowPrerelease = allowPrerelease;
@@ -185,7 +186,7 @@ public class UpdateVerb : IVerb
     {
         argumentsBuilder.AddOptionalList("id", "package-ids", this.packageIds, this.SerializePackageId, this.DeserializePackageId, @$"The package(s) to update. (* Wildcards supported){Environment.NewLine}Format: Id[.Version] or ""Id[ Version]"" (Pinning version is optional)");
         argumentsBuilder.AddOptionalList("p", "projects", this.projects, "The project(s) to update (* Wildcards supported)");
-        argumentsBuilder.AddOptional("s", "source", () => this.Source, s => this.Source = s, @"The source or source name to search for packages (""All"" supported)", defaultValueText: "NuGet.config: defaultPushSource");
+        argumentsBuilder.AddOptional("s", "source", () => this.Source, s => this.Source = s, @"The source or source name to search for packages (""All"" supported)", defaultValueText: "NuGet.config: All");
         argumentsBuilder.AddOptional(null, "version", () => this.VersionPattern, s => this.VersionPattern = this.DeserializeVersion(s), "The NuGet package version (* Wildcards supported).", defaultValueText: "Latest version");
         CommonOptions.AddRootDirectory(argumentsBuilder, () => this.RootDirectory, s => this.RootDirectory = s);
         argumentsBuilder.AddSwitch("pr", "prerelease", this.AllowPrerelease, b => this.AllowPrerelease = b, "Allow updating to latest prerelease version");

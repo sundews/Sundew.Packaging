@@ -16,12 +16,21 @@ public class NuGetSourceProvider : INuGetSourceProvider
 {
     internal const string PackageSourcesText = "packageSources";
 
-    public SourceSettings GetSourceSettings(string rootDirectory, string? source)
+    public SourceSettings GetPushSourceSettings(string rootDirectory, string? source)
     {
         var defaultSettings = Settings.LoadDefaultSettings(rootDirectory);
         var packageSourceProvider = new PackageSourceProvider(defaultSettings);
         var sourcesSettings = FindSourcesSettings(source, defaultSettings);
         source = sourcesSettings.Source ?? packageSourceProvider.DefaultPushSource ?? throw new InvalidOperationException($"A source for: {source} was not found.");
+        return new SourceSettings(source, sourcesSettings.PackageSourcesSection);
+    }
+
+    public SourceSettings GetSourceSettings(string rootDirectory, string? source)
+    {
+        var defaultSettings = Settings.LoadDefaultSettings(rootDirectory);
+        var packageSourceProvider = new PackageSourceProvider(defaultSettings);
+        var sourcesSettings = FindSourcesSettings(source, defaultSettings);
+        source = sourcesSettings.Source ?? packageSourceProvider.ActivePackageSourceName ?? throw new InvalidOperationException($"A source for: {source} was not found.");
         return new SourceSettings(source, sourcesSettings.PackageSourcesSection);
     }
 
