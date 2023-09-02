@@ -79,7 +79,7 @@ public class PackageVersioner : IPackageVersioner
         if (!forceVersion.IsNullOrEmpty())
         {
             var versionFormatter = NamedFormatString.Create(forceVersion, VersionFormatNames);
-            if (NuGetVersion.TryParse(versionFormatter.Format(nuGetVersion.Major, nuGetVersion.Minor, nuGetVersion.Patch, nuGetVersion.Revision), out NuGetVersion forcedVersion))
+            if (NuGetVersion.TryParse(versionFormatter.Format(nuGetVersion.Major, nuGetVersion.Minor, nuGetVersion.Patch, nuGetVersion.Revision), out NuGetVersion? forcedVersion))
             {
                 this.logger.LogImportant($"SPP: Forced version to: {forcedVersion}");
                 return forcedVersion;
@@ -89,7 +89,7 @@ public class PackageVersioner : IPackageVersioner
         if (!versionFormat.IsNullOrEmpty())
         {
             var versionFormatter = NamedFormatString.Create(versionFormat, VersionFormatNames);
-            if (NuGetVersion.TryParse(versionFormatter.Format(nuGetVersion.Major, nuGetVersion.Minor, nuGetVersion.Patch, nuGetVersion.Revision), out NuGetVersion formattedNuGetVersion))
+            if (NuGetVersion.TryParse(versionFormatter.Format(nuGetVersion.Major, nuGetVersion.Minor, nuGetVersion.Patch, nuGetVersion.Revision), out NuGetVersion? formattedNuGetVersion))
             {
                 nuGetVersion = formattedNuGetVersion;
                 versioningMode = VersioningMode.NoChange;
@@ -97,7 +97,7 @@ public class PackageVersioner : IPackageVersioner
             }
         }
 
-        metadata = !string.IsNullOrEmpty(nuGetVersion.Metadata) ? nuGetVersion.Metadata : metadata ?? string.Empty;
+        metadata = !nuGetVersion.Metadata.IsNullOrEmpty() ? nuGetVersion.Metadata : metadata ?? string.Empty;
         var versionMetadata = this.GetMetadata(metadata, metadataFormat, selectedSource, buildDateTime, parameter);
         return versioningMode switch
         {
@@ -160,7 +160,7 @@ public class PackageVersioner : IPackageVersioner
 
         if (selectedSource.IsStableRelease)
         {
-            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, default(string), versionMetadata);
+            return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, string.Empty, versionMetadata);
         }
 
         return new NuGetVersion(latestVersion.Major, latestVersion.Minor, latestVersion.Patch, latestVersion.Revision + revisionIncrement, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
@@ -199,7 +199,7 @@ public class PackageVersioner : IPackageVersioner
     {
         if (selectedSource.IsStableRelease)
         {
-            return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch, nugetVersion.Revision, default(string), versionMetadata);
+            return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch, nugetVersion.Revision, string.Empty, versionMetadata);
         }
 
         return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch, nugetVersion.Revision, this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);

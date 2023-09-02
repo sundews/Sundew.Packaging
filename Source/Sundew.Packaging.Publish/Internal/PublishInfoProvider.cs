@@ -26,7 +26,7 @@ internal class PublishInfoProvider : IPublishInfoProvider
         this.logger = logger;
     }
 
-    public PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string metadata, bool includeSymbols)
+    public PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string? metadata, bool includeSymbols)
     {
         var publishInfo = new PublishInfo(
             selectedSource.StageName,

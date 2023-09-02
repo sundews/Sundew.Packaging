@@ -12,7 +12,7 @@ using Sundew.Packaging.Versioning;
 
 internal interface IPublishInfoProvider
 {
-    PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string metadata, bool includeSymbols);
+    PublishInfo Save(string publishInfoFilePath, SelectedStage selectedSource, string nuGetVersion, string fullNuGetVersion, string? metadata, bool includeSymbols);
 
     PublishInfo Read(string publishInfoFilePath);
 

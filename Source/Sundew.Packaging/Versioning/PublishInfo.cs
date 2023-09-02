@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 /// </summary>
 public class PublishInfo
 {
-    private Lazy<NuGetVersion> nuGetVersion;
+    private readonly Lazy<NuGetVersion> nuGetVersion;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PublishInfo" /> class.
