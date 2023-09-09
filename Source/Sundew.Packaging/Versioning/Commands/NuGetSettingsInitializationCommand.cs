@@ -10,6 +10,7 @@ namespace Sundew.Packaging.Versioning.Commands;
 using System.IO;
 using System.Linq;
 using global::NuGet.Configuration;
+using Sundew.Packaging.Versioning.IO;
 using Sundew.Packaging.Versioning.NuGet.Configuration;
 
 /// <summary>Adds a local source to the specified NuGet.Config.</summary>
@@ -20,16 +21,18 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
     internal const string PackageSourcesText = "packageSources";
 
     private readonly ISettingsFactory settingsFactory;
+    private readonly IFileSystem fileSystem;
 
     /// <summary>Initializes a new instance of the <see cref="NuGetSettingsInitializationCommand"/> class.</summary>
     public NuGetSettingsInitializationCommand()
-        : this(new SettingsFactory())
+        : this(new SettingsFactory(), new FileSystem())
     {
     }
 
-    internal NuGetSettingsInitializationCommand(ISettingsFactory settingsFactory)
+    internal NuGetSettingsInitializationCommand(ISettingsFactory settingsFactory, IFileSystem fileSystem)
     {
         this.settingsFactory = settingsFactory;
+        this.fileSystem = fileSystem;
     }
 
     /// <summary>Adds the specified local source to a NuGet.Config in solution dir.</summary>
@@ -44,6 +47,11 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
         var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == localSourceName);
         if (addItem == null)
         {
+            if (!this.fileSystem.DirectoryExists(localSource))
+            {
+                this.fileSystem.CreateDirectory(localSource);
+            }
+
             var applicationDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
             var applicationDataConfigurationFile = defaultSettings.GetConfigFilePaths().FirstOrDefault(x => x.StartsWith(applicationDataPath));
             if (applicationDataConfigurationFile != null)

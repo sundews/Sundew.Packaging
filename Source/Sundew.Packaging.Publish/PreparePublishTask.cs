@@ -65,7 +65,7 @@ public class PreparePublishTask : Task
         this.fileSystem = fileSystem;
         this.logger = logger ?? new MsBuildLogger(this.Log);
         this.nuGetLogger = new NuGetToLoggerAdapter(this.logger);
-        this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(settingsFactory);
+        this.nuGetSettingsInitializationCommand = new NuGetSettingsInitializationCommand(settingsFactory, this.fileSystem);
         this.publishInfoProvider = new PublishInfoProvider(this.fileSystem, this.logger);
         this.packageVersioner = packageVersioner ?? new PackageVersioner(new PackageExistsCommand(this.nuGetLogger), new LatestPackageVersionCommand(this.logger, this.nuGetLogger), this.logger);
         this.nuGetVersionProvider = nuGetVersionProvider ?? new NuGetVersionProvider(this.fileSystem, this.logger);

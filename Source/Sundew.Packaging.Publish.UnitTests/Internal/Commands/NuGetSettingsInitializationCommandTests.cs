@@ -30,16 +30,19 @@ public class NuGetSettingsInitializationCommandTests
     private readonly ISettingsFactory settingsFactory;
     private readonly NuGetSettingsInitializationCommand testee;
     private readonly ISettings defaultSettings;
+    private readonly IFileSystem fileSystem;
 
     public NuGetSettingsInitializationCommandTests()
     {
         this.settings = New.Mock<ISettings>();
         this.defaultSettings = New.Mock<ISettings>();
         this.settingsFactory = New.Mock<ISettingsFactory>();
-        this.testee = new NuGetSettingsInitializationCommand(this.settingsFactory);
+        this.fileSystem = New.Mock<IFileSystem>();
+        this.testee = new NuGetSettingsInitializationCommand(this.settingsFactory, this.fileSystem);
         this.settingsFactory.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<string>(), false)).Returns(this.settings);
         this.settingsFactory.Setup(x => x.LoadSpecificSettings(It.IsAny<string>(), NuGetSettingsInitializationCommand.NuGetConfigFileName)).Returns(this.settings);
         this.settingsFactory.Setup(x => x.LoadDefaultSettings(ASolutionDirText)).Returns(this.defaultSettings);
+        this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
     }
 
     [Fact]

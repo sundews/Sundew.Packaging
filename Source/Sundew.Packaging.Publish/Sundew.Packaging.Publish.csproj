@@ -100,7 +100,7 @@
   </ItemGroup>
 
   <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true'">
-    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(@(OutputSelfFiles))"/>
   </Target>
   
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
