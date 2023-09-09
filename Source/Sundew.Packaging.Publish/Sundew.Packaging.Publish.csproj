@@ -84,6 +84,7 @@
     <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'.package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
     <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'.package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
     <Copy SourceFiles="@(TargetsFiles)" DestinationFiles="@(TargetsFiles->'.package\build\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
+    <Copy SourceFiles="..\..\README.md" DestinationFiles=".package\docs\README.md" ContinueOnError="False"/>
     <Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
   </Target>
 
@@ -100,7 +101,7 @@
   </ItemGroup>
 
   <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true'">
-    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(@(OutputSelfFiles))"/>
+    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(%(FullPath))"/>
   </Target>
   
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">

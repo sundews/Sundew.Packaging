@@ -12,6 +12,7 @@
     <license type="expression">$licenseExpression$</license>
     <copyright>$copyright$</copyright>
     <repository type="$repositoryType$" url="$repositoryUrl$"></repository>
+    <readme>docs/README.md</readme>
   </metadata>
   <files>
     <file src=".package\**\*.*" target=""/>
