@@ -27,6 +27,8 @@
     <NoWarn>1701;1702;1591</NoWarn>
     <SppLocalPackageStage>pre</SppLocalPackageStage>
     <DoILRepack>false</DoILRepack>
+    <SppDllFilePath>$(OutputPath)\$(TargetFramework)\$(AssemblyName).m.dll</SppDllFilePath>
+    <SppSelfDllFilePath>tools\$(AssemblyName).m.dll</SppSelfDllFilePath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
@@ -100,7 +102,7 @@
     <ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
   </ItemGroup>
 
-  <Target Name="_CopySelf" BeforeTargets="SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true'">
+  <Target Name="_CopySelf" BeforeTargets="PrepareForBuild;SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true' AND Exists($(SppDllFilePath))">
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(%(FullPath))"/>
   </Target>
   
@@ -109,6 +111,7 @@
     <PackageVersion>$(SppForceVersion)</PackageVersion>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true' AND '$(DisableSelf)' != 'true'" />
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"
+          Condition="'$(ContinuousIntegrationBuild)' != 'true' AND '$(DisableSelf)' != 'true' AND Exists($(SppSelfDllFilePath))" />
 
 </Project>
