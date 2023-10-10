@@ -7,6 +7,7 @@
 
 namespace Sundew.Packaging.Versioning.Commands;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,14 +30,14 @@ public class LatestPackageVersionCommand : ILatestPackageVersionCommand
     private const string Separator = ", ";
     private const string DeterminingLatestVersionFromSources = "Determining latest version from sources: ";
     private readonly ILogger nuGetLogger;
-    private readonly Logging.ILogger logger;
+    private readonly Logging.ILogger? logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LatestPackageVersionCommand"/> class.
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="nuGetLogger">The nu get logger.</param>
-    public LatestPackageVersionCommand(Logging.ILogger logger, ILogger nuGetLogger)
+    public LatestPackageVersionCommand(Logging.ILogger? logger, ILogger nuGetLogger)
     {
         this.nuGetLogger = nuGetLogger;
         this.logger = logger;
@@ -61,15 +62,28 @@ public class LatestPackageVersionCommand : ILatestPackageVersionCommand
         this.logger?.LogInfo(new StringBuilder(DeterminingLatestVersionFromSources).AppendItems(sources, Separator).ToString());
         var latestVersion = (await sources.SelectAsync(async sourceUri =>
             {
-                PackageSource packageSource = new(sourceUri);
-                var resourceAsync = await Repository.Factory.GetCoreV3(packageSource.Source)
-                    .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
-                return await resourceAsync.GetAllVersionsAsync(
-                    packageId,
-                    new SourceCacheContext { NoCache = true, RefreshMemoryCache = true },
-                    this.nuGetLogger,
-                    CancellationToken.None).ConfigureAwait(false);
+                try
+                {
+                    PackageSource packageSource = new(sourceUri);
+                    var resourceAsync = await Repository.Factory.GetCoreV3(packageSource.Source)
+                        .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
+                    return await resourceAsync.GetAllVersionsAsync(
+                        packageId,
+                        new SourceCacheContext { NoCache = true, RefreshMemoryCache = true },
+                        this.nuGetLogger,
+                        CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    return default;
+                }
+                catch (Exception e)
+                {
+                    this.logger?.LogMessage($"SPP: Failed to retrieve version from source: {sourceUri}, with exception: {e}");
+                    return default;
+                }
             }))
+            .Where(x => x != default)
             .SelectMany(x => x)
             .OrderByDescending(x => x)
             .FirstOrDefault(x =>
