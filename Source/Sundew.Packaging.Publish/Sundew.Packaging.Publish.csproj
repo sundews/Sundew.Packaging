@@ -39,16 +39,16 @@
     <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
-    <PackageReference Include="NuGet.Commands" Version="6.4.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.4.0" />
+    <PackageReference Include="NuGet.Commands" Version="6.7.0" />
+    <PackageReference Include="NuGet.Protocol" Version="6.7.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="9.0.1" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="9.0.1" />
-    <PackageReference Include="Sundew.Base.Text" Version="9.0.1" />
-    <PackageReference Include="System.Reflection.Metadata" Version="7.0.1" />
+    <PackageReference Include="Sundew.Base.Collections" Version="10.0.2" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="10.0.2" />
+    <PackageReference Include="Sundew.Base.Text" Version="10.0.2" />
+    <PackageReference Include="System.Reflection.Metadata" Version="7.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -86,7 +86,7 @@
     <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'.package\tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
     <Copy SourceFiles="@(RuntimeFiles)" DestinationFiles="@(RuntimeFiles->'.package\tools\runtimes\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
     <Copy SourceFiles="@(TargetsFiles)" DestinationFiles="@(TargetsFiles->'.package\build\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" />
-    <Copy SourceFiles="..\..\README.md" DestinationFiles=".package\docs\README.md" ContinueOnError="False"/>
+    <Copy SourceFiles="..\..\README.md" DestinationFiles=".package\docs\README.md" ContinueOnError="False" />
     <Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
   </Target>
 
@@ -103,7 +103,7 @@
   </ItemGroup>
 
   <Target Name="_CopySelf" BeforeTargets="PrepareForBuild;SppInitialize" Condition="'$(ContinuousIntegrationBuild)' != 'true' AND Exists($(SppDllFilePath))">
-    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(%(FullPath))"/>
+    <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(%(FullPath))" />
   </Target>
   
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
@@ -111,7 +111,6 @@
     <PackageVersion>$(SppForceVersion)</PackageVersion>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets"
-          Condition="'$(ContinuousIntegrationBuild)' != 'true' AND '$(DisableSelf)' != 'true' AND Exists($(SppSelfDllFilePath))" />
+  <Import Project="$(MSBuildProjectDirectory)\build\Sundew.Packaging.Publish.targets" Condition="'$(ContinuousIntegrationBuild)' != 'true' AND '$(DisableSelf)' != 'true' AND Exists($(SppSelfDllFilePath))" />
 
 </Project>

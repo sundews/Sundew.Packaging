@@ -34,17 +34,17 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Locator" Version="1.5.5" />
-    <PackageReference Include="NuGet.Commands" Version="6.4.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.4.0" />
-    <PackageReference Include="NuGet.Versioning" Version="6.4.0" />
+    <PackageReference Include="NuGet.Commands" Version="6.7.0" />
+    <PackageReference Include="NuGet.Protocol" Version="6.7.0" />
+    <PackageReference Include="NuGet.Versioning" Version="6.7.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Memory" Version="9.0.1" />
-    <PackageReference Include="Sundew.CommandLine" Version="10.0.1" />
-    <PackageReference Include="System.IO.Abstractions" Version="19.2.4" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.1.1">
+    <PackageReference Include="Sundew.Base.Memory" Version="10.0.2" />
+    <PackageReference Include="Sundew.CommandLine" Version="10.0.2" />
+    <PackageReference Include="System.IO.Abstractions" Version="19.2.69" />
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
