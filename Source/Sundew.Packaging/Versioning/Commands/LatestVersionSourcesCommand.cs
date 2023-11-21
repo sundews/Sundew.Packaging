@@ -113,6 +113,7 @@ public class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
 
     private bool IsRemoteSourceOrDoesLocalSourceExists(string sourceUri)
     {
-        return !UriUtility.TryCreateSourceUri(sourceUri, UriKind.Absolute).IsFile || this.fileSystem.DirectoryExists(sourceUri);
+        var uri = UriUtility.TryCreateSourceUri(sourceUri, UriKind.Absolute);
+        return (uri != null && !uri.IsFile) || this.fileSystem.DirectoryExists(sourceUri);
     }
 }

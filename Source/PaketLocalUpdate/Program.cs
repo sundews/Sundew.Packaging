@@ -28,7 +28,7 @@ public static class Program
         commandLineParser.WithArguments(new Arguments(), Handle);
 
         var result = await commandLineParser.ParseAsync(Environment.CommandLine, 1);
-        if (!result)
+        if (result.HasError)
         {
             result.WriteToConsole();
             return result.Error.Info;

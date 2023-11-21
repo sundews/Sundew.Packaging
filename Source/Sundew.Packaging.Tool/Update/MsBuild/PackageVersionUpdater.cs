@@ -9,7 +9,6 @@ namespace Sundew.Packaging.Tool.Update.MsBuild;
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Packaging.RegularExpression;
 using Sundew.Packaging.Tool.Update.MsBuild.NuGet;
 
@@ -28,7 +27,7 @@ internal class PackageVersionUpdater
         this.packageVersionUpdaterReporter = packageVersionUpdaterReporter;
     }
 
-    public O<MsBuildProject> TryUpdateAsync(MsBuildProject msBuildProject, IEnumerable<PackageUpdate> packageUpdates)
+    public MsBuildProject? TryUpdateAsync(MsBuildProject msBuildProject, IEnumerable<PackageUpdate> packageUpdates)
     {
         var fileContent = msBuildProject.ProjectContent;
         var wasModified = false;
@@ -45,6 +44,6 @@ internal class PackageVersionUpdater
         }
 
         this.packageVersionUpdaterReporter.ProcessedProject(msBuildProject.Path, wasModified);
-        return O.From(wasModified, msBuildProject with { ProjectContent = fileContent });
+        return wasModified ? msBuildProject with { ProjectContent = fileContent } : default;
     }
 }

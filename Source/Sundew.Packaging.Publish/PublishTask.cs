@@ -215,9 +215,10 @@ public class PublishTask : Task
 
             var source = publishInfo.PushSource;
             var isValidSource = !string.IsNullOrEmpty(source);
-            var isLocalSource = isValidSource && UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile;
             if (isValidSource && publishInfo.IsEnabled)
             {
+                var sourceUri = UriUtility.TryCreateSourceUri(source, UriKind.Absolute);
+                var isLocalSource = isValidSource && (sourceUri?.IsFile ?? true);
                 var settings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
                 if (isLocalSource)
                 {

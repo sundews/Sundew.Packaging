@@ -42,9 +42,9 @@ public class StageSelectorTests
     [InlineData(@".+ => 1A-K@https://uri.com", "1A-K", null, null, Strings.Empty, StageSelector.DefaultIntegrationPackageStage, Strings.Empty)]
     public void Select_When_MatchingIntegrationSource_Then_ResultShouldBeAsExpected(
         string source,
-        string expectedSourceApiKey,
-        string expectedSymbolUri,
-        string expectedSymbolSourceApiKey,
+        string? expectedSourceApiKey,
+        string? expectedSymbolUri,
+        string? expectedSymbolSourceApiKey,
         string expectedPackagePrefix,
         string expectedStage,
         string expectedPackagePostfix)
@@ -122,12 +122,12 @@ public class StageSelectorTests
     public void SelectSource_When_MatchingIntegrationSourceAndSourceDoesNotContainSpace_Then_ResultShouldBeAsExpected(
         string source,
         string expectedFeedUri,
-        string expectedSourceApiKey,
-        string expectedSymbolUri,
-        string expectedSymbolSourceApiKey,
+        string? expectedSourceApiKey,
+        string? expectedSymbolUri,
+        string? expectedSymbolSourceApiKey,
         string expectedPackagePrefix,
         string expectedStage,
-        string expectedPrereleaseFormat,
+        string? expectedPrereleaseFormat,
         string expectedPackagePostfix)
     {
         var result = StageSelector.Select(
@@ -163,12 +163,12 @@ public class StageSelectorTests
     public void SelectSource_When_MatchingIntegrationSourceAndSourceDoesNotContainSpace_Then_ResultShouldBeAsExpected2(
         string source,
         string expectedFeedUri,
-        string expectedSourceApiKey,
-        string expectedSymbolUri,
-        string expectedSymbolSourceApiKey,
+        string? expectedSourceApiKey,
+        string? expectedSymbolUri,
+        string? expectedSymbolSourceApiKey,
         string expectedPackagePrefix,
         string expectedStage,
-        string expectedPrereleaseFormat,
+        string? expectedPrereleaseFormat,
         string expectedPackagePostfix)
     {
         var result = StageSelector.Select(

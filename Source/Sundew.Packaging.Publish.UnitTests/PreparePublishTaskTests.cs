@@ -77,9 +77,8 @@ public class PreparePublishTaskTests
             PackageId = APackageId,
             SolutionDir = @"Any/LocalSourcePath",
             IncludeSymbols = true,
+            Version = "1.0",
         };
-
-        this.testee.Version = "1.0";
 
         this.dateTime.SetupGet(x => x.UtcNow).Returns(new DateTime(2016, 01, 08, 17, 36, 13));
         this.fileSystem.Setup(x => x.DirectoryExists(It.IsAny<string>())).Returns(true);
@@ -284,11 +283,11 @@ public class PreparePublishTaskTests
     [InlineData(Strings.Empty, FallbackApiKey, "1SymbolsApiKey@", null, FallbackApiKey, "1SymbolsApiKey")]
     public void Execute_When_SourceIsConfiguredWithApiKeys_Then_SourceApiKeyShouldBeExpected(
         string apiKeySetup,
-        string fallbackApiKey,
+        string? fallbackApiKey,
         string symbolsApiKeySetup,
-        string fallbackSymbolsApiKey,
-        string expectedApiKey,
-        string expectedSymbolsApiKey)
+        string? fallbackSymbolsApiKey,
+        string? expectedApiKey,
+        string? expectedSymbolsApiKey)
     {
         this.testee.Version = "1.0";
         this.testee.Production = $@"master => {apiKeySetup}{ExpectedDefaultPushSource} | {symbolsApiKeySetup}{ExpectedDefaultPushSource}";
@@ -333,7 +332,7 @@ public class PreparePublishTaskTests
     [InlineData("1.0.1", VersioningMode.IncrementPatchIfStableExistForPrerelease, false, null, "1.0.1-u20160108-173613-dev")]
     [InlineData("1.0.1", VersioningMode.AlwaysIncrementPatch, false, null, "1.0.2-u20160108-173613-dev")]
     [InlineData("1.0.1", VersioningMode.NoChange, false, null, "1.0.1-u20160108-173613-dev")]
-    public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string prereleasePostfix, string expectedPackageVersion)
+    public void Execute_When_DeveloperPushSourceIsSetAndPushSourceSelectorMatches_Then_PushSourceShouldBeEqual(string packageVersion, VersioningMode versioningMode, bool stableReleaseExists, string? prereleasePostfix, string expectedPackageVersion)
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(

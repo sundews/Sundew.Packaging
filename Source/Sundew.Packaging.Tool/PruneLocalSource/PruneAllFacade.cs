@@ -38,7 +38,8 @@ public class PruneAllFacade
         var numberDirectoriesPruned = 0;
         try
         {
-            if (!UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile)
+            var uri = UriUtility.TryCreateSourceUri(source, UriKind.Absolute);
+            if (uri == null || !uri.IsFile)
             {
                 throw new InvalidOperationException("Prune only works with local sources");
             }

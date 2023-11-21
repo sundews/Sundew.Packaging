@@ -10,6 +10,7 @@ namespace Sundew.Packaging.Tool.PruneLocalSource;
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 using global::NuGet.Common;
@@ -31,7 +32,8 @@ public class NewestPrereleasesPruneFacade
     public async Task PruneAsync(NewestPrereleasesPruneModeVerb newestPrereleasesPurgeModeVerb)
     {
         var source = this.nuGetSourceProvider.GetDefaultSource(newestPrereleasesPurgeModeVerb.Source);
-        if (!UriUtility.TryCreateSourceUri(source, UriKind.Absolute).IsFile)
+        var uri = UriUtility.TryCreateSourceUri(source, UriKind.Absolute);
+        if (uri == null || !uri.IsFile)
         {
             throw new InvalidOperationException("Purge only works with local sources");
         }

@@ -44,7 +44,7 @@ public class PackagePublicationLoggerTests
     [InlineData("{Parameter}vso[task.setvariable package_{0}={0}]{3}|##vso[task.setvariable source_{0}={0}]{6}", new[] { @"##vso[task.setvariable package_PackageId=PackageId]c:\PackageId.nupkg", "##vso[task.setvariable source_PackageId=PackageId]http://nuget.org" })]
     [InlineData("MessageWithSemiColon||ShouldNotSplitWhenEscaped", new[] { @"MessageWithSemiColon|ShouldNotSplitWhenEscaped" })]
     [InlineData("1|2|3", new[] { @"1", "2", "3" })]
-    public void Log_Then_ActualMessageShouldBeExpectedResult(string packagePushFormats, string[] expectedResult)
+    public void Log_Then_ActualMessageShouldBeExpectedResult(string? packagePushFormats, string[] expectedResult)
     {
         var actualMessages = new List<string>();
         this.logger.Setup(x => x.LogImportant(It.IsAny<string>())).Callback<string>(x => actualMessages.Add(x));
@@ -67,7 +67,7 @@ public class PackagePublicationLoggerTests
     [InlineData(@"{DQ}{3}{DQ},{DQ}{6}{DQ},{DQ}{11}{DQ}{NL}", 1)]
     [InlineData(null, 0)]
     [InlineData("", 0)]
-    public void Log_When_FormatMayReferenceANullValue_Then_LogImportantShouldCalledExpectedNumberOfTimes(string packagePushFormats, int numberOfCalls)
+    public void Log_When_FormatMayReferenceANullValue_Then_LogImportantShouldCalledExpectedNumberOfTimes(string? packagePushFormats, int numberOfCalls)
     {
         var publishInfo = new PublishInfo(string.Empty, string.Empty, Source, Source, null, null, string.Empty, true, ExpectedVersion, ExpectedVersion, null);
 
