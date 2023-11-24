@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <SppFileName>Sundew.Packaging.Publish.dll</SppFileName>
   </PropertyGroup>
 
   <UsingTask

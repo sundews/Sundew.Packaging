@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PruneSimilarPackageVersionsCommand.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="PruneSimilarPackageVersionsCommand.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using global::NuGet.Versioning;
 using Sundew.Packaging.Versioning.IO;
+using Sundew.Packaging.Versioning.Logging;
 
 internal class PruneSimilarPackageVersionsCommand
 {
@@ -19,10 +20,12 @@ internal class PruneSimilarPackageVersionsCommand
     private const string Nupkg = ".nupkg";
     private const string Snupkg = ".snupkg";
     private readonly IFileSystem fileSystem;
+    private readonly ILogger logger;
 
-    public PruneSimilarPackageVersionsCommand(IFileSystem fileSystem)
+    public PruneSimilarPackageVersionsCommand(IFileSystem fileSystem, ILogger logger)
     {
         this.fileSystem = fileSystem;
+        this.logger = logger;
     }
 
     public void Prune(string packagePath, string packageId, string version)
@@ -44,7 +47,14 @@ internal class PruneSimilarPackageVersionsCommand
                 && !fileName.EndsWith(version, StringComparison.OrdinalIgnoreCase)
                 && !fileName.EndsWith($"{version}.symbols", StringComparison.OrdinalIgnoreCase))
             {
-                this.fileSystem.DeleteFile(filePath);
+                try
+                {
+                    this.fileSystem.DeleteFile(filePath);
+                }
+                catch (IOException e)
+                {
+                    this.logger.LogInfo($"Could not prune: {filePath} due to: {e}");
+                }
             }
         }
     }

@@ -16,6 +16,7 @@
    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
    <WarningsAsErrors />
    <SppForceVersion>$(GlobalVersion)</SppForceVersion>
+   <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
  </PropertyGroup>
 
   <ItemGroup>

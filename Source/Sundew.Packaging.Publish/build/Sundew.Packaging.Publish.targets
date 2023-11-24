@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="!$(DefineConstants.Contains('DISABLE_SPP'))">
-    <SppFileName>Sundew.Packaging.Publish.m.dll</SppFileName>
+    <SppFileName>Sundew.Packaging.Publish.dll</SppFileName>
     <_SppSolutionDir>$(SolutionDir)</_SppSolutionDir>
     <_SppSolutionDir Condition="'$(_SppSolutionDir)' == '' OR '$(_SppSolutionDir)' == '*Undefined*'">$(MSBuildStartupDirectory)</_SppSolutionDir>
     <SppWorkLocally Condition="'$(SppWorkLocally)' == '' AND Exists('$(_SppSolutionDir)SppWorkLocally.user')">True</SppWorkLocally>
@@ -33,14 +33,14 @@
     TaskName="PublishTask"
     AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(SppFileName)"/>
 
-  <Target Name="SppInitialize" 
+	<Target Name="SppInitialize" 
           Condition="'$(SppDisable)' != 'true' AND !$(DefineConstants.Contains('DISABLE_SPP')) AND ((('$(DesignTimeBuild)' != 'true' AND '$(BuildingProject)' != 'false')) OR '$(BuildProjectReferences)' == 'false')" 
           AfterTargets="BuildOnlySettings" 
           BeforeTargets="DispatchToInnerBuilds;SppGetPackageVersionForProjectReference">
     <PropertyGroup>
-      <_SppPublishInfoFilePath>$(NuspecOutputPath)$(AssemblyName).sppi</_SppPublishInfoFilePath>
-      <_SppReferencedPackageVersionFilePath>$(NuspecOutputPath)$(AssemblyName).sppv</_SppReferencedPackageVersionFilePath>
-      <_SppPackageVersionFilePath>$(_SppPackageVersionsPath)$(AssemblyName).sppv</_SppPackageVersionFilePath>
+      <_SppPublishInfoFilePath>$(NuspecOutputPath)$(MSBuildProjectName).sppi</_SppPublishInfoFilePath>
+      <_SppReferencedPackageVersionFilePath>$(NuspecOutputPath)$(MSBuildProjectName).sppv</_SppReferencedPackageVersionFilePath>
+      <_SppPackageVersionFilePath>$(_SppPackageVersionsPath)$(MSBuildProjectName).sppv</_SppPackageVersionFilePath>
       <_SppEnableTargets>true</_SppEnableTargets>
     </PropertyGroup>
   </Target>

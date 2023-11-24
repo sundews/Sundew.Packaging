@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PublishInfoProvider.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="PublishInfoProvider.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -8,7 +8,6 @@
 namespace Sundew.Packaging.Publish.Internal;
 
 using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 using Sundew.Packaging.Staging;
 using Sundew.Packaging.Versioning;

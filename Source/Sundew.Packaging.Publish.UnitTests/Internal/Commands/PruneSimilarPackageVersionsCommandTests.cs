@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PruneSimilarPackageVersionsCommandTests.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="PruneSimilarPackageVersionsCommandTests.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -12,6 +12,7 @@ using System.Linq;
 using Moq;
 using Sundew.Packaging.Publish.Internal.Commands;
 using Sundew.Packaging.Versioning.IO;
+using Sundew.Packaging.Versioning.Logging;
 using Xunit;
 
 public class PruneSimilarPackageVersionsCommandTests
@@ -20,11 +21,12 @@ public class PruneSimilarPackageVersionsCommandTests
     private const string AnyPackagePath = @"c:\AnyPackagePath\Sundew.Packaging.Publish.5.1.0-u20210325-221048-pre.nupkg";
     private const string AnyVersion = "5.1.0-u20210325-221048-pre";
     private readonly IFileSystem fileSystem = New.Mock<IFileSystem>();
+    private readonly ILogger logger = New.Mock<ILogger>();
     private readonly PruneSimilarPackageVersionsCommand testee;
 
     public PruneSimilarPackageVersionsCommandTests()
     {
-        this.testee = new PruneSimilarPackageVersionsCommand(this.fileSystem);
+        this.testee = new PruneSimilarPackageVersionsCommand(this.fileSystem, this.logger);
     }
 
     [Fact]
