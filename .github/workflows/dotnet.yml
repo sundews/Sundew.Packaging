@@ -8,6 +8,9 @@ on:
       - "release*"
   pull_request:
 
+concurrency:
+  group: ${{ github.ref == 'refs/tags/release' && github.ref || github.run_id }}
+
 jobs:
   build:
     name: .NET
@@ -26,12 +29,10 @@ jobs:
       packages-to-push: 'logs/packages.push'
       source-packages-to-push: './Source/logs/packages.push'
     steps:
-    - name: 'Await other builds'
-      uses: softprops/turnstyle@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        submodules: 'true'
     - name: Setup .NET 7
       uses: actions/setup-dotnet@v1
       with:
