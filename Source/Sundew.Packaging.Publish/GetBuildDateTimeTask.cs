@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="GetBuildDateTimeTask.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="GetBuildDateTimeTask.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,6 @@ using System;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Sundew.Base.Primitives.Time;
 using Sundew.Packaging.Publish.Internal;
 using Sundew.Packaging.Publish.Internal.Logging;
 using Sundew.Packaging.Versioning.IO;
@@ -31,21 +30,10 @@ public class GetBuildDateTimeTask : Task
     /// Initializes a new instance of the <see cref="GetBuildDateTimeTask"/> class.
     /// </summary>
     public GetBuildDateTimeTask()
-        : this(null, null, null)
     {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GetBuildDateTimeTask" /> class.
-    /// </summary>
-    /// <param name="fileSystem">The file system.</param>
-    /// <param name="dateTime">The date time.</param>
-    /// <param name="logger">The logger.</param>
-    internal GetBuildDateTimeTask(IFileSystem? fileSystem, IDateTime? dateTime, ILogger? logger)
-    {
-        this.logger = logger ?? new MsBuildLogger(this.Log);
-        this.fileSystem = fileSystem ?? new FileSystem();
-        this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(this.fileSystem, dateTime ?? new DateTimeProvider(), this.logger);
+        this.logger = new MsBuildLogger(this.Log);
+        this.prereleaseDateTimeProvider = new PrereleaseDateTimeProvider(null, this.logger);
+        this.fileSystem = new FileSystem();
     }
 
     /// <summary>

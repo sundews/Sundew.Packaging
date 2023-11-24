@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FileSystem.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="FileSystem.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -33,9 +33,18 @@ public class FileSystem : IFileSystem
     /// Deletes the file.
     /// </summary>
     /// <param name="path">The path.</param>
-    public void DeleteFile(string path)
+    /// <returns>
+    ///   <c>true</c>, if the file was deleted, otherwise <c>false</c>.
+    /// </returns>
+    public bool DeleteFile(string path)
     {
-        File.Delete(path);
+        if (this.FileExists(path))
+        {
+            File.Delete(path);
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -118,9 +127,18 @@ public class FileSystem : IFileSystem
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="recursive">if set to <c>true</c> [recursive].</param>
-    public void DeleteDirectory(string path, bool recursive)
+    /// <returns>
+    ///   <c>true</c>, if the directory was deleted, otherwise <c>false</c>.
+    /// </returns>
+    public bool DeleteDirectory(string path, bool recursive)
     {
-        Directory.Delete(path, recursive);
+        if (this.DirectoryExists(path))
+        {
+            Directory.Delete(path, recursive);
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>

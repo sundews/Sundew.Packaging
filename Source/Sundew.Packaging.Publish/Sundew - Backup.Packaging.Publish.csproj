@@ -21,16 +21,14 @@
 3.x - Added automatic patch increment, renamed to align naming with Sundew.Packaging.Update
 2.x - Added support for automatic prerelease patch increment
 1.x - Initial release
-    </PackageReleaseNotes>
-    <Configurations>Debug;Release;Release-Stable;DebugNoSelfVersioning</Configurations>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <NoWarn>1701;1702;1591</NoWarn>
-    <SppLocalPackageStage>pre</SppLocalPackageStage>
-    <DoILRepack>false</DoILRepack>
-    <SppDllFilePath>$(OutputPath)\$(TargetFramework)\$(AssemblyName).dll</SppDllFilePath>
-    <SppSelfDllFilePath>tools\$(AssemblyName).dll</SppSelfDllFilePath>
-    <Langversion>latest</Langversion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+     </PackageReleaseNotes>
+     <Configurations>Debug;Release;Release-Stable;DebugNoSelfVersioning</Configurations>
+     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+     <NoWarn>1701;1702;1591</NoWarn>
+     <SppLocalPackageStage>pre</SppLocalPackageStage>
+     <DoILRepack>false</DoILRepack>
+     <SppDllFilePath>$(OutputPath)\$(TargetFramework)\$(AssemblyName).dll</SppDllFilePath>
+     <SppSelfDllFilePath>tools\$(AssemblyName).dll</SppSelfDllFilePath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
@@ -39,7 +37,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
     <PackageReference Include="NuGet.Commands" Version="6.8.0" />
     <PackageReference Include="NuGet.Protocol" Version="6.8.0" />
@@ -51,7 +48,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
   </ItemGroup>
 
@@ -63,32 +59,10 @@
 
     <SundewPackagingCompile Include="..\Sundew.Packaging\**\*.cs" />
     <SundewPackagingCompile Remove="..\Sundew.Packaging\obj\**\*.cs" />
-    <Compile Include="@(SundewPackagingCompile)" LinkBase="Shared\Sundew.Packaging" />
-
-    <SundewBasePrimitivesCompile Include="..\Sundew.Base\Source\Sundew.Base.Primitives\**\*.cs" />
-	<SundewBasePrimitivesCompile Remove="..\Sundew.Base\Source\Sundew.Base.Primitives\obj\**\*.cs" />
-	<Compile Include="@(SundewBasePrimitivesCompile)" LinkBase="Shared\Sundew.Base.Primitives" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\EnumerableExtensions.cs;" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\AsyncEnumerableExtensions.cs" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\ArrayExtensions.cs" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Immutable\*.cs" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Internal\*.cs" />
-	<Compile Include="@(SundewBaseCollectionsCompile)" LinkBase="Shared\Sundew.Base.Collections" />
-	<SundewBaseTextCompile Include="..\Sundew.Base\Source\Sundew.Base.Text\**\*.cs" />
-	<SundewBaseTextCompile Remove="..\Sundew.Base\Source\Sundew.Base.Text\obj\**\*.cs" />
-    <Compile Include="@(SundewBaseTextCompile)" LinkBase="Shared\Sundew.Base.Text" />
-    <SundewBaseEqualityCompile Include="..\Sundew.Base\Source\Sundew.Base.Equality\**\*.cs" />
-    <SundewBaseEqualityCompile Remove="..\Sundew.Base\Source\Sundew.Base.Equality\obj\**\*.cs" />
-    <Compile Include="@(SundewBaseEqualityCompile)" LinkBase="Shared\Sundew.Base.Equality" />
-    <SundewBaseMemoryCompile Include="..\Sundew.Base\Source\Sundew.Base.Memory\**\*.cs" />
-    <SundewBaseMemoryCompile Remove="..\Sundew.Base\Source\Sundew.Base.Memory\obj\**\*.cs" />
-    <Compile Include="@(SundewBaseMemoryCompile)" LinkBase="Shared\Sundew.Base.Memory" />
-    <SundewBaseReportingCompile Include="..\Sundew.Base\Source\Sundew.Base.Reporting\**\*.cs" />
-    <SundewBaseReportingCompile Remove="..\Sundew.Base\Source\Sundew.Base.Reporting\obj\**\*.cs" />
-    <Compile Include="@(SundewBaseReportingCompile)" LinkBase="Shared\Sundew.Base.Reporting" />
+    <Compile Include="@(SundewPackagingCompile)" LinkBase="Sundew.Packaging" />
   </ItemGroup>
 
-	<ItemGroup>
+  <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
@@ -101,8 +75,8 @@
       <NuspecProperties>$(NuspecProperties);company=$(Company);description=$(Description);copyright=$(Copyright);authors=$(Authors);version=$(PackageVersion);repositoryUrl=$(RepositoryUrl);releaseNotes=$(PackageReleaseNotes);repositoryType=$(RepositoryType);licenseExpression=$(PackageLicenseExpression);targetFramework=$(TargetFramework);configuration=$(Configuration);projectDir=$(MSBuildProjectDirectory);outputPath=$(OutputPath)</NuspecProperties>
     </PropertyGroup>
   </Target>
-
-	<!--<Target Name="_EmbeddedDependencies" AfterTargets="ResolveReferences">
+	
+  <Target Name="_EmbeddedDependencies" AfterTargets="ResolveReferences">
     <ItemGroup>
       <InputAssemblies Include="@(ReferencePath->'%(OriginalItemSpec)')" />
       <InputAssemblies Remove="@(InputAssemblies)" Condition="$([System.String]::Copy(%(FullPath)).Contains('Microsoft.Build'))" />
@@ -112,11 +86,11 @@
 		<InputAssemblies Remove="@(InputAssemblies)" Condition="$([System.String]::Copy(%(FullPath)).Contains('Microsoft.Bcl'))" />
       <EmbeddedResource Include="@(InputAssemblies)" />
     </ItemGroup>
-  </Target>-->
+  </Target>
 
   <Target Name="_CopyPackageFiles" AfterTargets="PostBuildEvent">
     <ItemGroup>
-      <OutputFiles Include="$(OutputPath)\$(AssemblyName).dll;$(OutputPath)\**\*.dll" />
+      <OutputFiles Include="$(OutputPath)\$(AssemblyName).dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\System*.dll" />
       <RuntimeFiles Include="..\NuGet.Runtime.Hack\bin\$(Configuration)\net8.0\runtimes\**\*.*" />
       <TargetsFiles Include="build\*.*" />
     </ItemGroup>
@@ -128,16 +102,15 @@
     <Delete Files=".package\tools\NuGet.Runtime.Hack.exe" ContinueOnError="False" />
   </Target>
 
+  <ItemGroup>
+    <OutputSelfFiles Include="$(OutputPath)$(AssemblyName).dll;$(OutputPath)**\Microsoft.Build*.dll;$(OutputPath)**\NuGet*.dll;$(OutputPath)**\System*.dll" />
+  </ItemGroup>
 	
   <ItemGroup>
     <None Include="build\SppGetBuildDateTime.proj" />
   </ItemGroup>
 
   <Target Name="_CopySelf" AfterTargets="PostBuildEvent" Condition="'$(ContinuousIntegrationBuild)' != 'true' AND '$(Configuration)'=='DebugNoSelfVersioning' AND Exists($(SppDllFilePath))">
-    <ItemGroup>
-      <OutputSelfFiles Include="$(OutputPath)$(AssemblyName).dll;$(OutputPath)\**\*.dll" />
-    </ItemGroup>
-    
     <Copy SourceFiles="@(OutputSelfFiles)" DestinationFiles="@(OutputSelfFiles->'tools\%(RecursiveDir)%(Filename)%(Extension)')" ContinueOnError="False" Condition="Exists(%(FullPath))" />
   </Target>
 

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFileSystem.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="IFileSystem.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -58,13 +58,13 @@ public interface IFileSystem
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="recursive">if set to <c>true</c> [recursive].</param>
-    void DeleteDirectory(string path, bool recursive);
+    bool DeleteDirectory(string path, bool recursive);
 
     /// <summary>
     /// Deletes the file.
     /// </summary>
     /// <param name="path">The path.</param>
-    void DeleteFile(string path);
+    bool DeleteFile(string path);
 
     /// <summary>
     /// Writes all text.

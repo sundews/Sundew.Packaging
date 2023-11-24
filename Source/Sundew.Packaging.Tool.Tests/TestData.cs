@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestData.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="TestData.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ public static class TestData
     <NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <Owners>Kim Hugener-Ohlsen</Owners>
     <Description>
       Automated NuGet package publisher:
@@ -175,7 +175,7 @@ public static class TestData
     <NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <Owners>Kim Hugener-Ohlsen</Owners>
     <Description>
       Automated NuGet package publisher:
@@ -278,7 +278,7 @@ public static class TestData
     <NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <Owners>Kim Hugener-Ohlsen</Owners>
     <Description>
       Automated NuGet package publisher:
@@ -381,7 +381,7 @@ public static class TestData
     <NuspecFile>Sundew.Packaging.Publish.nuspec</NuspecFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <Owners>Kim Hugener-Ohlsen</Owners>
     <Description>
       Automated NuGet package publisher:
@@ -491,7 +491,7 @@ public static class TestData
 	  <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Simple library for creating a command line.
@@ -556,7 +556,7 @@ Features:
 	  <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Simple library for creating a command line.
@@ -621,7 +621,7 @@ Features:
 	  <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Simple library for creating a command line.
@@ -686,7 +686,7 @@ Features:
 	  <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Simple library for creating a command line.
@@ -751,7 +751,7 @@ Features:
 	  <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Simple library for creating a command line.
@@ -817,7 +817,7 @@ Features:
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>4.16.0 - https://github.com/moq/moq4/releases/tag/v4.16.0
 4.15.2 - https://github.com/moq/moq4/releases/tag/v4.15.2
@@ -872,7 +872,7 @@ fileSystem.Setup(x =&gt; x.Exists(It.IsAny&lt;string&gt;())).Returns(true);</Des
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Company>Hukano</Company>
+    <Company>Sundews</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>4.16.0 - https://github.com/moq/moq4/releases/tag/v4.16.0
 4.15.2 - https://github.com/moq/moq4/releases/tag/v4.15.2
