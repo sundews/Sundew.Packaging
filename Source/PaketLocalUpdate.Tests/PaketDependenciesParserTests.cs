@@ -1,17 +1,14 @@
+namespace PaketLocalUpdate.Tests;
 
+using PaketLocalUpdate;
 using FluentAssertions;
 using Xunit;
 
-namespace PaketLocalUpdate.Tests;
 
 public class PaketDependenciesParserTests
 {
-    private readonly PaketDependenciesParser testee;
+    private readonly PaketDependenciesParser testee = new();
 
-    public PaketDependenciesParserTests()
-    {
-        this.testee = new PaketDependenciesParser();
-    }
     [Fact]
     public void TestMethod1()
     {

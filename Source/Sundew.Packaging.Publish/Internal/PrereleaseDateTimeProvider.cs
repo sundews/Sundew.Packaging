@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PrereleaseDateTimeProvider.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="PrereleaseDateTimeProvider.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -19,6 +19,11 @@ internal class PrereleaseDateTimeProvider
     private readonly IFileSystem fileSystem;
     private readonly IDateTime dateTime;
     private readonly ILogger logger;
+
+    public PrereleaseDateTimeProvider(IFileSystem? fileSystem, ILogger logger)
+        : this(fileSystem ?? new FileSystem(), new DateTimeProvider(), logger)
+    {
+    }
 
     public PrereleaseDateTimeProvider(IFileSystem fileSystem, IDateTime dateTime, ILogger logger)
     {

@@ -21,12 +21,12 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="6.0.3" />
     <PackageReference Include="Paket.Core" Version="8.0.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.CommandLine" Version="10.0.3" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.4">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.5-u20231124-235832-ci">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

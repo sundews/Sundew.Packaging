@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PublishTask.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="PublishTask.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ public class PublishTask : Task
         this.copyPackageToLocalSourceCommand = copyPackageToLocalSourceCommand ?? new CopyPackageToLocalSourceCommand(this.fileSystem, this.logger);
         this.copyPdbToSymbolCacheCommand = copyPdbToSymbolCacheCommand ?? new CopyPdbToSymbolCacheCommand(this.fileSystem, this.logger);
         this.settingsFactory = settingsFactory;
-        this.pruneSimilarPackageVersionsCommand = new PruneSimilarPackageVersionsCommand(this.fileSystem);
+        this.pruneSimilarPackageVersionsCommand = new PruneSimilarPackageVersionsCommand(this.fileSystem, this.logger);
         this.appendPublishFileLogCommand = new AppendPublishFileLogCommand(this.fileSystem, this.logger);
         this.packagePublicationLogger = new PackagePublicationLogger(this.logger);
     }

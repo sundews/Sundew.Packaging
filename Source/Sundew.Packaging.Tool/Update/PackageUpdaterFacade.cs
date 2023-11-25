@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PackageUpdaterFacade.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="PackageUpdaterFacade.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -64,6 +64,7 @@ public sealed class PackageUpdaterFacade
     /// Updates the packages in projects asynchronous.
     /// </summary>
     /// <param name="updateVerb">The update verb.</param>
+    /// <returns>A task for the completion.</returns>
     public async Task UpdatePackagesInProjectsAsync(UpdateVerb updateVerb)
     {
         var rootDirectory = updateVerb.RootDirectory ?? this.fileSystem.Directory.GetCurrentDirectory();

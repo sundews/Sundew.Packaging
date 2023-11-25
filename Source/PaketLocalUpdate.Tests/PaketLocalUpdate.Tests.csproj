@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <Configurations>Debug;Release;DebugNoSelfVersioning</Configurations>
+    <Configurations>DebugNoSelfVersioning;Debug;Release;Release-Stable</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

@@ -16,7 +16,7 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<WarningsAsErrors />
 		<DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-		<NoWarn>1701;1702;1591</NoWarn>
+		<NoWarn>1701;1702;1591;SA1402</NoWarn>
 		<SppLocalPackageStage>pre</SppLocalPackageStage>
 		<DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
 		<Version>$(RuntimeVersion).$(Version)</Version>
@@ -30,10 +30,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IsExternalInit" Version="1.0.3">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Microsoft.Build" Version="17.3.2">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
@@ -41,14 +37,14 @@
 		<PackageReference Include="NuGet.Commands" Version="6.8.0" />
 		<PackageReference Include="NuGet.Protocol" Version="6.8.0" />
 		<PackageReference Include="NuGet.Versioning" Version="6.8.0" />
-		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Sundew.Base.Memory" Version="11.0.0" />
 		<PackageReference Include="Sundew.CommandLine" Version="10.0.3" />
 		<PackageReference Include="System.IO.Abstractions" Version="19.2.87" />
-		<PackageReference Include="Sundew.Packaging.Publish" Version="8.2.4">
+		<PackageReference Include="Sundew.Packaging.Publish" Version="8.2.5-u20231124-235832-ci">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
