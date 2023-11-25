@@ -7,9 +7,12 @@
 
 namespace Sundew.Packaging.Versioning.IO;
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
 
 /// <summary>
 /// File system implementation.
@@ -43,13 +46,25 @@ public class FileSystem : IFileSystem
             try
             {
                 File.Delete(path);
+                return true;
             }
             catch (FileNotFoundException)
             {
                 return false;
             }
-
-            return true;
+            catch (IOException)
+            {
+                try
+                {
+                    Thread.Sleep(1);
+                    File.Delete(path);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
         }
 
         return false;
@@ -145,13 +160,25 @@ public class FileSystem : IFileSystem
             try
             {
                 Directory.Delete(path, recursive);
+                return true;
             }
             catch (DirectoryNotFoundException)
             {
                 return false;
             }
-
-            return true;
+            catch (IOException)
+            {
+                try
+                {
+                    Thread.Sleep(1);
+                    File.Delete(path);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
         }
 
         return false;
