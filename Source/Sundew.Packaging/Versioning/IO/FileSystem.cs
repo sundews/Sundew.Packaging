@@ -33,9 +33,26 @@ public class FileSystem : IFileSystem
     /// Deletes the file.
     /// </summary>
     /// <param name="path">The path.</param>
-    public void DeleteFile(string path)
+    /// <returns>
+    ///   <c>true</c>, if the file was deleted, otherwise <c>false</c>.
+    /// </returns>
+    public bool DeleteFile(string path)
     {
-        File.Delete(path);
+        if (this.FileExists(path))
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (FileNotFoundException)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -118,9 +135,26 @@ public class FileSystem : IFileSystem
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="recursive">if set to <c>true</c> [recursive].</param>
-    public void DeleteDirectory(string path, bool recursive)
+    /// <returns>
+    ///   <c>true</c>, if the directory was deleted, otherwise <c>false</c>.
+    /// </returns>
+    public bool DeleteDirectory(string path, bool recursive)
     {
-        Directory.Delete(path, recursive);
+        if (this.DirectoryExists(path))
+        {
+            try
+            {
+                Directory.Delete(path, recursive);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
