@@ -55,7 +55,7 @@ jobs:
       id: stage-build
       run: >
         spt stage-build --project-file "${{ env.versioningProjectPath }}"
-        --production-input <git_commit_message.txt
+        --production-input "<git_commit_message.txt"
         --production-matcher "=>release"
         --production  "refs/(heads/release/.+|tags/release)                                  => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Release"
         --integration "refs/heads/(?:master|main).*                                          => &u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
