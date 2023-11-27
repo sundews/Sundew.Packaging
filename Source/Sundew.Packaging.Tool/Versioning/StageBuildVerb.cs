@@ -292,13 +292,6 @@ public class StageBuildVerb : IVerb
             },
             "The project file");
         argumentsBuilder.AddRequired("s", "stage", () => this.Stage, e => this.Stage = e, "The stage used to match against the production, integration and development sources");
-        argumentsBuilder.AddOptional(
-            "pi",
-            "production-input",
-            () => this.ProductionInput,
-            e => this.ProductionInput = e,
-            @"The input used to determine if build is in production stage
-Use <filename to match against the content of a file.");
         argumentsBuilder.RequireAnyOf(
             "Stage selection",
             builder => builder
@@ -321,6 +314,13 @@ Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]Source
                     @"The fallback stage and properties if no stage is matched.
 [#StagingName|][PropertyName=PropertyValue]*",
                     true));
+        argumentsBuilder.AddOptional(
+            "pi",
+            "production-input",
+            () => this.ProductionInput,
+            e => this.ProductionInput = e,
+            @"The input used to determine if build is in production stage
+Use <filename to match against the content of a file.");
         argumentsBuilder.AddOptional("pm", "production-matcher", () => this.ProductionMatcherRegex, s => this.ProductionMatcherRegex = s, "The regex to match against the production-input.", true);
         argumentsBuilder.AddOptional("wd", "directory", () => this.WorkingDirectory, s => this.WorkingDirectory = s, "The working directory or file used to determine the base version.", true);
         argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
