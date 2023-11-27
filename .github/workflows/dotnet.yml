@@ -47,11 +47,10 @@ jobs:
         git rev-parse --short=10 HEAD | cb -c ">> $Env:GITHUB_OUTPUT|git-hash={0}{NL}" --batches-stdin
 
         cb match -p "(?<Input>^(?!(refs/pull.*|refs/heads/$)).+) => git-branch-name={Input}" -i "refs/heads/${{ github.base_ref }}" "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
-    - name: Get Commit
-      run: |
-        echo '"${{ github.event.head_commit.message }}"' > git_commit_message.txt
 
-        cat git_commit_message.txt
+        git log -1 --pretty=%B > git_commit_message.txt
+    - name: Get Commit
+      run: cat git_commit_message.txt
     - name: Stage Build
       id: stage-build
       run: >
