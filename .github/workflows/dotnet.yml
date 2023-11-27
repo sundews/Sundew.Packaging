@@ -65,6 +65,10 @@ jobs:
         --output-file $Env:GITHUB_OUTPUT
 
         cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
+
+        echo ${{ github.event.head_commit.message }}
+        echo ----
+        echo ${{ github.event.workflow_run.head_commit.message }}
     - name: 'Remove release tag'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: cb --if "${{ steps.stage-build.outputs.isReleaseCommand }} == true" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
