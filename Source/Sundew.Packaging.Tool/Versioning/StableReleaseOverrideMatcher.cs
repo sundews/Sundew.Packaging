@@ -13,7 +13,11 @@ namespace Sundew.Packaging.Tool.Versioning
 
     public static class StableReleaseOverrideMatcher
     {
-        public static bool IsStableRelease(string? productionInput, string? productionMatcherRegex, IFileSystem fileSystem)
+        public static bool IsStableRelease(
+            string? productionInput,
+            string? productionMatcherRegex,
+            IFileSystem fileSystem,
+            IStageBuildLogger stageBuildLogger)
         {
             if (productionInput.IsNullOrEmpty() || productionMatcherRegex.IsNullOrEmpty())
             {
@@ -25,8 +29,14 @@ namespace Sundew.Packaging.Tool.Versioning
                 productionInput = fileSystem.ReadAllText(productionInput.Substring(1).Trim());
             }
 
-            var regex = new Regex(productionMatcherRegex);
-            return regex.IsMatch(productionInput);
+            stageBuildLogger.ReportMessage($"Matching {productionInput} to {productionMatcherRegex}");
+            var isStableRelease = Regex.IsMatch(productionInput, productionMatcherRegex);
+            if (isStableRelease)
+            {
+                stageBuildLogger.ReportMessage("Setting production stage");
+            }
+
+            return isStableRelease;
         }
     }
 }

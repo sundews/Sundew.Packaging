@@ -31,7 +31,7 @@ public class StageBuildFacade
     private readonly IDateTime dateTime;
     private readonly IFileSystem fileSystem;
     private readonly PackageVersionLogger packageVersionLogger;
-    private readonly IStageBuildLogger exceptionReporter;
+    private readonly IStageBuildLogger stageBuildLogger;
     private readonly LatestVersionSourcesCommand latestVersionSourcesCommand;
 
     /// <summary>
@@ -43,7 +43,7 @@ public class StageBuildFacade
     /// <param name="dateTime">The date time.</param>
     /// <param name="fileSystem">The file system.</param>
     /// <param name="packagePublicationLogger">The package publication logger.</param>
-    /// <param name="getVersionLogger">The get version logger.</param>
+    /// <param name="stageBuildLogger">The stage build logger.</param>
     public StageBuildFacade(
         ProjectPackageInfoProvider projectPackageInfoProvider,
         IPackageVersioner packageVersioner,
@@ -51,7 +51,7 @@ public class StageBuildFacade
         IDateTime dateTime,
         IFileSystem fileSystem,
         PackageVersionLogger packagePublicationLogger,
-        IStageBuildLogger getVersionLogger)
+        IStageBuildLogger stageBuildLogger)
     {
         this.projectPackageInfoProvider = projectPackageInfoProvider;
         this.packageVersioner = packageVersioner;
@@ -59,7 +59,7 @@ public class StageBuildFacade
         this.dateTime = dateTime;
         this.fileSystem = fileSystem;
         this.packageVersionLogger = packagePublicationLogger;
-        this.exceptionReporter = getVersionLogger;
+        this.stageBuildLogger = stageBuildLogger;
         this.latestVersionSourcesCommand = new LatestVersionSourcesCommand(this.fileSystem);
     }
 
@@ -76,7 +76,7 @@ public class StageBuildFacade
             var workingDirectory = Path.GetFullPath(WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem));
             var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
-            var isStableReleaseOverride = StableReleaseOverrideMatcher.IsStableRelease(stageBuildVerb.ProductionInput, stageBuildVerb.ProductionMatcherRegex, this.fileSystem);
+            var isStableReleaseOverride = StableReleaseOverrideMatcher.IsStableRelease(stageBuildVerb.ProductionInput, stageBuildVerb.ProductionMatcherRegex, this.fileSystem, this.stageBuildLogger);
 
             var selectedSource = StageSelector.Select(
                 stageBuildVerb.Stage,
@@ -133,11 +133,11 @@ public class StageBuildFacade
                 return Task.CompletedTask;
             }
 
-            this.exceptionReporter.ReportMessage($"Could not parse package version: {packageInfo.PackageVersion}");
+            this.stageBuildLogger.ReportMessage($"Could not parse package version: {packageInfo.PackageVersion}");
         }
         catch (Exception e)
         {
-            this.exceptionReporter.Exception(e);
+            this.stageBuildLogger.Exception(e);
             throw;
         }
 
