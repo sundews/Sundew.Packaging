@@ -22,7 +22,7 @@ namespace Sundew.Packaging.Tool.Versioning
 
             if (productionInput[0] == '<')
             {
-                productionInput = fileSystem.ReadAllText(productionInput.Substring(1));
+                productionInput = fileSystem.ReadAllText(productionInput.Substring(1).Trim());
             }
 
             var regex = new Regex(productionMatcherRegex);
