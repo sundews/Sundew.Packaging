@@ -48,7 +48,7 @@ jobs:
 
         cb match -p "(?<Input>^(?!(refs/pull.*|refs/heads/$)).+) => git-branch-name={Input}" -i "refs/heads/${{ github.base_ref }}" "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
 
-        echo "${{ github.event.head_commit.message }}" > git_commit_message.txt
+        echo '"${{ github.event.head_commit }}"' > git_commit_message.txt
 
         cat git_commit_message.txt
     - name: Stage Build
