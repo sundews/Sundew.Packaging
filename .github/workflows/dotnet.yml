@@ -66,9 +66,9 @@ jobs:
         --output-formats "Selected stage: {Stage}, {FullVersion}, {Configuration}" ">|stage={Stage}{NL}" ">|version={Version}{NL}" ">|buildConfiguration={Configuration}{NL}"
         ">|nuGetPackagesPath={WorkingDirectory}/NuGet{NL}" ">|dev-package-source-if-set={DevFeedSource}{NL}" ">|feedSource={FeedSource}{NL}"
         ">|pushSource={PushSource}{NL}" ">|apiKey={ApiKey}{NL}" ">|fullVersion={FullVersion}{NL}"
-        --output-file $GITHUB_OUTPUT
+        --output-file $Env:GITHUB_OUTPUT
 
-        cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $GITHUB_OUTPUT
+        cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
     - name: 'Remove release tag'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: cb --if "${{ steps.stage-build.outputs.isReleaseCommand }} == true" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
