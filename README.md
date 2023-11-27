@@ -271,6 +271,9 @@ Help
       -d  | --development        | The development stage  used to determine the prerelease version.                                          | Default: [none]
       -n  | --no-stage           | The fallback stage and properties if no stage is matched.                                                 | Default: [none]
                                    [#StagingName|][PropertyName=PropertyValue]*
+     -pi  | --production-input   | The input used to determine if build is in production stage                                               | Default: [none]
+                                   Use <filename to match against the content of a file.
+     -pm  | --production-matcher | The regex to match against the production-input.                                                          | Default: [none]
      -wd  | --directory          | The working directory or file used to determine the base version.                                         | Default: [none]
      -c   | --configuration      | The configuration used to evaluate the project file.                                                      | Default: [none]
      -pp  | --prerelease-prefix  | The prerelease prefix.                                                                                    | Default: [none]
@@ -324,7 +327,7 @@ Help
      -d   | --root-directory     | The directory to search for projects                                                                      | Default: Current directory
      -r   | --recursive          | Specifies whether to recurse into subdirectories.
      -v   | --verbose            | Verbose
-     <files>                     | The files to be deleted                                                                                   | Required
+     <files>                     | The files to be deleted                                                                                   | Required                                                                              | Required
 ```
 
 ## **3. Examples**
