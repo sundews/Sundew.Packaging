@@ -49,14 +49,10 @@ jobs:
         cb match -p "(?<Input>^(?!(refs/pull.*|refs/heads/$)).+) => git-branch-name={Input}" -i "refs/heads/${{ github.base_ref }}" "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
 
         git log -1 --pretty=%B > git_commit_message.txt
-    - name: Get Commit
-      run: cat git_commit_message.txt
     - name: Stage Build
       id: stage-build
       run: >
         spt stage-build --project-file "${{ env.versioningProjectPath }}"
-        --production-input "<git_commit_message.txt"
-        --production-matcher "=>release"
         --production  "refs/(heads/release/.+|tags/release)                                  => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Release"
         --integration "refs/heads/(?:master|main).*                                          => &u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
