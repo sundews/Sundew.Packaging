@@ -76,6 +76,8 @@ public class StageBuildFacade
             var workingDirectory = Path.GetFullPath(WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem));
             var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
+            var isStableReleaseOverride = StableReleaseOverrideMatcher.IsStableRelease(stageBuildVerb.ProductionInput, stageBuildVerb.ProductionMatcherRegex, this.fileSystem);
+
             var selectedSource = StageSelector.Select(
                 stageBuildVerb.Stage,
                 stageBuildVerb.Production,
@@ -91,7 +93,8 @@ public class StageBuildFacade
                 nuGetSettings.DefaultSettings,
                 false,
                 true,
-                stageBuildVerb.NoStageProperties);
+                stageBuildVerb.NoStageProperties,
+                isStableReleaseOverride);
 
             if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))
             {

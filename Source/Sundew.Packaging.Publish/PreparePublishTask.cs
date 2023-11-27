@@ -349,7 +349,8 @@ public class PreparePublishTask : Task
                 nuGetSettings.DefaultSettings,
                 this.AllowLocalSource,
                 this.IsSourcePublishEnabled,
-                this.FallbackStageAndProperties);
+                this.FallbackStageAndProperties,
+                false);
 
             var latestVersionSources =
                 this.latestVersionSourcesCommand.GetLatestVersionSources(

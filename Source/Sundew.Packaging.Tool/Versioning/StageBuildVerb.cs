@@ -35,10 +35,12 @@ public class StageBuildVerb : IVerb
     /// </summary>
     /// <param name="packageInfo">The package information.</param>
     /// <param name="stage">The stage.</param>
+    /// <param name="productionInput">The production input.</param>
     /// <param name="production">The production.</param>
     /// <param name="integration">The integration.</param>
     /// <param name="development">The development.</param>
     /// <param name="fallback">The fallback.</param>
+    /// <param name="productionMatcherRegex">The production matcher regex.</param>
     /// <param name="configuration">The configuration.</param>
     /// <param name="workingDirectory">The working directory.</param>
     /// <param name="versioningMode">The versioning mode.</param>
@@ -52,10 +54,12 @@ public class StageBuildVerb : IVerb
     public StageBuildVerb(
         string packageInfo,
         string stage,
+        string? productionInput = null,
         string? production = null,
         string? integration = null,
         string? development = null,
         string? fallback = null,
+        string? productionMatcherRegex = null,
         string? configuration = null,
         string? workingDirectory = null,
         VersioningMode versioningMode = VersioningMode.AutomaticLatestPatch,
@@ -69,10 +73,12 @@ public class StageBuildVerb : IVerb
     {
         this.ProjectFile = packageInfo;
         this.Stage = stage;
+        this.ProductionInput = productionInput;
         this.Production = production;
         this.Integration = integration;
         this.Development = development;
         this.NoStageProperties = fallback;
+        this.ProductionMatcherRegex = productionMatcherRegex;
         this.Configuration = configuration;
         this.WorkingDirectory = workingDirectory;
         this.VersioningMode = versioningMode;
@@ -134,6 +140,11 @@ public class StageBuildVerb : IVerb
     public string Stage { get; private set; }
 
     /// <summary>
+    /// Gets the production input.
+    /// </summary>
+    public string? ProductionInput { get; private set; }
+
+    /// <summary>
     /// Gets the production.
     /// </summary>
     /// <value>
@@ -164,6 +175,11 @@ public class StageBuildVerb : IVerb
     /// The fallback.
     /// </value>
     public string? NoStageProperties { get; private set; }
+
+    /// <summary>
+    /// Gets the production matcher regex.
+    /// </summary>
+    public string? ProductionMatcherRegex { get; private set; }
 
     /// <summary>
     /// Gets the configuration.
@@ -276,6 +292,13 @@ public class StageBuildVerb : IVerb
             },
             "The project file");
         argumentsBuilder.AddRequired("s", "stage", () => this.Stage, e => this.Stage = e, "The stage used to match against the production, integration and development sources");
+        argumentsBuilder.AddOptional(
+            "pi",
+            "production-input",
+            () => this.ProductionInput,
+            e => this.ProductionInput = e,
+            @"The input used to determine if build is in production stage
+Use <filename to match against the content of a file.");
         argumentsBuilder.RequireAnyOf(
             "Stage selection",
             builder => builder
@@ -298,6 +321,7 @@ Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]Source
                     @"The fallback stage and properties if no stage is matched.
 [#StagingName|][PropertyName=PropertyValue]*",
                     true));
+        argumentsBuilder.AddOptional("pm", "production-matcher", () => this.ProductionMatcherRegex, s => this.ProductionMatcherRegex = s, "The regex to match against the production-input.", true);
         argumentsBuilder.AddOptional("wd", "directory", () => this.WorkingDirectory, s => this.WorkingDirectory = s, "The working directory or file used to determine the base version.", true);
         argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
         argumentsBuilder.AddOptional("pp", "prerelease-prefix", () => this.PrereleasePrefix, s => this.PrereleasePrefix = s, "The prerelease prefix.");

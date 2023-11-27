@@ -53,6 +53,7 @@ public static class StageSelector
     /// <param name="allowLocalSource">if set to <c>true</c> [allow local source].</param>
     /// <param name="isSourcePublishEnabled">if set to <c>true</c> [is source publish enabled].</param>
     /// <param name="fallbackStageAndProperties">The fallback stage and properties.</param>
+    /// <param name="isStableReleaseOverride">if the release is considered stable.</param>
     /// <returns>
     /// The selected source.
     /// </returns>
@@ -72,7 +73,8 @@ public static class StageSelector
         ISettings defaultSettings,
         bool allowLocalSource,
         bool isSourcePublishEnabled,
-        string? fallbackStageAndProperties)
+        string? fallbackStageAndProperties,
+        bool isStableReleaseOverride)
     {
         if (stage != null && !string.IsNullOrEmpty(stage))
         {
@@ -103,7 +105,7 @@ public static class StageSelector
             var integrationFeedSources = new List<string>();
             TryAddFeedSource(integrationFeedSources, productionStage);
 
-            var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled);
+            var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, isStableReleaseOverride, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled);
             var developmentFeedSources = integrationFeedSources.ToList();
             TryAddFeedSource(developmentFeedSources, integrationStage);
 

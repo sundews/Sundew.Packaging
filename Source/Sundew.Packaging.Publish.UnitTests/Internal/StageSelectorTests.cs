@@ -64,7 +64,8 @@ public class StageSelectorTests
             New.Mock<ISettings>(),
             false,
             true,
-            null);
+            null,
+            false);
 
         result.PushSource.Should().Be(ExpectedUri);
         result.SymbolsPushSource.Should().Be(expectedSymbolUri);
@@ -145,7 +146,8 @@ public class StageSelectorTests
             New.Mock<ISettings>(),
             false,
             true,
-            null);
+            null,
+            false);
 
         result.PushSource.Should().Be(ExpectedUri);
         result.FeedSource.Should().Be(expectedFeedUri);
@@ -186,7 +188,8 @@ public class StageSelectorTests
             New.Mock<ISettings>(),
             false,
             true,
-            null);
+            null,
+            false);
 
         result.PushSource.Should().Be("-");
         result.FeedSource.Should().Be(expectedFeedUri);

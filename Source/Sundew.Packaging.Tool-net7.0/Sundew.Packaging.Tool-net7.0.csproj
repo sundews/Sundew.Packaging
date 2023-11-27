@@ -2,17 +2,15 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net7.0</TargetFramework>
-		<RuntimeVersion>7</RuntimeVersion>
+    <RuntimeVersion>7</RuntimeVersion>
+    <TargetFramework>net$(RuntimeVersion).0</TargetFramework>
 		<PackAsTool>true</PackAsTool>
 		<AssemblyName>Sundew.Packaging.Tool</AssemblyName>
 		<ToolCommandName>spt</ToolCommandName>
-		<Description>
-			* Get build stage including version, stage and sources from source control parameters.
-			* Await NuGet package being published.
-			* Alternative NuGet client for bulk updating NuGet packages in csproj, fsproj and vbproj projects.
-			* Prune NuGet packages from a local source.
-		</Description>
+		<Description>* Get build stage including version, stage and sources from source control parameters.
+* Await NuGet package being published.
+* Alternative NuGet client for bulk updating NuGet packages in csproj, fsproj and vbproj projects.
+* Prune NuGet packages from a local source.</Description>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<WarningsAsErrors />
 		<DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
@@ -41,10 +39,10 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Sundew.Base.Memory" Version="11.0.0" />
-		<PackageReference Include="Sundew.CommandLine" Version="10.0.3" />
+		<PackageReference Include="Sundew.Base.Memory" Version="11.0.4" />
+		<PackageReference Include="Sundew.CommandLine" Version="10.0.5" />
 		<PackageReference Include="System.IO.Abstractions" Version="19.2.87" />
-		<PackageReference Include="Sundew.Packaging.Publish" Version="8.2.5">
+		<PackageReference Include="Sundew.Packaging.Publish" Version="8.2.6">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
