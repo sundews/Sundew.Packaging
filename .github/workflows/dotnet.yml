@@ -47,6 +47,9 @@ jobs:
         git rev-parse --short=10 HEAD | cb -c ">> $Env:GITHUB_OUTPUT|git-hash={0}{NL}" --batches-stdin
 
         cb match -p "(?<Input>^(?!(refs/pull.*|refs/heads/$)).+) => git-branch-name={Input}" -i "refs/heads/${{ github.base_ref }}" "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
+
+        echo ${{ github.event.head_commit.message }} > git_commit_message.txt
+        cat git_commit_message.txt
     - name: Stage Build
       id: stage-build
       run: >
@@ -65,10 +68,6 @@ jobs:
         --output-file $Env:GITHUB_OUTPUT
 
         cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
-
-        echo ${{ github.event.head_commit.message }}
-        echo ----
-        echo ${{ github.event.workflow_run.head_commit.message }}
     - name: 'Remove release tag'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: cb --if "${{ steps.stage-build.outputs.isReleaseCommand }} == true" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
