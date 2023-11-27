@@ -29,7 +29,7 @@ namespace Sundew.Packaging.Tool.Versioning
                 productionInput = fileSystem.ReadAllText(productionInput.Substring(1).Trim());
             }
 
-            stageBuildLogger.ReportMessage($"Matching {productionInput} to {productionMatcherRegex}");
+            stageBuildLogger.ReportMessage(@$"Matching ""{productionInput}"" to ""{productionMatcherRegex}""");
             var isStableRelease = Regex.IsMatch(productionInput, productionMatcherRegex);
             if (isStableRelease)
             {
