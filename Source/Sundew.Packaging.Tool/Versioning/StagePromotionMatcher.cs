@@ -30,7 +30,7 @@ namespace Sundew.Packaging.Tool.Versioning
                 stagePromotionInput = fileSystem.ReadAllText(stagePromotionInput[1..].Trim());
             }
 
-            var message = @$"Matching ""{stagePromotionInput}"" to ""{stagePromotionRegex}"" => result: ";
+            var message = @$"Matching ""{stagePromotionInput}"" to ""{stagePromotionRegex}"" with result: ";
             var isPromoted = Regex.IsMatch(stagePromotionInput, stagePromotionRegex);
             stageBuildLogger.ReportMessage(message + (isPromoted ? "stage promoted" : "no promotion"));
             return isPromoted ? StagePromotion.Promoted : StagePromotion.None;
