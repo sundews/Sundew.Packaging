@@ -19,7 +19,7 @@ public class PublishInfo
     /// </summary>
     /// <param name="stage">The stage.</param>
     /// <param name="versionStage">The version stage.</param>
-    /// <param name="stagePromotion">The stage promotion.</param>
+    /// <param name="promotion">The stage promotion.</param>
     /// <param name="feedSource">The feed source.</param>
     /// <param name="pushSource">The push source.</param>
     /// <param name="apiKey">The API key.</param>
@@ -32,7 +32,7 @@ public class PublishInfo
     public PublishInfo(
         string stage,
         string versionStage,
-        StagePromotion stagePromotion,
+        Promotion promotion,
         string feedSource,
         string pushSource,
         string? apiKey,
@@ -45,7 +45,7 @@ public class PublishInfo
     {
         this.Stage = stage;
         this.VersionStage = versionStage;
-        this.StagePromotion = stagePromotion;
+        this.Promotion = promotion;
         this.FeedSource = feedSource;
         this.PushSource = pushSource;
         this.ApiKey = apiKey;
@@ -74,9 +74,9 @@ public class PublishInfo
     public string VersionStage { get; }
 
     /// <summary>
-    /// Gets the stage promotion.
+    /// Gets the promotion.
     /// </summary>
-    public StagePromotion StagePromotion { get; }
+    public Promotion Promotion { get; }
 
     /// <summary>
     /// Gets the feed source.

@@ -177,7 +177,7 @@ Packages for the three sources above are versioned differently:
   - **{VersionRelease}** - The package path
   - **{Stage}** - The selected stage
   - **{VersionStage}** - The version stage
-  - **{StagePromotion}** - The stage promotion (none or promoted)
+  - **{Promotion}** - The build promotion (none or promoted)
   - **{PushSource}** - The selected push source
   - **{ApiKey}** - The api key
   - **{FeedSource}** - The selected feed source

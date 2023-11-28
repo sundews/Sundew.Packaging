@@ -47,7 +47,7 @@ public record Stage
     /// <param name="properties">The properties.</param>
     /// <param name="isPublishEnabled">if set to <c>true</c> [is enabled].</param>
     /// <param name="isFallback">if set to <c>true</c> [is fallback].</param>
-    /// <param name="stagePromotion">if set to <c>true</c> stable release is forced.</param>
+    /// <param name="promotion">The promotion.</param>
     public Stage(
         Regex? stageRegex,
         string pushSource,
@@ -62,7 +62,7 @@ public record Stage
         IReadOnlyList<string>? additionalFeedSources,
         IReadOnlyDictionary<string, string>? properties,
         bool isPublishEnabled,
-        StagePromotion stagePromotion,
+        Promotion promotion,
         bool isFallback = false)
     {
         this.StageRegex = stageRegex;
@@ -77,7 +77,7 @@ public record Stage
         this.PrereleaseFormat = prereleaseFormat;
         this.AdditionalFeedSources = additionalFeedSources;
         this.Properties = properties;
-        this.StagePromotion = stagePromotion;
+        this.Promotion = promotion;
         this.IsFallback = isFallback;
         this.IsGetVersionEnabled = feedSource != DisabledSource && pushSource != DisabledSource;
         this.IsPublishEnabled = isPublishEnabled && this.IsGetVersionEnabled;
@@ -206,7 +206,7 @@ public record Stage
     /// <summary>
     /// Gets the stage promotion.
     /// </summary>
-    public StagePromotion StagePromotion { get; init; }
+    public Promotion Promotion { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the stage was promoted to stable release.
@@ -214,7 +214,7 @@ public record Stage
     /// <value>
     ///   <c>true</c> if stable release is promoted; otherwise, <c>false</c>.
     /// </value>
-    public bool IsStableReleasePromoted => this.StagePromotion == StagePromotion.Promoted;
+    public bool IsStableReleasePromoted => this.Promotion == Promotion.Promoted;
 
     /// <summary>
     /// Parses the specified source text.
@@ -228,7 +228,7 @@ public record Stage
     /// <param name="fallbackSymbolsApiKey">The fallback symbols API key.</param>
     /// <param name="feedSources">The feed sources.</param>
     /// <param name="isSourcePublishEnabled">if set to <c>true</c> source publish is enabled.</param>
-    /// <param name="stagePromotion">The stage promotion.</param>
+    /// <param name="promotion">The stage promotion.</param>
     /// <returns>
     /// The source.
     /// </returns>
@@ -242,7 +242,7 @@ public record Stage
         string? fallbackSymbolsApiKey,
         IReadOnlyList<string>? feedSources,
         bool isSourcePublishEnabled,
-        StagePromotion stagePromotion)
+        Promotion promotion)
     {
         if (sourceText == null || string.IsNullOrEmpty(sourceText))
         {
@@ -299,7 +299,7 @@ public record Stage
             var properties = new Dictionary<string, string>();
             FillPropertiesFromMatch(properties, match);
 
-            return new Stage(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled, stagePromotion);
+            return new Stage(name, sourceUri, apiKey, symbolsUri, symbolsApiKey, defaultStage, versionStage, isStableRelease, feedSource, prereleaseFormat, feedSources, properties, isSourcePublishEnabled, promotion);
         }
 
         return default;
