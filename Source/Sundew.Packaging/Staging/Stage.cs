@@ -89,7 +89,7 @@ public record Stage
     /// <value>
     /// The stage regex.
     /// </value>
-    public Regex? StageRegex { get; }
+    public Regex? StageRegex { get; init; }
 
     /// <summary>
     /// Gets the push source.
@@ -206,7 +206,7 @@ public record Stage
     /// <summary>
     /// Gets the stage promotion.
     /// </summary>
-    public StagePromotion StagePromotion { get; }
+    public StagePromotion StagePromotion { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the stage was promoted to stable release.

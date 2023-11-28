@@ -12,6 +12,7 @@ using System.IO;
 using System.Threading.Tasks;
 using global::NuGet.Versioning;
 using Sundew.Base.Primitives.Time;
+using Sundew.Base.Text;
 using Sundew.Packaging.Source;
 using Sundew.Packaging.Staging;
 using Sundew.Packaging.Tool.Versioning.MsBuild;
@@ -76,7 +77,7 @@ public class StageBuildFacade
             var workingDirectory = Path.GetFullPath(WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem));
             var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
-            var stagePromotion = StagePromotionMatcher.GetStagePromotion(stageBuildVerb.StagePromotionInput, stageBuildVerb.StagePromotionRegex, this.fileSystem, this.stageBuildLogger);
+            var buildPromotionInput = BuildPromotionInput.GetInput(stageBuildVerb.BuildPromotionInput, this.fileSystem);
 
             var selectedSource = StageSelector.Select(
                 stageBuildVerb.Stage,
@@ -94,7 +95,13 @@ public class StageBuildFacade
                 false,
                 true,
                 stageBuildVerb.NoStageProperties,
-                stagePromotion);
+                buildPromotionInput,
+                stageBuildVerb.BuildPromotionRegex);
+
+            if (!stageBuildVerb.BuildPromotionInput.IsNullOrEmpty() && !stageBuildVerb.BuildPromotionRegex.IsNullOrEmpty())
+            {
+                this.stageBuildLogger.ReportMessage(@$"Matching ""{(buildPromotionInput.IsNullOrEmpty() ? "<none>" : buildPromotionInput)}"" to ""{stageBuildVerb.BuildPromotionRegex}"" with result: {(selectedSource.StagePromotion == StagePromotion.Promoted ? "stage promoted" : "no promotion")}");
+            }
 
             if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))
             {

@@ -273,9 +273,9 @@ Help
       -d  | --development           | The development stage  used to determine the prerelease version.                                          | Default: [none]
       -n  | --no-stage              | The fallback stage and properties if no stage is matched.                                                 | Default: [none]
                                       [#StagingName|][PropertyName=PropertyValue]*
-     -spi | --stage-promotion-input | The input used to determine if build stage should be promoted                                             | Default: [none]
+     -bpi | --build-promotion-input | The input used to determine if build should be promoted to production stage.                              | Default: [none]
                                       Use <filename to match against the content of a file.
-     -spr | --stage-promotion-regex | The regex to match against the stage-promotion-input.                                                     | Default: [none]
+     -bpr | --build-promotion-regex | The regex to match against the build-promotion-input.                                                     | Default: [none]
      -wd  | --directory             | The working directory or file used to determine the base version.                                         | Default: [none]
      -c   | --configuration         | The configuration used to evaluate the project file.                                                      | Default: [none]
      -pp  | --prerelease-prefix     | The prerelease prefix.                                                                                    | Default: [none]

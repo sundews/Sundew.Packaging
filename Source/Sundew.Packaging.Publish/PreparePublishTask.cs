@@ -350,7 +350,8 @@ public class PreparePublishTask : Task
                 this.AllowLocalSource,
                 this.IsSourcePublishEnabled,
                 this.FallbackStageAndProperties,
-                StagePromotion.None);
+                null,
+                null);
 
             var latestVersionSources =
                 this.latestVersionSourcesCommand.GetLatestVersionSources(

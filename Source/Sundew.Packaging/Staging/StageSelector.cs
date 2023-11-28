@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using global::NuGet.Configuration;
+using Sundew.Base.Text;
 
 /// <summary>
 /// Selects a source based on the given source name.
@@ -53,7 +54,8 @@ public static class StageSelector
     /// <param name="allowLocalSource">if set to <c>true</c> [allow local source].</param>
     /// <param name="isSourcePublishEnabled">if set to <c>true</c> [is source publish enabled].</param>
     /// <param name="fallbackStageAndProperties">The fallback stage and properties.</param>
-    /// <param name="stagePromotion">The stage promotion.</param>
+    /// <param name="buildPromotionInput">The build promotion input.</param>
+    /// <param name="buildPromotionRegex">The build promotion regex.</param>
     /// <returns>
     /// The selected source.
     /// </returns>
@@ -74,7 +76,8 @@ public static class StageSelector
         bool allowLocalSource,
         bool isSourcePublishEnabled,
         string? fallbackStageAndProperties,
-        StagePromotion stagePromotion)
+        string? buildPromotionInput,
+        string? buildPromotionRegex)
     {
         if (stage != null && !string.IsNullOrEmpty(stage))
         {
@@ -101,24 +104,33 @@ public static class StageSelector
                 return new SelectedStage(new Stage(default, localSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, StagePromotion.None), prereleasePrefix, prereleasePostfix);
             }
 
+            var stages = new List<(Stage? Stage, string StageInput)>();
             var productionStage = Staging.Stage.Parse(production, DefaultProductionStage, DefaultProductionPackageStage, true, null, fallbackApiKey, fallbackSymbolsApiKey, null, isSourcePublishEnabled, StagePromotion.None);
             var integrationFeedSources = new List<string>();
             TryAddFeedSource(integrationFeedSources, productionStage);
 
-            var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, stagePromotion == StagePromotion.Promoted, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled, stagePromotion);
+            if (!buildPromotionInput.IsNullOrEmpty() && !buildPromotionRegex.IsNullOrEmpty() && productionStage != null)
+            {
+                var promotedStage = productionStage with { StageRegex = new Regex(buildPromotionRegex), StagePromotion = StagePromotion.Promoted };
+                stages.Add((promotedStage, buildPromotionInput));
+            }
+
+            var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled, StagePromotion.None);
             var developmentFeedSources = integrationFeedSources.ToList();
             TryAddFeedSource(developmentFeedSources, integrationStage);
 
-            var developmentStage = Staging.Stage.Parse(development, DefaultDevelopmentStage, DefaultDevelopmentPackageStage, stagePromotion == StagePromotion.Promoted, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, developmentFeedSources, isSourcePublishEnabled, stagePromotion);
-            var sources = new[] { productionStage, integrationStage, developmentStage };
+            var developmentStage = Staging.Stage.Parse(development, DefaultDevelopmentStage, DefaultDevelopmentPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, developmentFeedSources, isSourcePublishEnabled, StagePromotion.None);
+            stages.Add((productionStage, stage));
+            stages.Add((integrationStage, stage));
+            stages.Add((developmentStage, stage));
 
-            var (source, match) = sources.Select(x => (source: x, match: x?.StageRegex?.Match(stage))).FirstOrDefault(x => x.match?.Success ?? false);
-            if (source != null)
+            var (matchingStage, match) = stages.Select(x => (source: x.Stage, match: x.Stage?.StageRegex?.Match(x.StageInput))).FirstOrDefault(x => x.match?.Success ?? false);
+            if (matchingStage != null)
             {
                 var prefixGroup = match?.Groups[PrefixGroupName];
                 var postfixGroup = match?.Groups[PostfixGroupName];
                 return new SelectedStage(
-                    source,
+                    matchingStage,
                     prefixGroup?.Success ?? false ? prefixGroup.Value : prereleasePrefix ?? string.Empty,
                     postfixGroup?.Success ?? false ? postfixGroup.Value : prereleasePostfix ?? string.Empty);
             }

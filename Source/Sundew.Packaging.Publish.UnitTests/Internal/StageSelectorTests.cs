@@ -65,7 +65,8 @@ public class StageSelectorTests
             false,
             true,
             null,
-            StagePromotion.None);
+            null,
+            null);
 
         result.PushSource.Should().Be(ExpectedUri);
         result.SymbolsPushSource.Should().Be(expectedSymbolUri);
@@ -147,7 +148,8 @@ public class StageSelectorTests
             false,
             true,
             null,
-            StagePromotion.None);
+            null,
+            null);
 
         result.PushSource.Should().Be(ExpectedUri);
         result.FeedSource.Should().Be(expectedFeedUri);
@@ -189,7 +191,8 @@ public class StageSelectorTests
             false,
             true,
             null,
-            StagePromotion.None);
+            null,
+            null);
 
         result.PushSource.Should().Be("-");
         result.FeedSource.Should().Be(expectedFeedUri);

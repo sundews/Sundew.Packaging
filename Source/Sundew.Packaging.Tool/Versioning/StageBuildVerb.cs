@@ -39,8 +39,8 @@ public class StageBuildVerb : IVerb
     /// <param name="integration">The integration.</param>
     /// <param name="development">The development.</param>
     /// <param name="fallback">The fallback.</param>
-    /// <param name="stagePromotionInput">The stage promotion input.</param>
-    /// <param name="stagePromotionRegex">The stage promotion regex.</param>
+    /// <param name="buildPromotionInput">The build promotion input.</param>
+    /// <param name="buildPromotionRegex">The build promotion regex.</param>
     /// <param name="configuration">The configuration.</param>
     /// <param name="workingDirectory">The working directory.</param>
     /// <param name="versioningMode">The versioning mode.</param>
@@ -58,8 +58,8 @@ public class StageBuildVerb : IVerb
         string? integration = null,
         string? development = null,
         string? fallback = null,
-        string? stagePromotionInput = null,
-        string? stagePromotionRegex = null,
+        string? buildPromotionInput = null,
+        string? buildPromotionRegex = null,
         string? configuration = null,
         string? workingDirectory = null,
         VersioningMode versioningMode = VersioningMode.AutomaticLatestPatch,
@@ -77,8 +77,8 @@ public class StageBuildVerb : IVerb
         this.Integration = integration;
         this.Development = development;
         this.NoStageProperties = fallback;
-        this.StagePromotionInput = stagePromotionInput;
-        this.StagePromotionRegex = stagePromotionRegex;
+        this.BuildPromotionInput = buildPromotionInput;
+        this.BuildPromotionRegex = buildPromotionRegex;
         this.Configuration = configuration;
         this.WorkingDirectory = workingDirectory;
         this.VersioningMode = versioningMode;
@@ -172,14 +172,14 @@ public class StageBuildVerb : IVerb
     public string? NoStageProperties { get; private set; }
 
     /// <summary>
-    /// Gets the production input.
+    /// Gets the build promotion input.
     /// </summary>
-    public string? StagePromotionInput { get; private set; }
+    public string? BuildPromotionInput { get; private set; }
 
     /// <summary>
-    /// Gets the production matcher regex.
+    /// Gets the build promotion regex.
     /// </summary>
-    public string? StagePromotionRegex { get; private set; }
+    public string? BuildPromotionRegex { get; private set; }
 
     /// <summary>
     /// Gets the configuration.
@@ -315,13 +315,13 @@ Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]Source
 [#StagingName|][PropertyName=PropertyValue]*",
                     true));
         argumentsBuilder.AddOptional(
-            "spi",
-            "stage-promotion-input",
-            () => this.StagePromotionInput,
-            e => this.StagePromotionInput = e,
-            @"The input used to determine if build stage should be promoted
+            "bpi",
+            "build-promotion-input",
+            () => this.BuildPromotionInput,
+            e => this.BuildPromotionInput = e,
+            @"The input used to determine if build should be promoted to production stage.
 Use <filename to match against the content of a file.");
-        argumentsBuilder.AddOptional("spr", "stage-promotion-regex", () => this.StagePromotionRegex, s => this.StagePromotionRegex = s, "The regex to match against the stage-promotion-input.", true);
+        argumentsBuilder.AddOptional("bpr", "build-promotion-regex", () => this.BuildPromotionRegex, s => this.BuildPromotionRegex = s, "The regex to match against the build-promotion-input.", true);
         argumentsBuilder.AddOptional("wd", "directory", () => this.WorkingDirectory, s => this.WorkingDirectory = s, "The working directory or file used to determine the base version.", true);
         argumentsBuilder.AddOptional("c", "configuration", () => this.Configuration, s => this.Configuration = s, "The configuration used to evaluate the project file.", true);
         argumentsBuilder.AddOptional("pp", "prerelease-prefix", () => this.PrereleasePrefix, s => this.PrereleasePrefix = s, "The prerelease prefix.");

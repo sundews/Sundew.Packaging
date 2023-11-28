@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <Configurations>DebugNoSelfVersioning;Debug;Release;Release-Stable</Configurations>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   
   <ItemGroup>
