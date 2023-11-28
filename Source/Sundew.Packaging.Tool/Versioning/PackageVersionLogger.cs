@@ -28,7 +28,7 @@ public sealed class PackageVersionLogger
     private const string UnknownNames = "The following name(s) where not found: ";
     private const string LogFormat = "LogFormat";
     private const string FilePath = "FilePath";
-    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
+    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "StagePromotion", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
     private static readonly Regex RedirectFormat = new Regex(@"^(?:>(?<FilePath>[^\|]+)?\|)(?<LogFormat>.*)");
     private readonly IStageBuildLogger logger;
     private readonly IFileSystem fileSystem;
@@ -78,6 +78,7 @@ public sealed class PackageVersionLogger
         valueBuffer.Write(publishInfo.FullVersion);
         valueBuffer.Write(publishInfo.Stage);
         valueBuffer.Write(publishInfo.VersionStage);
+        valueBuffer.Write(publishInfo.StagePromotion.ToString().Uncapitalize());
         valueBuffer.Write(publishInfo.PushSource);
         valueBuffer.Write(publishInfo.ApiKey);
         valueBuffer.Write(publishInfo.FeedSource);
@@ -86,11 +87,11 @@ public sealed class PackageVersionLogger
         valueBuffer.Write(publishInfo.Metadata);
         valueBuffer.Write(workingDirectory);
         valueBuffer.Write(parameter);
-        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Major : null);
-        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Minor : null);
-        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Patch : null);
-        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Revision : null);
-        valueBuffer.Write(nuGetVersion != null ? nuGetVersion.Release : null);
+        valueBuffer.Write(nuGetVersion?.Major);
+        valueBuffer.Write(nuGetVersion?.Minor);
+        valueBuffer.Write(nuGetVersion?.Patch);
+        valueBuffer.Write(nuGetVersion?.Revision);
+        valueBuffer.Write(nuGetVersion?.Release);
         valueBuffer.Write(DoubleQuotes);
         valueBuffer.Write(Environment.NewLine);
         var logNames = LogNames.ToList();

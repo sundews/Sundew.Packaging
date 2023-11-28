@@ -76,7 +76,7 @@ public class StageBuildFacade
             var workingDirectory = Path.GetFullPath(WorkingDirectorySelector.GetWorkingDirectory(stageBuildVerb.WorkingDirectory, this.fileSystem));
             var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
 
-            var isStableReleaseOverride = StableReleaseOverrideMatcher.IsStableRelease(stageBuildVerb.ProductionInput, stageBuildVerb.ProductionMatcherRegex, this.fileSystem, this.stageBuildLogger);
+            var stagePromotion = StagePromotionMatcher.GetStagePromotion(stageBuildVerb.StagePromotionInput, stageBuildVerb.StagePromotionRegex, this.fileSystem, this.stageBuildLogger);
 
             var selectedSource = StageSelector.Select(
                 stageBuildVerb.Stage,
@@ -94,7 +94,7 @@ public class StageBuildFacade
                 false,
                 true,
                 stageBuildVerb.NoStageProperties,
-                isStableReleaseOverride);
+                stagePromotion);
 
             if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))
             {
@@ -119,6 +119,7 @@ public class StageBuildFacade
                 var publishInfo = new PublishInfo(
                     selectedSource.StageName,
                     selectedSource.VersionStageName,
+                    selectedSource.StagePromotion,
                     selectedSource.FeedSource,
                     selectedSource.PushSource,
                     selectedSource.ApiKey,

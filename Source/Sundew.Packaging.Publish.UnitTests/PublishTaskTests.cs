@@ -132,7 +132,7 @@ public class PublishTaskTests
     {
         this.testee.Parameter = "##";
         var publishInfo = this.ArrangePublishInfo("http://nuget.org", Version);
-        this.testee.PublishLogFormats = "{14}vso[task.setvariable variable=package_{0}]{3}-{6}-{1}";
+        this.testee.PublishLogFormats = "{15}vso[task.setvariable variable=package_{0}]{3}-{7}-{1}";
 
         this.testee.Execute();
 

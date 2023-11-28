@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Text;
 using Sundew.Base.Memory;
 using Sundew.Base.Text;
+using Sundew.Packaging.Staging;
 using Sundew.Packaging.Versioning;
 using Sundew.Packaging.Versioning.Logging;
 
@@ -19,7 +20,7 @@ internal sealed class PackagePublicationLogger
 {
     private const string DoubleQuotes = @"""";
     private const string IndicesContainedNullValues = "The following indices contained null values: ";
-    private static readonly string[] LogNames = { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
+    private static readonly string[] LogNames = { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "StagePromotion", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
     private readonly ILogger logger;
 
     public PackagePublicationLogger(ILogger logger)
@@ -98,6 +99,7 @@ internal sealed class PackagePublicationLogger
             packagePath,
             publishInfo.Stage,
             publishInfo.VersionStage,
+            StagePromotion.None.ToString().Uncapitalize(),
             publishInfo.PushSource,
             publishInfo.ApiKey,
             publishInfo.FeedSource,

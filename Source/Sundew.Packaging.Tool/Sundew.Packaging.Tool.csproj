@@ -34,7 +34,7 @@
     <PackageReference Include="NuGet.Commands" Version="6.8.0" />
     <PackageReference Include="NuGet.Protocol" Version="6.8.0" />
     <PackageReference Include="NuGet.Versioning" Version="6.8.0" />
-    <PackageReference Include="PolySharp" Version="1.13.2">
+    <PackageReference Include="PolySharp" Version="1.14.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -43,9 +43,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.Base.Memory" Version="11.0.4" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.4" />
     <PackageReference Include="Sundew.CommandLine" Version="10.0.5" />
     <PackageReference Include="System.IO.Abstractions" Version="19.2.87" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.6">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

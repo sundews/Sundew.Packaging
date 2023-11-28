@@ -76,8 +76,9 @@ The sources can be defined by setting the following MSBuild properties:
 - **SppDevelopment**
 
 All three follow the format:
-**StageMatcherRegex=>\[#StagingName\]\[&PrereleaseVersionFormat\] \[ApiKey@\]SourceUri\[ \{LatestVersionUri\} \]\[ | [SymbolApiKey@\]SymbolSourceUri\]**.
-
+```
+StageMatcherRegex=>[#StagingName][&PrereleaseVersionFormat] [ApiKey@]SourceUri[ {LatestVersionUri} ][ | [SymbolApiKey@]SymbolSourceUri].
+```
 **StagingName** can be used to override the default staging names.  
 **PrereleaseVersionFormat** and **MetadataFormat** can be used to change how the prerelease part of the version is created:
   - **{0,Stage}** - Stage name
@@ -176,6 +177,7 @@ Packages for the three sources above are versioned differently:
   - **{VersionRelease}** - The package path
   - **{Stage}** - The selected stage
   - **{VersionStage}** - The version stage
+  - **{StagePromotion}** - The stage promotion (none or promoted)
   - **{PushSource}** - The selected push source
   - **{ApiKey}** - The api key
   - **{FeedSource}** - The selected feed source
@@ -260,80 +262,81 @@ dotnet tool install Sundew.Packaging.Tool -g --version 7.8.*
 ```
 Help
  Verbs:
-   stage-build/sb                Stages a build
-     -pf  | --project-file       | The project file                                                                                          | Required
-     -s   | --stage              | The stage used to match against the production, integration and development sources                       | Required
-     Stage selection                                                                                                                         | Required
-      -p  | --production         | The production stage used to determine the stable version.                                                | Default: [none]
-                                   Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]SourceUri[ {LatestVersionUri} ]
-                                   [ | [SymbolApiKey@]SymbolSourceUri][|[|PropertyName=PropertyValue]*]
-      -i  | --integration        | The integration stage used to determine the prerelease version.                                           | Default: [none]
-      -d  | --development        | The development stage  used to determine the prerelease version.                                          | Default: [none]
-      -n  | --no-stage           | The fallback stage and properties if no stage is matched.                                                 | Default: [none]
-                                   [#StagingName|][PropertyName=PropertyValue]*
-     -pi  | --production-input   | The input used to determine if build is in production stage                                               | Default: [none]
-                                   Use <filename to match against the content of a file.
-     -pm  | --production-matcher | The regex to match against the production-input.                                                          | Default: [none]
-     -wd  | --directory          | The working directory or file used to determine the base version.                                         | Default: [none]
-     -c   | --configuration      | The configuration used to evaluate the project file.                                                      | Default: [none]
-     -pp  | --prerelease-prefix  | The prerelease prefix.                                                                                    | Default: [none]
-     -ps  | --prerelease-postfix | The prerelease postfix.                                                                                   | Default: [none]
-          | --prerelease-format  | The prerelease format.                                                                                    | Default: [none]
-     -m   | --metadata           | The version metadata.                                                                                     | Default: [none]
-     -vm  | --versioning-mode    | The versioning mode: [a]utomatic-latest-patch, [automatic]-latest-revision,                               | Default: automatic-latest-patch
-                                   [i]ncrement-patch-if-stable-exist-for-prerelease, [always]-increment-patch, [n]o-change
-     -vf  | --version-format     | The version format                                                                                        | Default: [none]
-     -fv  | --force-version      | Forces the version to the specified value                                                                 | Default: [none]
-     -fe  | --file-encoding      | The name of the encoding e.g. utf-8, utf-16/unicode.                                                      | Default: [none]
-     -o   | --output-formats     | A list of formats that will be logged to stdout.                                                          | Default: [none]
-                                   Use redirection format (>[filename]|output-format) to output to a file.
-     -of  | --output-file        | The file path to be used for output formats that specifies empty redirection >|                           | Default: [none]
-   push                          Pushes the specified package(s) to a source
-     -s   | --source             | The source used to push packages.                                                                         | Required
-     -k   | --api-key            | The api key to be used for the push.                                                                      | Required
-     -ss  | --symbol-source      | The source used to push symbol packages.                                                                  | Default: [none]
-     -sk  | --symbol-api-key     | The symbols api key used to push symbols.                                                                 | Default: [none]
-     -t   | --timeout            | Timeout for pushing to a source (seconds).                                                                | Default: 300
-     -r   | --retries            | The number of retries to push the package in case of a failure.                                           | Default: 0
-     -n   | --no-symbols         | If set no symbols will be pushed.
-     -sd  | --skip-duplicate     | If a package already exists, skip it.
-     <packages>                  | The packages to push (supports wildcards *).                                                              | Required
-   update/u                      Update package references
-     -id  | --package-ids        | The package(s) to update. (* Wildcards supported)                                                         | Default: *
-                                   Format: Id[.Version] or "Id[ Version]" (Pinning version is optional)
-     -p   | --projects           | The project(s) to update (* Wildcards supported)                                                          | Default: *
-     -s   | --source             | The source or source name to search for packages ("All" supported)                                        | Default: NuGet.config: All
-          | --version            | The NuGet package version (* Wildcards supported).                                                        | Default: Latest version
-     -d   | --root-directory     | The directory to search for projects                                                                      | Default: Current directory
-     -pr  | --prerelease         | Allow updating to latest prerelease version
-     -v   | --verbose            | Verbose
-     -l   | --local              | Forces the source to "Local-SPP"
-     -sr  | --skip-restore       | Skips a dotnet restore command after package update.
-   await/a                       Awaits the specified package to be published
-     -s   | --source             | The source or source name to await publish                                                                | Default: NuGet.config: defaultPushSource
-     -d   | --root-directory     | The directory to search for projects                                                                      | Default: Current directory
-     -t   | --timeout            | The wait timeout in seconds                                                                               | Default: 300
-     -v   | --verbose            | Verbose
-     <package-id>                | Specifies the package id and optionally the version                                                       | Required
-                                   Format: <PackageId>[.<Version>].
-                                   If the version is not provided, it must be specified by the version value
-     <version>                   | Specifies the NuGet Package version                                                                       | Default: [none]
-   prune/p                       Prunes the matching packages for a local source
-     all                         Prune the specified local source for all packages
-       -p | --package-ids        | The packages to prune (* Wildcards supported)                                                             | Default: *
-       -s | --source             | Local source or source name to search for packages                                                        | Default: Local-SPP
-       -v | --verbose            | Verbose
-   delete/d                      Delete files
-     -d   | --root-directory     | The directory to search for projects                                                                      | Default: Current directory
-     -r   | --recursive          | Specifies whether to recurse into subdirectories.
-     -v   | --verbose            | Verbose
-     <files>                     | The files to be deleted                                                                                   | Required                                                                              | Required
+   stage-build/sb                   Stages a build
+     -pf  | --project-file          | The project file                                                                                          | Required
+     -s   | --stage                 | The stage used to match against the production, integration and development sources                       | Required
+     Stage selection                                                                                                                            | Required
+      -p  | --production            | The production stage used to determine the stable version.                                                | Default: [none]
+                                      Format: Stage Regex =>[ #StagingName][ &PrereleaseVersionFormat] [ApiKey@]SourceUri[ {LatestVersionUri} ]
+                                      [ | [SymbolApiKey@]SymbolSourceUri][|[|PropertyName=PropertyValue]*]
+      -i  | --integration           | The integration stage used to determine the prerelease version.                                           | Default: [none]
+      -d  | --development           | The development stage  used to determine the prerelease version.                                          | Default: [none]
+      -n  | --no-stage              | The fallback stage and properties if no stage is matched.                                                 | Default: [none]
+                                      [#StagingName|][PropertyName=PropertyValue]*
+     -spi | --stage-promotion-input | The input used to determine if build stage should be promoted                                             | Default: [none]
+                                      Use <filename to match against the content of a file.
+     -spr | --stage-promotion-regex | The regex to match against the stage-promotion-input.                                                     | Default: [none]
+     -wd  | --directory             | The working directory or file used to determine the base version.                                         | Default: [none]
+     -c   | --configuration         | The configuration used to evaluate the project file.                                                      | Default: [none]
+     -pp  | --prerelease-prefix     | The prerelease prefix.                                                                                    | Default: [none]
+     -ps  | --prerelease-postfix    | The prerelease postfix.                                                                                   | Default: [none]
+          | --prerelease-format     | The prerelease format.                                                                                    | Default: [none]
+     -m   | --metadata              | The version metadata.                                                                                     | Default: [none]
+     -vm  | --versioning-mode       | The versioning mode: [a]utomatic-latest-patch, [automatic]-latest-revision,                               | Default: automatic-latest-patch
+                                      [i]ncrement-patch-if-stable-exist-for-prerelease, [always]-increment-patch, [n]o-change
+     -vf  | --version-format        | The version format                                                                                        | Default: [none]
+     -fv  | --force-version         | Forces the version to the specified value                                                                 | Default: [none]
+     -fe  | --file-encoding         | The name of the encoding e.g. utf-8, utf-16/unicode.                                                      | Default: [none]
+     -o   | --output-formats        | A list of formats that will be logged to stdout.                                                          | Default: [none]
+                                      Use redirection format (>[filename]|output-format) to output to a file.
+     -of  | --output-file           | The file path to be used for output formats that specifies empty redirection >|                           | Default: [none]
+   push                             Pushes the specified package(s) to a source
+     -s   | --source                | The source used to push packages.                                                                         | Required
+     -k   | --api-key               | The api key to be used for the push.                                                                      | Required
+     -ss  | --symbol-source         | The source used to push symbol packages.                                                                  | Default: [none]
+     -sk  | --symbol-api-key        | The symbols api key used to push symbols.                                                                 | Default: [none]
+     -t   | --timeout               | Timeout for pushing to a source (seconds).                                                                | Default: 300
+     -r   | --retries               | The number of retries to push the package in case of a failure.                                           | Default: 0
+     -n   | --no-symbols            | If set no symbols will be pushed.
+     -sd  | --skip-duplicate        | If a package already exists, skip it.
+     <packages>                     | The packages to push (supports wildcards *).                                                              | Required
+   update/u                         Update package references
+     -id  | --package-ids           | The package(s) to update. (* Wildcards supported)                                                         | Default: *
+                                      Format: Id[.Version] or "Id[ Version]" (Pinning version is optional)
+     -p   | --projects              | The project(s) to update (* Wildcards supported)                                                          | Default: *
+     -s   | --source                | The source or source name to search for packages ("All" supported)                                        | Default: NuGet.config: All
+          | --version               | The NuGet package version (* Wildcards supported).                                                        | Default: Latest version
+     -d   | --root-directory        | The directory to search for projects                                                                      | Default: Current directory
+     -pr  | --prerelease            | Allow updating to latest prerelease version
+     -v   | --verbose               | Verbose
+     -l   | --local                 | Forces the source to "Local-SPP"
+     -sr  | --skip-restore          | Skips a dotnet restore command after package update.
+   await/a                          Awaits the specified package to be published
+     -s   | --source                | The source or source name to await publish                                                                | Default: NuGet.config: defaultPushSource
+     -d   | --root-directory        | The directory to search for projects                                                                      | Default: Current directory
+     -t   | --timeout               | The wait timeout in seconds                                                                               | Default: 300
+     -v   | --verbose               | Verbose
+     <package-id>                   | Specifies the package id and optionally the version                                                       | Required
+                                      Format: <PackageId>[.<Version>].
+                                      If the version is not provided, it must be specified by the version value
+     <version>                      | Specifies the NuGet Package version                                                                       | Default: [none]
+   prune/p                          Prunes the matching packages for a local source
+     all                            Prune the specified local source for all packages
+       -p | --package-ids           | The packages to prune (* Wildcards supported)                                                             | Default: *
+       -s | --source                | Local source or source name to search for packages                                                        | Default: Local-SPP
+       -v | --verbose               | Verbose
+   delete/d                         Delete files
+     -d   | --root-directory        | The directory to search for projects                                                                      | Default: Current directory
+     -r   | --recursive             | Specifies whether to recurse into subdirectories.
+     -v   | --verbose               | Verbose
+     <files>                        | The files to be deleted                                                                                   | Required
 ```
 
 ## **3. Examples**
 Open Package Manager Console in Visual Studio or a similar command line.
 Stage Build
-1. https://github.com/sundews/Sundew.Packaging/blob/main/.github/workflows/dotnet.yml
+1. https://github.com/sundews/Sundew.Packaging/blob/main/.github/workflows/dotnet.yml  
+
 Update
 1. ```spt update``` - Update all packages in all projects to the latest stable version.
 2. ```spt u -id Serilog*``` - Updates all Serilog packages to the latest stable version for all projects (That reference Serilog)

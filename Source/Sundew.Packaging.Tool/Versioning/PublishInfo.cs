@@ -7,6 +7,8 @@
 
 namespace Sundew.Packaging.Tool.Versioning;
 
+using Sundew.Packaging.Staging;
+
 /// <summary>
 /// Contains information for publishing NuGet packages.
 /// </summary>
@@ -17,6 +19,7 @@ public class PublishInfo
     /// </summary>
     /// <param name="stage">The stage.</param>
     /// <param name="versionStage">The version stage.</param>
+    /// <param name="stagePromotion">The stage promotion.</param>
     /// <param name="feedSource">The feed source.</param>
     /// <param name="pushSource">The push source.</param>
     /// <param name="apiKey">The API key.</param>
@@ -29,6 +32,7 @@ public class PublishInfo
     public PublishInfo(
         string stage,
         string versionStage,
+        StagePromotion stagePromotion,
         string feedSource,
         string pushSource,
         string? apiKey,
@@ -41,6 +45,7 @@ public class PublishInfo
     {
         this.Stage = stage;
         this.VersionStage = versionStage;
+        this.StagePromotion = stagePromotion;
         this.FeedSource = feedSource;
         this.PushSource = pushSource;
         this.ApiKey = apiKey;
@@ -67,6 +72,11 @@ public class PublishInfo
     /// The stage.
     /// </value>
     public string VersionStage { get; }
+
+    /// <summary>
+    /// Gets the stage promotion.
+    /// </summary>
+    public StagePromotion StagePromotion { get; }
 
     /// <summary>
     /// Gets the feed source.
