@@ -20,7 +20,7 @@ internal sealed class PackagePublicationLogger
 {
     private const string DoubleQuotes = @"""";
     private const string IndicesContainedNullValues = "The following indices contained null values: ";
-    private static readonly string[] LogNames = { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "Promotion", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
+    private static readonly string[] LogNames = { "PackageId", "Version", "FullVersion", "PackagePath", "Stage", "VersionStage", "BuildPromotion", "PushSource", "ApiKey", "FeedSource", "SymbolsPath", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
     private readonly ILogger logger;
 
     public PackagePublicationLogger(ILogger logger)
@@ -99,7 +99,7 @@ internal sealed class PackagePublicationLogger
             packagePath,
             publishInfo.Stage,
             publishInfo.VersionStage,
-            Promotion.None.ToString().Uncapitalize(),
+            BuildPromotion.None.ToString().Uncapitalize(),
             publishInfo.PushSource,
             publishInfo.ApiKey,
             publishInfo.FeedSource,

@@ -28,7 +28,7 @@ public sealed class PackageVersionLogger
     private const string UnknownNames = "The following name(s) where not found: ";
     private const string LogFormat = "LogFormat";
     private const string FilePath = "FilePath";
-    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "Promotion", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
+    private static readonly string[] LogNames = new[] { "PackageId", "Version", "FullVersion", "Stage", "VersionStage", "BuildPromotion", "PushSource", "ApiKey", "FeedSource", "SymbolsPushSource", "SymbolsApiKey", "Metadata", "WorkingDirectory", "Parameter", "VersionMajor", "VersionMinor", "VersionPatch", "VersionRevision", "VersionRelease", "DQ", "NL" };
     private static readonly Regex RedirectFormat = new Regex(@"^(?:>(?<FilePath>[^\|]+)?\|)(?<LogFormat>.*)");
     private readonly IStageBuildLogger logger;
     private readonly IFileSystem fileSystem;
@@ -78,7 +78,7 @@ public sealed class PackageVersionLogger
         valueBuffer.Write(publishInfo.FullVersion);
         valueBuffer.Write(publishInfo.Stage);
         valueBuffer.Write(publishInfo.VersionStage);
-        valueBuffer.Write(publishInfo.Promotion.ToString().Uncapitalize());
+        valueBuffer.Write(publishInfo.BuildPromotion.ToString().Uncapitalize());
         valueBuffer.Write(publishInfo.PushSource);
         valueBuffer.Write(publishInfo.ApiKey);
         valueBuffer.Write(publishInfo.FeedSource);

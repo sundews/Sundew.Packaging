@@ -100,7 +100,7 @@ public class StageBuildFacade
 
             if (!stageBuildVerb.BuildPromotionInput.IsNullOrEmpty() && !stageBuildVerb.BuildPromotionRegex.IsNullOrEmpty())
             {
-                this.stageBuildLogger.ReportMessage(@$"Matching ""{(buildPromotionInput.IsNullOrEmpty() ? "<none>" : buildPromotionInput)}"" to ""{stageBuildVerb.BuildPromotionRegex}"" with result: {(selectedSource.Promotion == Promotion.Promoted ? "build promoted" : "no promotion")}");
+                this.stageBuildLogger.ReportMessage(@$"Matching ""{(buildPromotionInput.IsNullOrEmpty() ? "<none>" : buildPromotionInput)}"" to ""{stageBuildVerb.BuildPromotionRegex}"" with result: {(selectedSource.BuildPromotion == BuildPromotion.Promoted ? "build promoted" : "no promotion")}");
             }
 
             if (NuGetVersion.TryParse(packageInfo.PackageVersion, out var nuGetVersion))
@@ -126,7 +126,7 @@ public class StageBuildFacade
                 var publishInfo = new PublishInfo(
                     selectedSource.StageName,
                     selectedSource.VersionStageName,
-                    selectedSource.Promotion,
+                    selectedSource.BuildPromotion,
                     selectedSource.FeedSource,
                     selectedSource.PushSource,
                     selectedSource.ApiKey,

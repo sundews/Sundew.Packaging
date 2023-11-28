@@ -93,33 +93,33 @@ public static class StageSelector
 
                 if (stage.Equals(DefaultStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, Promotion.None), prereleasePrefix, prereleasePostfix);
+                    return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, BuildPromotion.None), prereleasePrefix, prereleasePostfix);
                 }
 
-                return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultLocalStageName, string.IsNullOrEmpty(localPackageStage) ? DefaultLocalStageName : localPackageStage!, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, Promotion.None), prereleasePrefix, prereleasePostfix);
+                return new SelectedStage(new Stage(default, defaultSource, default, default, default, DefaultLocalStageName, string.IsNullOrEmpty(localPackageStage) ? DefaultLocalStageName : localPackageStage!, false, defaultSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, BuildPromotion.None), prereleasePrefix, prereleasePostfix);
             }
 
             if (stage.Equals(LocalStableSourceNameText, StringComparison.InvariantCultureIgnoreCase))
             {
-                return new SelectedStage(new Stage(default, localSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, Promotion.None), prereleasePrefix, prereleasePostfix);
+                return new SelectedStage(new Stage(default, localSource, default, default, default, DefaultProductionStage, DefaultProductionPackageStage, true, localSource, fallbackPrereleaseFormat, Array.Empty<string>(), null, isSourcePublishEnabled, BuildPromotion.None), prereleasePrefix, prereleasePostfix);
             }
 
             var stages = new List<(Stage? Stage, string StageInput)>();
-            var productionStage = Staging.Stage.Parse(production, DefaultProductionStage, DefaultProductionPackageStage, true, null, fallbackApiKey, fallbackSymbolsApiKey, null, isSourcePublishEnabled, Promotion.None);
+            var productionStage = Staging.Stage.Parse(production, DefaultProductionStage, DefaultProductionPackageStage, true, null, fallbackApiKey, fallbackSymbolsApiKey, null, isSourcePublishEnabled, BuildPromotion.None);
             var integrationFeedSources = new List<string>();
             TryAddFeedSource(integrationFeedSources, productionStage);
 
             if (!buildPromotionInput.IsNullOrEmpty() && !buildPromotionRegex.IsNullOrEmpty() && productionStage != null)
             {
-                var promotedStage = productionStage with { StageRegex = new Regex(buildPromotionRegex), Promotion = Promotion.Promoted };
+                var promotedStage = productionStage with { StageRegex = new Regex(buildPromotionRegex), BuildPromotion = BuildPromotion.Promoted };
                 stages.Add((promotedStage, buildPromotionInput));
             }
 
-            var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled, Promotion.None);
+            var integrationStage = Staging.Stage.Parse(integration, DefaultIntegrationStage, DefaultIntegrationPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, integrationFeedSources, isSourcePublishEnabled, BuildPromotion.None);
             var developmentFeedSources = integrationFeedSources.ToList();
             TryAddFeedSource(developmentFeedSources, integrationStage);
 
-            var developmentStage = Staging.Stage.Parse(development, DefaultDevelopmentStage, DefaultDevelopmentPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, developmentFeedSources, isSourcePublishEnabled, Promotion.None);
+            var developmentStage = Staging.Stage.Parse(development, DefaultDevelopmentStage, DefaultDevelopmentPackageStage, false, fallbackPrereleaseFormat, fallbackApiKey, fallbackSymbolsApiKey, developmentFeedSources, isSourcePublishEnabled, BuildPromotion.None);
             stages.Add((productionStage, stage));
             stages.Add((integrationStage, stage));
             stages.Add((developmentStage, stage));
@@ -168,7 +168,7 @@ public static class StageSelector
                 Array.Empty<string>(),
                 properties,
                 allowLocalSource && isSourcePublishEnabled,
-                Promotion.None,
+                BuildPromotion.None,
                 allowLocalSource && isSourcePublishEnabled),
             prereleasePrefix,
             prereleasePostfix);
