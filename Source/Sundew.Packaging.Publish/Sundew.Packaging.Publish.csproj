@@ -89,7 +89,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
     <AdditionalFiles Include="..\Sundew.Packaging.Tool\stylecop.json" />
   </ItemGroup>
 
