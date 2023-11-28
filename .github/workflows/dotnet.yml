@@ -42,7 +42,7 @@ jobs:
       run: >
         dotnet tool update Sundew.Packaging.Tool -g --version 8.8.2.*
 
-        dotnet tool update CommandlineBatcher -g --version 8.8.2.*
+        dotnet tool update CommandlineBatcher -g --version 8.6.1.*
 
         git rev-parse --short=10 HEAD | cb -c ">> $Env:GITHUB_OUTPUT|git-hash={0}{NL}" --batches-stdin
 
