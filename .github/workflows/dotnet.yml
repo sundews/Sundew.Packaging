@@ -70,7 +70,8 @@ jobs:
 
         cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
     - name: 'Remove release tag'
-      run: cb --if "${{ steps.stage-build.outputs.stagePromotion }} == promoted" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
+      if: ${{ steps.stage-build.outputs.stage == 'production' && steps.stage-build.outputs.stagePromotion != 'promoted' }} 
+      run: cb --if "${{ steps.stage-build.outputs.stagePromotion }} != promoted" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
     - name: Restore
       run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
