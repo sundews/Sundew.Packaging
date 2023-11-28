@@ -40,7 +40,7 @@ jobs:
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 8.8.2.*
+        dotnet tool update Sundew.Packaging.Tool -g --version 8.9.0.0-u20231128-205817-ci
 
         dotnet tool update CommandlineBatcher -g --version 8.6.1.*
 
@@ -58,8 +58,8 @@ jobs:
         --integration "refs/heads/(?:master|main).*                                          => &u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --no-stage "Configuration=Release"
-        --production-input "< git_commit_message.txt"
-        --production-matcher "=>release"
+        --stage-promotion-input "< git_commit_message.txt"
+        --stage-promotion-regex "=>release"
         --prerelease-format "u{DateTime}-{Stage}-{Postfix}"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version '"${{ secrets.SPP_FORCE_VERSION_IF_SET }}"'
