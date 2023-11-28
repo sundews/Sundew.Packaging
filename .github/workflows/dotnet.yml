@@ -59,7 +59,7 @@ jobs:
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --no-stage "Configuration=Release"
         --stage-promotion-input "< git_commit_message.txt"
-        --stage-promotion-regex "=>release"
+        --stage-promotion-regex "=>\s*release"
         --prerelease-format "u{DateTime}-{Stage}-{Postfix}"
         --metadata ${{ steps.build-setup.outputs.git-hash }}
         --force-version '"${{ secrets.SPP_FORCE_VERSION_IF_SET }}"'
@@ -71,7 +71,7 @@ jobs:
         cb match -p "^refs/tags/release[^/]*$ => isReleaseCommand=true{NL}" -i "${{ github.ref }}" -of $Env:GITHUB_OUTPUT
     - name: 'Remove release tag'
       if: ${{ steps.stage-build.outputs.stage == 'production' && steps.stage-build.outputs.stagePromotion != 'promoted' }} 
-      run: cb --if "${{ steps.stage-build.outputs.stagePromotion }} != promoted" -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
+      run: cb -c "git|push --delete ${{ env.repository }} ${{ github.ref }}"
     - name: Restore
       run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.stage-build.outputs.dev-package-source-if-set }}
     - name: Build
