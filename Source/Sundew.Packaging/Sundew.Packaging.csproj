@@ -25,7 +25,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.Base.Collections" Version="11.0.4" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.4" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.5" />
     <PackageReference Include="Sundew.Base.Text" Version="11.0.4" />
   </ItemGroup>
 
