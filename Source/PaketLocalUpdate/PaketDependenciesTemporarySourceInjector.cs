@@ -39,7 +39,7 @@ public class PaketDependenciesTemporarySourceInjector : IDisposable
         this.Dependencies = dependencies;
         this.paketDependenciesParser = paketDependenciesParser;
         this.fileSystem = fileSystem;
-        this.backupDependencies = dependencies.DependenciesFile + ".bak";
+        this.backupDependencies = dependencies.DependenciesFile + ".bak.user";
     }
 
     /// <summary>
