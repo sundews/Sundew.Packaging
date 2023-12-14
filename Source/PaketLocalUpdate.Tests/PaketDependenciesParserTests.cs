@@ -1,7 +1,10 @@
 namespace PaketLocalUpdate.Tests;
 
+using System.IO;
 using PaketLocalUpdate;
 using FluentAssertions;
+using Sundew.Packaging.Source;
+using Sundew.Packaging.Versioning.Commands;
 using Xunit;
 
 
@@ -12,6 +15,8 @@ public class PaketDependenciesParserTests
     [Fact]
     public void TestMethod1()
     {
+        new NuGetSettingsInitializationCommand().Initialize(Directory.GetCurrentDirectory(), PackageSources.DefaultLocalSourceName, PackageSources.DefaultLocalSource);
+
         var fileContent = @"source https://nuget.org/api/v2
 
 nuget Newtonsoft.Json

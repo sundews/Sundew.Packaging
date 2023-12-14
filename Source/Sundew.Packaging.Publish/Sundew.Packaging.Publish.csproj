@@ -51,7 +51,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.1.0" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.2.1" />
     <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
   </ItemGroup>
 
@@ -66,17 +66,24 @@
     <Compile Include="@(SundewPackagingCompile)" LinkBase="Shared\Sundew.Packaging" />
 
     <SundewBasePrimitivesCompile Include="..\Sundew.Base\Source\Sundew.Base.Primitives\**\*.cs" />
-	<SundewBasePrimitivesCompile Remove="..\Sundew.Base\Source\Sundew.Base.Primitives\obj\**\*.cs" />
-	<Compile Include="@(SundewBasePrimitivesCompile)" LinkBase="Shared\Sundew.Base.Primitives" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\EnumerableExtensions.cs;" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\AsyncEnumerableExtensions.cs" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\ArrayExtensions.cs" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Immutable\*.cs" />
-	<SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Internal\*.cs" />
-	<Compile Include="@(SundewBaseCollectionsCompile)" LinkBase="Shared\Sundew.Base.Collections" />
-	<SundewBaseTextCompile Include="..\Sundew.Base\Source\Sundew.Base.Text\**\*.cs" />
-	<SundewBaseTextCompile Remove="..\Sundew.Base\Source\Sundew.Base.Text\obj\**\*.cs" />
-    <Compile Include="@(SundewBaseTextCompile)" LinkBase="Shared\Sundew.Base.Text" />
+	  <SundewBasePrimitivesCompile Remove="..\Sundew.Base\Source\Sundew.Base.Primitives\obj\**\*.cs" />
+	  <Compile Include="@(SundewBasePrimitivesCompile)" LinkBase="Shared\Sundew.Base.Primitives" />
+	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\EnumerableExtensions.cs;" />
+	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\AsyncEnumerableExtensions.cs" />
+	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\ArrayExtensions.cs" />
+	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Immutable\*.cs" />
+    <SundewBaseCollectionsCompile Remove="..\Sundew.Base\Source\Sundew.Base.Collections\Immutable\Result*.cs" />
+    <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Internal\*.cs" />
+    <Compile Include="@(SundewBaseCollectionsCompile)" LinkBase="Shared\Sundew.Base.Collections" />
+	  <SundewBaseTextCompile Include="..\Sundew.Base\Source\Sundew.Base.Text\**\*.cs" />
+	  <SundewBaseTextCompile Remove="..\Sundew.Base\Source\Sundew.Base.Text\obj\**\*.cs" />
+    <Compile Include="@(SundewBaseTextCompile)" LinkBase="Shared\Sundew.Base.Primitives" />
+    <SundewBasePrimitivesTimeCompile Include="..\Sundew.Base\Source\Sundew.Base.Primitives.Time\**\*.cs" />
+    <SundewBasePrimitivesTimeCompile Remove="..\Sundew.Base\Source\Sundew.Base.Primitives.Time\obj\**\*.cs" />
+    <Compile Include="@(SundewBasePrimitivesTimeCompile)" LinkBase="Shared\Sundew.Base.Primitives.Numeric" />
+    <SundewBasePrimitivesNumericCompile Include="..\Sundew.Base\Source\Sundew.Base.Primitives.Numeric\**\*.cs" />
+    <SundewBasePrimitivesNumericCompile Remove="..\Sundew.Base\Source\Sundew.Base.Primitives.Numeric\obj\**\*.cs" />
+    <Compile Include="@(SundewBasePrimitivesNumericCompile)" LinkBase="Shared\Sundew.Base.Primitives.Numeric" />
     <SundewBaseEqualityCompile Include="..\Sundew.Base\Source\Sundew.Base.Equality\**\*.cs" />
     <SundewBaseEqualityCompile Remove="..\Sundew.Base\Source\Sundew.Base.Equality\obj\**\*.cs" />
     <Compile Include="@(SundewBaseEqualityCompile)" LinkBase="Shared\Sundew.Base.Equality" />

@@ -8,6 +8,7 @@
 namespace PaketLocalUpdate;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.FSharp.Core;
 using NuGet.Configuration;
 using Paket;
+using Sundew.Base.Collections;
 using Sundew.Packaging.RegularExpression;
 using Sundew.Packaging.Versioning.Commands;
 
@@ -43,7 +45,27 @@ public class UpdateFacade
     {
         var workingDirectory = Directory.GetCurrentDirectory();
         var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, Sundew.Packaging.Source.PackageSources.DefaultLocalSourceName, Sundew.Packaging.Source.PackageSources.DefaultLocalSource);
-        var source = nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == arguments.Source)?.Value ?? arguments.Source;
+        var sourceCandidates = nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>().ToList() ?? new List<AddItem>();
+        var source = sourceCandidates.FirstOrDefault(x => x.Key.Equals(arguments.Source, StringComparison.InvariantCulture))?.Value ?? arguments.Source;
+        if (!Directory.Exists(source))
+        {
+            var color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Error:");
+            Console.WriteLine($"The source: {arguments.Source} is not a directory and could not be found amongst the candidates:");
+            if (sourceCandidates.Any())
+            {
+                sourceCandidates.ForEach(x => Console.WriteLine($"- {x}"));
+            }
+            else
+            {
+                Console.WriteLine("No sources found!");
+            }
+
+            Console.ForegroundColor = color;
+            return;
+        }
+
         using var paketDependenciesTemporarySourceInjector = new PaketDependenciesTemporarySourceInjector(Dependencies.Locate(), new PaketDependenciesParser(), new FileSystemAsync());
         var (expression, isPattern) = GlobRegex.ConvertToRegexPattern(arguments.PackageId);
         var packageMatcher = arguments.IsFilter ? arguments.PackageId : expression;

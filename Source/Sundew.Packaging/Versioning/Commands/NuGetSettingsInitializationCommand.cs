@@ -7,9 +7,11 @@
 
 namespace Sundew.Packaging.Versioning.Commands;
 
+using System;
 using System.IO;
 using System.Linq;
 using global::NuGet.Configuration;
+using Sundew.Base.Text;
 using Sundew.Packaging.Versioning.IO;
 using Sundew.Packaging.Versioning.NuGet.Configuration;
 
@@ -44,26 +46,34 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
     {
         var defaultSettings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
         var packageSourcesSection = defaultSettings.GetSection(PackageSourcesText);
-        var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == localSourceName);
-        if (addItem == null)
+        var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key.Equals(localSourceName, StringComparison.InvariantCulture));
+        if (addItem != null)
         {
-            if (!this.fileSystem.DirectoryExists(localSource))
-            {
-                this.fileSystem.CreateDirectory(localSource);
-            }
+            return new NuGetSettings(addItem.Value, defaultSettings, packageSourcesSection);
+        }
 
-            var applicationDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
-            var applicationDataConfigurationFile = defaultSettings.GetConfigFilePaths().FirstOrDefault(x => x.StartsWith(applicationDataPath));
-            if (applicationDataConfigurationFile != null)
-            {
-                var roamingSettings = this.settingsFactory.LoadSpecificSettings(Path.GetDirectoryName(applicationDataConfigurationFile), Path.GetFileName(applicationDataConfigurationFile));
-                roamingSettings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
-                roamingSettings.SaveToDisk();
-            }
+        if (!this.fileSystem.DirectoryExists(localSource))
+        {
+            this.fileSystem.CreateDirectory(localSource);
+        }
 
+        var applicationDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
+        var applicationDataConfigurationFile = defaultSettings.GetConfigFilePaths().FirstOrDefault(x => x.StartsWith(applicationDataPath));
+        if (applicationDataConfigurationFile == null)
+        {
             return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
         }
 
-        return new NuGetSettings(addItem.Value, defaultSettings, packageSourcesSection);
+        var defaultSettingsDirectoryPath = Path.GetDirectoryName(applicationDataConfigurationFile);
+        if (defaultSettingsDirectoryPath.IsNullOrEmpty())
+        {
+            return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
+        }
+
+        var roamingSettings = this.settingsFactory.LoadSpecificSettings(defaultSettingsDirectoryPath, Path.GetFileName(applicationDataConfigurationFile));
+        roamingSettings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
+        roamingSettings.SaveToDisk();
+
+        return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
     }
 }
