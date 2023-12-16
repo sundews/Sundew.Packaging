@@ -46,7 +46,7 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
     {
         var defaultSettings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
         var packageSourcesSection = defaultSettings.GetSection(PackageSourcesText);
-        var addItem = packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key.Equals(localSourceName, StringComparison.InvariantCulture));
+        var addItem = TryFindLocalSourceName(localSourceName, packageSourcesSection);
         if (addItem != null)
         {
             return new NuGetSettings(addItem.Value, defaultSettings, packageSourcesSection);
@@ -64,16 +64,25 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
             return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
         }
 
-        var defaultSettingsDirectoryPath = Path.GetDirectoryName(applicationDataConfigurationFile);
-        if (defaultSettingsDirectoryPath.IsNullOrEmpty())
+        var roamingSettingsDirectoryPath = Path.GetDirectoryName(applicationDataConfigurationFile);
+        if (roamingSettingsDirectoryPath.IsNullOrEmpty())
         {
             return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
         }
 
-        var roamingSettings = this.settingsFactory.LoadSpecificSettings(defaultSettingsDirectoryPath, Path.GetFileName(applicationDataConfigurationFile));
-        roamingSettings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
-        roamingSettings.SaveToDisk();
+        var roamingSettings = this.settingsFactory.LoadSpecificSettings(roamingSettingsDirectoryPath, Path.GetFileName(applicationDataConfigurationFile));
+        addItem = TryFindLocalSourceName(localSourceName, roamingSettings.GetSection(PackageSourcesText));
+        if (addItem == null)
+        {
+            roamingSettings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
+            roamingSettings.SaveToDisk();
+        }
 
         return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
+    }
+
+    private static AddItem? TryFindLocalSourceName(string localSourceName, SettingSection? packageSourcesSection)
+    {
+        return packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key.Equals(localSourceName, StringComparison.InvariantCulture));
     }
 }

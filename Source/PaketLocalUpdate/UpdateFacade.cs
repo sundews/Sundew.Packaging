@@ -50,20 +50,22 @@ public class UpdateFacade
         if (!Directory.Exists(source))
         {
             var color = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error:");
-            Console.WriteLine($"The source: {arguments.Source} is not a directory and could not be found amongst the candidates:");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Warning:");
             if (sourceCandidates.Any())
             {
-                sourceCandidates.ForEach(x => Console.WriteLine($"- {x}"));
+                Console.WriteLine($"The source: {arguments.Source} is not a directory and did not match any of the names:");
+                sourceCandidates.ForEach(x => Console.WriteLine($"- {x.Key}: {x.Value}"));
             }
             else
             {
-                Console.WriteLine("No sources found!");
+                Console.WriteLine($"The source: {arguments.Source} is not a directory and no other source where found:");
             }
 
+            Console.WriteLine();
+            Console.WriteLine($"Falling back to: {Sundew.Packaging.Source.PackageSources.DefaultLocalSource}");
+            source = Sundew.Packaging.Source.PackageSources.DefaultLocalSource;
             Console.ForegroundColor = color;
-            return;
         }
 
         using var paketDependenciesTemporarySourceInjector = new PaketDependenciesTemporarySourceInjector(Dependencies.Locate(), new PaketDependenciesParser(), new FileSystemAsync());
