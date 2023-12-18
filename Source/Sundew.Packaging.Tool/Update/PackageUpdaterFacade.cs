@@ -13,7 +13,7 @@ using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 using Sundew.Packaging.RegularExpression;
 using Sundew.Packaging.Tool.Diagnostics;
 using Sundew.Packaging.Tool.Update.MsBuild;

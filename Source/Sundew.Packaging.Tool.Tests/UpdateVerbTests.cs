@@ -9,7 +9,7 @@ namespace Sundew.Packaging.Tool.Tests;
 
 using FluentAssertions;
 using NUnit.Framework;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 using Sundew.CommandLine;
 using Sundew.Packaging.Tool.Update;
 using Sundew.Packaging.Tool.Update.MsBuild.NuGet;

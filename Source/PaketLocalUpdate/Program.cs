@@ -9,7 +9,7 @@ namespace PaketLocalUpdate;
 
 using System;
 using System.Threading.Tasks;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 using Sundew.CommandLine;
 using Sundew.Packaging.Versioning.Commands;
 
