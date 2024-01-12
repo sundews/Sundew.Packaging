@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 using NuGet.Versioning;
-using Sundew.Base.Primitives.Time;
+using Sundew.Base.Time;
 using Sundew.Packaging.Publish;
 using Sundew.Packaging.Staging;
 using Sundew.Packaging.Versioning;

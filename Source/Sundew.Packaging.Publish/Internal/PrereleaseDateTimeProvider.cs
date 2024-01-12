@@ -9,7 +9,7 @@ namespace Sundew.Packaging.Publish.Internal;
 
 using System;
 using System.Globalization;
-using Sundew.Base.Primitives.Time;
+using Sundew.Base.Time;
 using Sundew.Packaging.Versioning.IO;
 using Sundew.Packaging.Versioning.Logging;
 

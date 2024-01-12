@@ -11,7 +11,7 @@ using System;
 using System.Globalization;
 using FluentAssertions;
 using Moq;
-using Sundew.Base.Primitives.Time;
+using Sundew.Base.Time;
 using Sundew.Packaging.Publish.Internal;
 using Sundew.Packaging.Versioning.IO;
 using Sundew.Packaging.Versioning.Logging;
