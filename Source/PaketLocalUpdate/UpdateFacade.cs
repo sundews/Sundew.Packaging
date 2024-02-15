@@ -45,8 +45,8 @@ public class UpdateFacade
     {
         var workingDirectory = Directory.GetCurrentDirectory();
         var nuGetSettings = this.nuGetSettingsInitializationCommand.Initialize(workingDirectory, Sundew.Packaging.Source.PackageSources.DefaultLocalSourceName, Sundew.Packaging.Source.PackageSources.DefaultLocalSource);
-        var sourceCandidates = nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>().ToList() ?? new List<AddItem>();
-        var source = sourceCandidates.FirstOrDefault(x => x.Key.Equals(arguments.Source, StringComparison.InvariantCulture))?.Value ?? arguments.Source;
+        var sourceCandidates = nuGetSettings.PackageSources ?? new List<PackageSource>();
+        var source = sourceCandidates.TryFindSourceByName(arguments.Source)?.Source ?? arguments.Source;
         if (!Directory.Exists(source))
         {
             var color = Console.ForegroundColor;
@@ -55,7 +55,7 @@ public class UpdateFacade
             if (sourceCandidates.Any())
             {
                 Console.WriteLine($"The source: {arguments.Source} is not a directory and did not match any of the names:");
-                sourceCandidates.ForEach(x => Console.WriteLine($"- {x.Key}: {x.Value}"));
+                sourceCandidates.ForEach(x => Console.WriteLine($"- {x.Name}: {x.Source}"));
             }
             else
             {

@@ -66,7 +66,7 @@ public class PublishTaskTests
             PackageOutputPath = PackageOutputPath,
             OutputPath = OutputPath,
             TimeoutInSeconds = TimeoutInSeconds,
-            SolutionDir = @"Any/LocalSourcePath",
+            SolutionDir = @"Any/LocalPackageSource",
         };
 
         this.fileSystem.Setup(x => x.FileExists(It.IsAny<string>())).Returns(true);

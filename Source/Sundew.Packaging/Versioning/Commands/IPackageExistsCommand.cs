@@ -7,7 +7,9 @@
 
 namespace Sundew.Packaging.Versioning.Commands;
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using global::NuGet.Configuration;
 using global::NuGet.Versioning;
 
 /// <summary>
@@ -16,11 +18,11 @@ using global::NuGet.Versioning;
 public interface IPackageExistsCommand
 {
     /// <summary>
-    /// Existses the asynchronous.
+    /// Checks if the specified package exists.
     /// </summary>
     /// <param name="packageId">The package identifier.</param>
     /// <param name="semanticVersion">The semantic version.</param>
-    /// <param name="sourceUri">The source URI.</param>
+    /// <param name="packageSources">The package sources.</param>
     /// <returns>An async task with a value indicating whether the package exists.</returns>
-    Task<bool> ExistsAsync(string packageId, SemanticVersion semanticVersion, string sourceUri);
+    Task<bool> ExistsAsync(string packageId, SemanticVersion semanticVersion, IReadOnlyList<PackageSource> packageSources);
 }

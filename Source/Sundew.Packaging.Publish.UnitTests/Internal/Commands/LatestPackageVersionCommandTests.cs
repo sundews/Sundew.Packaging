@@ -34,7 +34,7 @@ public class LatestPackageVersionCommandTests
     {
         var result = await this.testee.GetLatestMajorMinorVersion(
             packageId,
-            new[] { NuGetConstants.V3FeedUrl },
+            new[] { new PackageSource(NuGetConstants.V3FeedUrl) },
             NuGetVersion.Parse(version),
             includePatchInMatch,
             allowPrerelease);

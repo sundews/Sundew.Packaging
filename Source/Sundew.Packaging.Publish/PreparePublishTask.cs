@@ -339,7 +339,7 @@ public class PreparePublishTask : Task
                 this.Production,
                 this.Integration,
                 this.Development,
-                nuGetSettings.LocalSourcePath,
+                nuGetSettings.LocalPackageSource.Source,
                 this.PrereleaseFormat,
                 this.ApiKey,
                 this.SymbolsApiKey,

@@ -25,7 +25,7 @@ public class PackageExistsCommandTests
     {
         var testee = new PackageExistsCommand(New.Mock<ILogger>());
 
-        var result = await testee.ExistsAsync(packageId, new SemanticVersion(12, 0, 3), NuGetConstants.V3FeedUrl);
+        var result = await testee.ExistsAsync(packageId, new SemanticVersion(12, 0, 3), new[] { new PackageSource(NuGetConstants.V3FeedUrl) });
 
         result.Should().Be(expectedResult);
     }

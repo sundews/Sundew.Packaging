@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using global::NuGet.Configuration;
 using global::NuGet.Versioning;
 using Sundew.Base.Text;
 using Sundew.Packaging.Staging;
@@ -70,7 +71,7 @@ public class PackageVersioner : IPackageVersioner
         string? forceVersion,
         VersioningMode versioningMode,
         SelectedStage selectedSource,
-        IReadOnlyList<string> latestVersionSources,
+        IReadOnlyList<PackageSource> latestVersionSources,
         DateTime buildDateTime,
         string? metadata,
         string? metadataFormat,
@@ -103,7 +104,7 @@ public class PackageVersioner : IPackageVersioner
         {
             VersioningMode.AutomaticLatestPatch => this.GetAutomaticLatestPatchVersion(buildDateTime, packageId, nuGetVersion, selectedSource, latestVersionSources, metadata, parameter, versionMetadata),
             VersioningMode.AutomaticLatestRevision => this.GetAutomaticLatestRevisionVersion(buildDateTime, packageId, nuGetVersion, selectedSource, latestVersionSources, metadata, parameter, versionMetadata),
-            VersioningMode.IncrementPatchIfStableExistForPrerelease => this.GetIncrementPatchIfStableExistForPrereleaseVersion(buildDateTime, packageId, nuGetVersion, selectedSource, metadata, parameter, versionMetadata),
+            VersioningMode.IncrementPatchIfStableExistForPrerelease => this.GetIncrementPatchIfStableExistForPrereleaseVersion(buildDateTime, packageId, nuGetVersion, selectedSource, latestVersionSources, metadata, parameter, versionMetadata),
             VersioningMode.AlwaysIncrementPatch => this.GetIncrementPatchVersion(buildDateTime, nuGetVersion, selectedSource, metadata, parameter, versionMetadata),
             VersioningMode.NoChange => this.GetNoChangeVersion(buildDateTime, nuGetVersion, selectedSource, metadata, parameter, versionMetadata),
             _ => throw new ArgumentOutOfRangeException(nameof(versioningMode), versioningMode, $"Unsupported versioning mode: {versioningMode}"),
@@ -115,7 +116,7 @@ public class PackageVersioner : IPackageVersioner
         string packageId,
         NuGetVersion nugetVersion,
         SelectedStage selectedSource,
-        IReadOnlyList<string> latestVersionSources,
+        IReadOnlyList<PackageSource> latestVersionSources,
         string metadata,
         string parameter,
         string versionMetadata)
@@ -143,7 +144,7 @@ public class PackageVersioner : IPackageVersioner
         string packageId,
         NuGetVersion nugetVersion,
         SelectedStage selectedSource,
-        IReadOnlyList<string> latestVersionSources,
+        IReadOnlyList<PackageSource> latestVersionSources,
         string metadata,
         string parameter,
         string versionMetadata)
@@ -171,6 +172,7 @@ public class PackageVersioner : IPackageVersioner
         string packageId,
         NuGetVersion nugetVersion,
         SelectedStage selectedSource,
+        IReadOnlyList<PackageSource> latestVersionSources,
         string metadata,
         string parameter,
         string versionMetadata)
@@ -180,7 +182,7 @@ public class PackageVersioner : IPackageVersioner
             return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch, default(string), versionMetadata);
         }
 
-        var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, nugetVersion, selectedSource.FeedSource);
+        var packageExistsTask = this.packageExistsCommand.ExistsAsync(packageId, nugetVersion, latestVersionSources);
         packageExistsTask.Wait();
         return new NuGetVersion(nugetVersion.Major, nugetVersion.Minor, nugetVersion.Patch + (packageExistsTask.Result ? 1 : 0), this.GetPrereleasePostfix(buildDateTime, selectedSource, metadata, parameter), versionMetadata);
     }

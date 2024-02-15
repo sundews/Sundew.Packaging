@@ -10,9 +10,9 @@ namespace Sundew.Packaging.Versioning.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using global::NuGet.Common;
 using global::NuGet.Configuration;
-using Sundew.Base.Text;
+using Sundew.Base;
+using Sundew.Base.Collections.Linq;
 using Sundew.Packaging.Staging;
 using Sundew.Packaging.Versioning.IO;
 
@@ -43,28 +43,28 @@ public class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
     /// <param name="addNuGetOrgSource">if set to <c>true</c> [add nu get org source].</param>
     /// <param name="addAllSources">if set to <c>true</c> [add all sources].</param>
     /// <returns>The latest version.</returns>
-    public IReadOnlyList<string> GetLatestVersionSources(
+    public IReadOnlyList<PackageSource> GetLatestVersionSources(
         string? latestVersionSourcesText,
         SelectedStage selectedSource,
         NuGetSettings nuGetSettings,
         bool addNuGetOrgSource,
         bool addAllSources)
     {
-        var latestVersionSources = new List<string>();
-        this.TryAddFeedSource(latestVersionSources, selectedSource.FeedSource);
+        var latestVersionSources = new List<PackageSource>();
+        this.TryAddFeedSource(latestVersionSources, new PackageSource(selectedSource.FeedSource));
 
         if (selectedSource.AdditionalFeedSources != null)
         {
             foreach (var additionalFeedSource in selectedSource.AdditionalFeedSources)
             {
-                this.TryAddFeedSource(latestVersionSources, additionalFeedSource);
+                this.TryAddFeedSource(latestVersionSources, new PackageSource(additionalFeedSource));
             }
         }
 
         if (addNuGetOrgSource)
         {
-            var nuGetOrgSource = nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == NuGetOrg)?.Value;
-            if (!nuGetOrgSource.IsNullOrEmpty())
+            var nuGetOrgSource = nuGetSettings.PackageSources?.FirstOrDefault(x => x.Source == NuGetOrg);
+            if (nuGetOrgSource.HasValue())
             {
                 latestVersionSources.Add(nuGetOrgSource);
             }
@@ -72,13 +72,9 @@ public class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
 
         if (addAllSources)
         {
-            foreach (var item in nuGetSettings.PackageSourcesSection?.Items.OfType<AddItem>() ?? Enumerable.Empty<AddItem>())
+            foreach (var packageSource in nuGetSettings.PackageSources ?? Enumerable.Empty<PackageSource>())
             {
-                var sourceUrl = item?.Value;
-                if (!sourceUrl.IsNullOrEmpty())
-                {
-                    this.TryAddFeedSource(latestVersionSources, sourceUrl);
-                }
+                this.TryAddFeedSource(latestVersionSources, packageSource);
             }
         }
 
@@ -87,33 +83,33 @@ public class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
             return latestVersionSources.Distinct().ToList();
         }
 
-        var packageSourcesSection = nuGetSettings.PackageSourcesSection;
-        var sources = latestVersionSourcesText.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Select(
+        var packageSources = nuGetSettings.PackageSources;
+        var sources = latestVersionSourcesText
+            .Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(
                 sourceUriOrName =>
                 {
                     var name = sourceUriOrName;
-                    var sourceUri =
-                        packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key == name)?.Value ??
-                        sourceUriOrName;
-                    var uri = UriUtility.TryCreateSourceUri(sourceUri, UriKind.Absolute);
-                    return uri?.OriginalString ?? string.Empty;
+                    var packageSource =
+                        packageSources?.TryFindSourceByNameOrSource(name) ?? new PackageSource(sourceUriOrName);
+                    return packageSource;
                 })
-            .Where(x => !string.IsNullOrEmpty(x));
+            .WhereNotNull();
         latestVersionSources.AddRange(sources);
         return latestVersionSources.Distinct().ToList();
     }
 
-    private void TryAddFeedSource(List<string> latestVersionSources, string sourceUri)
+    private void TryAddFeedSource(List<PackageSource> latestVersionSources, PackageSource packageSource)
     {
-        if (!string.IsNullOrEmpty(sourceUri) && this.IsRemoteSourceOrDoesLocalSourceExists(sourceUri))
+        if (!string.IsNullOrEmpty(packageSource.Source) && this.IsRemoteSourceOrDoesLocalSourceExists(packageSource))
         {
-            latestVersionSources.Add(sourceUri);
+            latestVersionSources.Add(packageSource);
         }
     }
 
-    private bool IsRemoteSourceOrDoesLocalSourceExists(string sourceUri)
+    private bool IsRemoteSourceOrDoesLocalSourceExists(PackageSource packageSource)
     {
-        var uri = UriUtility.TryCreateSourceUri(sourceUri, UriKind.Absolute);
-        return (uri != null && !uri.IsFile) || this.fileSystem.DirectoryExists(sourceUri);
+        var uri = packageSource.TrySourceAsUri;
+        return (uri != null && !uri.IsFile) || this.fileSystem.DirectoryExists(packageSource.Source);
     }
 }

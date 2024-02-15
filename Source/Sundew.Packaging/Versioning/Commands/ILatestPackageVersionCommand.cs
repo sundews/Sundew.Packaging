@@ -9,6 +9,7 @@ namespace Sundew.Packaging.Versioning.Commands;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using global::NuGet.Configuration;
 using global::NuGet.Versioning;
 
 /// <summary>
@@ -27,7 +28,7 @@ public interface ILatestPackageVersionCommand
     /// <returns>An async task with the latest version.</returns>
     Task<NuGetVersion?> GetLatestMajorMinorVersion(
         string packageId,
-        IReadOnlyList<string> sources,
+        IReadOnlyList<PackageSource> sources,
         NuGetVersion nuGetVersion,
         bool includePatchInMatch,
         bool allowPrerelease);

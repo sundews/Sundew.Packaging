@@ -79,13 +79,13 @@ public static class StageSelector
         string? buildPromotionInput,
         string? buildPromotionRegex)
     {
+        var packageSourceProvider = new PackageSourceProvider(defaultSettings);
+        var packageSources = packageSourceProvider.LoadPackageSources().ToArray();
         if (stage != null && !string.IsNullOrEmpty(stage))
         {
             if (stage.StartsWith(DefaultStageNameText, StringComparison.InvariantCultureIgnoreCase))
             {
-                var defaultSource = defaultSettings.GetSection(Staging.Stage.ConfigText)?.Items.OfType<AddItem>()
-                    .FirstOrDefault(x =>
-                        x.Key.Equals(DefaultPushSourceText, StringComparison.InvariantCultureIgnoreCase))?.Value;
+                var defaultSource = packageSourceProvider.DefaultPushSource;
                 if (defaultSource == null)
                 {
                     throw new InvalidOperationException(NoDefaultPushSourceHasBeenConfiguredText);

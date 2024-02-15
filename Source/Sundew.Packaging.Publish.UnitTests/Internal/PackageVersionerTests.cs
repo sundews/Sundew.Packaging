@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
+using NuGet.Configuration;
 using NuGet.Versioning;
 using Sundew.Base.Time;
 using Sundew.Packaging.Publish;
@@ -47,7 +48,7 @@ public class PackageVersionerTests
             expectedVersion,
             VersioningMode.AlwaysIncrementPatch,
             new SelectedStage(Stage.Parse(AnyPushSource, "beta", "beta", false, null, null, null, null, true, BuildPromotion.None)!),
-            new[] { AnyPushSource },
+            new[] { new PackageSource(AnyPushSource) },
             BuildDateTime,
             null,
             null,
@@ -73,7 +74,7 @@ public class PackageVersionerTests
             null,
             versioningMode,
             new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true, BuildPromotion.None)!),
-            new[] { AnyPushSource },
+            new[] { new PackageSource(AnyPushSource) },
             BuildDateTime,
             null,
             null,
@@ -92,7 +93,7 @@ public class PackageVersionerTests
     {
         this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
                 AnyPackageId,
-                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<IReadOnlyList<PackageSource>>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>()))
@@ -105,7 +106,7 @@ public class PackageVersionerTests
             null,
             versioningMode,
             new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, null, null, null, null, true, BuildPromotion.None)!),
-            new[] { AnyPushSource },
+            new[] { new PackageSource(AnyPushSource) },
             BuildDateTime,
             null,
             null,
@@ -124,7 +125,7 @@ public class PackageVersionerTests
     {
         this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
                 AnyPackageId,
-                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<IReadOnlyList<PackageSource>>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>()))
@@ -137,7 +138,7 @@ public class PackageVersionerTests
             null,
             versioningMode,
             new SelectedStage(Stage.Parse(AnyPushSource, "ci", "ci", true, null, null, null, null, true, BuildPromotion.None)!),
-            new[] { AnyPushSource },
+            new[] { new PackageSource(AnyPushSource) },
             BuildDateTime,
             null,
             null,
@@ -158,7 +159,7 @@ public class PackageVersionerTests
     {
         this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
                 AnyPackageId,
-                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<IReadOnlyList<PackageSource>>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>()))
@@ -171,7 +172,7 @@ public class PackageVersionerTests
             null,
             versioningMode,
             new SelectedStage(Stage.Parse(AnyPushSource, stage, stage, false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true, BuildPromotion.None)!),
-            new[] { AnyPushSource },
+            new[] { new PackageSource(AnyPushSource) },
             BuildDateTime,
             null,
             null,
@@ -188,7 +189,7 @@ public class PackageVersionerTests
     {
         this.latestPackageVersionCommand.Setup(x => x.GetLatestMajorMinorVersion(
                 AnyPackageId,
-                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<IReadOnlyList<PackageSource>>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>()))
@@ -200,7 +201,7 @@ public class PackageVersionerTests
             null,
             VersioningMode.AutomaticLatestRevision,
             new SelectedStage(Stage.Parse(AnyPushSource, "ci", "ci", false, "u{1}-{3}-{4}-{5}-{0}", null, null, null, true, BuildPromotion.None)!),
-            new[] { AnyPushSource },
+            new[] { new PackageSource(AnyPushSource) },
             BuildDateTime,
             metadata,
             metadataFormat,

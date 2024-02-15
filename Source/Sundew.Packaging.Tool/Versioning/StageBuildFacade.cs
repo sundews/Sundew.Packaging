@@ -84,7 +84,7 @@ public class StageBuildFacade
                 stageBuildVerb.Production,
                 stageBuildVerb.Integration,
                 stageBuildVerb.Development,
-                nuGetSettings.LocalSourcePath,
+                nuGetSettings.LocalPackageSource.Source,
                 stageBuildVerb.PrereleaseFormat,
                 null,
                 null,

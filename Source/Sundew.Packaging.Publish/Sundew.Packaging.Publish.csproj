@@ -51,7 +51,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.2.5" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.2.6" />
     <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
   </ItemGroup>
 
@@ -72,6 +72,8 @@
 	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\AsyncEnumerableExtensions.cs" />
 	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\ArrayExtensions.cs" />
     <Compile Include="@(SundewBaseCollectionsCompile)" LinkBase="Shared\Sundew.Base.Collections" />
+    <SundewBaseCollectionsLinqCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections.Linq\EnumerableExtensions.WhereNotDefault.cs" />
+    <Compile Include="@(SundewBaseCollectionsLinqCompile)" LinkBase="Shared\Sundew.Base.Collections.Linq" />
     <SundewBaseCollectionsPrimitivesCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections.Primitives\**\*.cs" />
     <Compile Include="@(SundewBaseCollectionsPrimitivesCompile)" LinkBase="Shared\Sundew.Base.Collections.Primitives" />
 	  <SundewBaseTextCompile Include="..\Sundew.Base\Source\Sundew.Base.Text\**\*.cs" />

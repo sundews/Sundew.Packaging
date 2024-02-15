@@ -54,18 +54,17 @@ public class LatestPackageVersionCommand : ILatestPackageVersionCommand
     /// <returns>The version.</returns>
     public async Task<NuGetVersion?> GetLatestMajorMinorVersion(
         string packageId,
-        IReadOnlyList<string> sources,
+        IReadOnlyList<PackageSource> sources,
         NuGetVersion nuGetVersion,
         bool includePatchInMatch,
         bool allowPrerelease)
     {
         this.logger?.LogInfo(new StringBuilder(DeterminingLatestVersionFromSources).AppendItems(sources, Separator).ToString());
-        var latestVersion = (await sources.SelectAsync(async sourceUri =>
+        var latestVersion = (await sources.SelectAsync(async packageSource =>
             {
                 try
                 {
-                    PackageSource packageSource = new(sourceUri);
-                    var resourceAsync = await Repository.Factory.GetCoreV3(packageSource.Source)
+                    var resourceAsync = await Repository.Factory.GetCoreV3(packageSource)
                         .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
                     return await resourceAsync.GetAllVersionsAsync(
                         packageId,
@@ -79,7 +78,7 @@ public class LatestPackageVersionCommand : ILatestPackageVersionCommand
                 }
                 catch (Exception e)
                 {
-                    this.logger?.LogMessage($"SPP: Failed to retrieve version from source: {sourceUri}, with exception: {e}");
+                    this.logger?.LogMessage($"SPP: Failed to retrieve version from source: {packageSource}, with exception: {e}");
                     return default;
                 }
             }))

@@ -54,7 +54,7 @@ public class NuGetSettingsInitializationCommandTests
 
         this.settings.Verify(x => x.AddOrUpdate(NuGetSettingsInitializationCommand.PackageSourcesText, It.Is<AddItem>(x => x.Key == ALocalSourceNameText && x.Value == ADefaultLocalSourceText)), Times.Once);
         this.settings.Verify(x => x.SaveToDisk(), Times.Once);
-        result.LocalSourcePath.Should().Be(ADefaultLocalSourceText);
+        result.LocalPackageSource.Source.Should().Be(ADefaultLocalSourceText);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class NuGetSettingsInitializationCommandTests
 
         this.settings.Verify(x => x.AddOrUpdate(It.IsAny<string>(), It.IsAny<AddItem>()), Times.Never);
         this.settings.Verify(x => x.SaveToDisk(), Times.Never);
-        result.LocalSourcePath.Should().Be(ExpectedLocalSourceText);
+        result.LocalPackageSource.Source.Should().Be(ExpectedLocalSourceText);
     }
 
     private void ArrangeLocalSourceSetting()
@@ -78,7 +78,8 @@ public class NuGetSettingsInitializationCommandTests
                     {
                         NuGetSettingsInitializationCommand.PackageSourcesText,
                         new Dictionary<string, string>(),
-                        new List<SettingItem> { new AddItem(ALocalSourceNameText, ExpectedLocalSourceText) },
+                        new List<SettingItem> { new SourceItem(ALocalSourceNameText, ExpectedLocalSourceText) },
                     }));
+        this.defaultSettings.Setup(x => x.GetConfigFilePaths()).Returns(new List<string>());
     }
 }

@@ -75,7 +75,7 @@ public class PreparePublishTaskTests
             ReferencedPackageVersionFilePath = Paths.EnsurePlatformPath(@"c:\a\ReferencedPackageVersion.path"),
             AllowLocalSource = true,
             PackageId = APackageId,
-            SolutionDir = @"Any/LocalSourcePath",
+            SolutionDir = @"Any/LocalPackageSource",
             IncludeSymbols = true,
             Version = "1.0",
         };
@@ -85,9 +85,9 @@ public class PreparePublishTaskTests
         this.fileSystem.Setup(x => x.FileExists(BuildDateTimeFilePath)).Returns(true);
         this.fileSystem.Setup(x => x.ReadAllText(BuildDateTimeFilePath)).Returns(new DateTime(2016, 01, 08, 17, 36, 13, DateTimeKind.Utc).ToString(PrereleaseDateTimeProvider.UniversalDateTimeFormat, CultureInfo.InvariantCulture));
         this.latestPackageVersionCommand.Setup(
-                x => x.GetLatestMajorMinorVersion(APackageId, It.IsAny<IReadOnlyList<string>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<bool>()))
-            .ReturnsAsync<string, IReadOnlyList<string>, NuGetVersion, bool, bool, ILatestPackageVersionCommand, NuGetVersion?>(
-                (_, sourceUris, _, _, allowPrerelease) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris[0]])));
+                x => x.GetLatestMajorMinorVersion(APackageId, It.IsAny<IReadOnlyList<PackageSource>>(), It.IsAny<NuGetVersion>(), It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync<string, IReadOnlyList<PackageSource>, NuGetVersion, bool, bool, ILatestPackageVersionCommand, NuGetVersion?>(
+                (_, sourceUris, _, _, allowPrerelease) => NuGetVersion.Parse(string.Format(allowPrerelease ? LatestPrereleaseVersion : LatestVersion, UriPrereleasePrefixMap[sourceUris[0].Source])));
         this.settingsFactory.Setup(x => x.LoadDefaultSettings(It.IsAny<string>())).Returns(this.defaultSettings);
         this.defaultSettings.Setup(x => x.GetConfigFilePaths()).Returns(Array.Empty<string>());
         this.settingsFactory.Setup(x => x.LoadSpecificSettings(It.IsAny<string>(), It.IsAny<string>())).Returns(New.Mock<ISettings>());
@@ -107,7 +107,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         this.testee.VersioningMode = versioningMode.ToString();
 
@@ -132,7 +132,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         this.testee.VersioningMode = versioningMode.ToString();
         this.testee.Stage = "default";
@@ -161,7 +161,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         this.testee.VersioningMode = versioningMode.ToString();
         this.testee.Stage = "default-stable";
@@ -189,7 +189,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         this.testee.VersioningMode = versioningMode.ToString();
         this.testee.Stage = "local-stable";
@@ -218,7 +218,7 @@ public class PreparePublishTaskTests
         this.testee.VersioningMode = versioningMode.ToString();
         this.testee.LocalSource = Paths.EnsurePlatformPath(@"c:\temp");
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
 
         var result = this.testee.Execute();
@@ -245,7 +245,7 @@ public class PreparePublishTaskTests
         this.testee.Version = packageVersion;
         this.testee.VersioningMode = versioningMode.ToString();
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
 
         this.testee.Production = $"master=> {expectedPushSource}|{expectedSymbolsPushSource}";
@@ -336,7 +336,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
         string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
@@ -370,7 +370,7 @@ public class PreparePublishTaskTests
         string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         this.testee.Production = "master => https://production.com|https://production.com/symbols";
         this.testee.Development = $@"/feature/(?<Prefix>.+) => {expectedPushSource}|{expectedSymbolsPushSource}";
@@ -399,7 +399,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
         string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
@@ -430,7 +430,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
         string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");
@@ -461,7 +461,7 @@ public class PreparePublishTaskTests
     {
         this.testee.Version = packageVersion;
         this.packageExistsCommand.Setup(
-                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<string>()))
+                x => x.ExistsAsync(APackageId, It.IsAny<SemanticVersion>(), It.IsAny<IReadOnlyList<PackageSource>>()))
             .ReturnsAsync(stableReleaseExists);
         string expectedPushSource = Paths.EnsurePlatformPath(@"c:\dev\packages");
         string expectedSymbolsPushSource = Paths.EnsurePlatformPath(@"c:\dev\symbols");

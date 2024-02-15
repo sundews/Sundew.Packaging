@@ -8,6 +8,8 @@
 namespace Sundew.Packaging.Versioning.Commands;
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using global::NuGet.Configuration;
@@ -45,11 +47,12 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
     public NuGetSettings Initialize(string workingDirectory, string localSourceName, string localSource)
     {
         var defaultSettings = this.settingsFactory.LoadDefaultSettings(workingDirectory);
-        var packageSourcesSection = defaultSettings.GetSection(PackageSourcesText);
-        var addItem = TryFindLocalSourceName(localSourceName, packageSourcesSection);
-        if (addItem != null)
+        var packageSourceProvider = new PackageSourceProvider(defaultSettings);
+        var packageSources = packageSourceProvider.LoadPackageSources().ToArray();
+        var localPackageSource = packageSources.TryFindSourceByName(localSourceName);
+        if (localPackageSource != null)
         {
-            return new NuGetSettings(addItem.Value, defaultSettings, packageSourcesSection);
+            return new NuGetSettings(localPackageSource, defaultSettings, packageSources);
         }
 
         if (!this.fileSystem.DirectoryExists(localSource))
@@ -61,28 +64,25 @@ public class NuGetSettingsInitializationCommand : INuGetSettingsInitializationCo
         var applicationDataConfigurationFile = defaultSettings.GetConfigFilePaths().FirstOrDefault(x => x.StartsWith(applicationDataPath));
         if (applicationDataConfigurationFile == null)
         {
-            return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
+            return new NuGetSettings(new PackageSource(localSource), defaultSettings, packageSources);
         }
 
         var roamingSettingsDirectoryPath = Path.GetDirectoryName(applicationDataConfigurationFile);
         if (roamingSettingsDirectoryPath.IsNullOrEmpty())
         {
-            return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
+            return new NuGetSettings(new PackageSource(localSource), defaultSettings, packageSources);
         }
 
         var roamingSettings = this.settingsFactory.LoadSpecificSettings(roamingSettingsDirectoryPath, Path.GetFileName(applicationDataConfigurationFile));
-        addItem = TryFindLocalSourceName(localSourceName, roamingSettings.GetSection(PackageSourcesText));
-        if (addItem == null)
+        var roamingPackageSourceProvider = new PackageSourceProvider(roamingSettings);
+        var roamingPackageSources = roamingPackageSourceProvider.LoadPackageSources().ToArray();
+        localPackageSource = roamingPackageSources.TryFindSourceByName(localSourceName);
+        if (localPackageSource == null)
         {
             roamingSettings.AddOrUpdate(PackageSourcesText, new AddItem(localSourceName, localSource));
             roamingSettings.SaveToDisk();
         }
 
-        return new NuGetSettings(localSource, defaultSettings, packageSourcesSection);
-    }
-
-    private static AddItem? TryFindLocalSourceName(string localSourceName, SettingSection? packageSourcesSection)
-    {
-        return packageSourcesSection?.Items.OfType<AddItem>().FirstOrDefault(x => x.Key.Equals(localSourceName, StringComparison.InvariantCulture));
+        return new NuGetSettings(new PackageSource(localSource), defaultSettings, packageSources);
     }
 }

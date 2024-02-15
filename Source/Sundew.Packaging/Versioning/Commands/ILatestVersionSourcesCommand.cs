@@ -8,11 +8,12 @@
 namespace Sundew.Packaging.Versioning.Commands;
 
 using System.Collections.Generic;
+using global::NuGet.Configuration;
 using Sundew.Packaging.Staging;
 
 internal interface ILatestVersionSourcesCommand
 {
-    IReadOnlyList<string> GetLatestVersionSources(
+    IReadOnlyList<PackageSource> GetLatestVersionSources(
         string? latestVersionSourcesText,
         SelectedStage selectedSource,
         NuGetSettings nuGetSettings,
