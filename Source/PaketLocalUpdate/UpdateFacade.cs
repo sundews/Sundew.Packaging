@@ -94,7 +94,7 @@ public class UpdateFacade
                 paketDependenciesTemporarySourceInjector.Dependencies.DependenciesFile,
                 Domain.GroupName(arguments.Group),
                 packageMatcher,
-                FSharpOption<string>.None,
+                arguments.Version ?? FSharpOption<string>.None,
                 new UpdaterOptions(InstallerOptions.Default, false));
         }
         else
@@ -103,7 +103,7 @@ public class UpdateFacade
                 paketDependenciesTemporarySourceInjector.Dependencies.DependenciesFile,
                 Domain.GroupName(arguments.Group),
                 Domain.PackageName(arguments.PackageId),
-                FSharpOption<string>.None,
+                arguments.Version ?? FSharpOption<string>.None,
                 new UpdaterOptions(InstallerOptions.Default, false));
         }
     }
