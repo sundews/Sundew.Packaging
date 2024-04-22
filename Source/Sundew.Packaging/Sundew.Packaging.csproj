@@ -12,10 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.Common" Version="6.8.0" />
-    <PackageReference Include="NuGet.Configuration" Version="6.8.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.8.0" />
-    <PackageReference Include="NuGet.Versioning" Version="6.8.0" />
+    <PackageReference Include="NuGet.Common" Version="6.9.1" />
+    <PackageReference Include="NuGet.Configuration" Version="6.9.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.9.1" />
+    <PackageReference Include="NuGet.Versioning" Version="6.9.1" />
     <PackageReference Include="PolySharp" Version="1.14.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,9 +24,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="12.0.5" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="12.0.5" />
-    <PackageReference Include="Sundew.Base.Text" Version="12.0.5" />
+    <PackageReference Include="Sundew.Base.Collections" Version="13.0.1" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="13.0.1" />
+    <PackageReference Include="Sundew.Base.Text" Version="13.0.1" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
