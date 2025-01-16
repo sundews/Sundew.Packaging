@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RuntimeVersion>8</RuntimeVersion>
+    <RuntimeVersion>9</RuntimeVersion>
     <TargetFramework>net$(RuntimeVersion).0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>plu</ToolCommandName>
@@ -18,13 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="6.0.3" />
-    <PackageReference Include="Paket.Core" Version="8.0.3" />
+    <PackageReference Include="FSharp.Core" Version="9.0.101" />
+    <PackageReference Include="Paket.Core" Version="9.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.CommandLine" Version="10.0.13" />
+    <PackageReference Include="Sundew.CommandLine" Version="10.0.14" />
     <PackageReference Include="Sundew.Packaging.Publish" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -61,7 +61,7 @@ public class DeleteFacadeTests
 
         this.testee!.Delete(new DeleteVerb(new List<string>() { glob }, AnyPath));
 
-        var actualExpectedFiles = expectedFiles.Select(x => Path.Combine(AnyPath, x)).ToReadOnly();
+        var actualExpectedFiles = expectedFiles.Select(x => Path.Combine(AnyPath, x)).ToReadOnlyCollection();
         actualExpectedFiles.ForEach(path => this.fileSystem!.File.Verify(x => x.Delete(path), Times.Once));
         Files.Except(actualExpectedFiles).ForEach(path => this.fileSystem!.File.Verify(x => x.Delete(path), Times.Never));
     }
@@ -78,7 +78,7 @@ public class DeleteFacadeTests
 
         this.testee!.Delete(new DeleteVerb(new List<string>() { glob }, AnyPath, true));
 
-        var actualExpectedFiles = expectedFiles.Select(x => Path.Combine(AnyPath, x)).ToReadOnly();
+        var actualExpectedFiles = expectedFiles.Select(x => Path.Combine(AnyPath, x)).ToReadOnlyCollection();
         actualExpectedFiles.ForEach(path => this.fileSystem!.File.Verify(x => x.Delete(path), Times.Once));
         Files.Except(actualExpectedFiles).ForEach(path => this.fileSystem!.File.Verify(x => x.Delete(path), Times.Never));
     }

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-    <RuntimeVersion>7</RuntimeVersion>
+    <RuntimeVersion>8</RuntimeVersion>
     <TargetFramework>net$(RuntimeVersion).0</TargetFramework>
 		<PackAsTool>true</PackAsTool>
 		<AssemblyName>Sundew.Packaging.Tool</AssemblyName>

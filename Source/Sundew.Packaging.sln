@@ -47,6 +47,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaketLocalUpdate-net7.0", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Tool-net7.0", "Sundew.Packaging.Tool-net7.0\Sundew.Packaging.Tool-net7.0.csproj", "{CA921D49-EDEE-43DE-B8E4-EBE3A488F27E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaketLocalUpdate-net8.0", "PaketLocalUpdate-net8.0\PaketLocalUpdate-net8.0.csproj", "{A183EFFA-A743-4BE2-A2B0-83C930770EE1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Packaging.Tool-net8.0", "Sundew.Packaging.Tool-net8.0\Sundew.Packaging.Tool-net8.0.csproj", "{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +163,22 @@ Global
 		{CA921D49-EDEE-43DE-B8E4-EBE3A488F27E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA921D49-EDEE-43DE-B8E4-EBE3A488F27E}.Release-Stable|Any CPU.ActiveCfg = Release|Any CPU
 		{CA921D49-EDEE-43DE-B8E4-EBE3A488F27E}.Release-Stable|Any CPU.Build.0 = Release|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.DebugNoSelfVersioning|Any CPU.ActiveCfg = DebugNoSelfVersioning|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.DebugNoSelfVersioning|Any CPU.Build.0 = DebugNoSelfVersioning|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.Release-Stable|Any CPU.ActiveCfg = Release|Any CPU
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1}.Release-Stable|Any CPU.Build.0 = Release|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.DebugNoSelfVersioning|Any CPU.ActiveCfg = DebugNoSelfVersioning|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.DebugNoSelfVersioning|Any CPU.Build.0 = DebugNoSelfVersioning|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.Release-Stable|Any CPU.ActiveCfg = Release|Any CPU
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9}.Release-Stable|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -168,6 +188,8 @@ Global
 		{0095B5EB-CF69-4DAA-8F95-AA477360EB47} = {7C1E1038-D4E2-4179-A50B-74921A1BE24E}
 		{46AD04E0-F50E-4824-9061-2227444A6B74} = {7C1E1038-D4E2-4179-A50B-74921A1BE24E}
 		{CA921D49-EDEE-43DE-B8E4-EBE3A488F27E} = {7C1E1038-D4E2-4179-A50B-74921A1BE24E}
+		{A183EFFA-A743-4BE2-A2B0-83C930770EE1} = {7C1E1038-D4E2-4179-A50B-74921A1BE24E}
+		{DE636342-ED77-48CC-A7D5-8E5A3DF3D5C9} = {7C1E1038-D4E2-4179-A50B-74921A1BE24E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8B6263BC-23FD-48F1-9017-3A96176E3F97}
