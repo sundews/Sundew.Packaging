@@ -31,24 +31,24 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Locator" Version="1.6.10" />
-    <PackageReference Include="NuGet.Commands" Version="6.12.1" />
-    <PackageReference Include="NuGet.Protocol" Version="6.12.1" />
-    <PackageReference Include="NuGet.Versioning" Version="6.12.1" />
+    <PackageReference Include="NuGet.Commands" Version="6.13.2" />
+    <PackageReference Include="NuGet.Protocol" Version="6.13.2" />
+    <PackageReference Include="NuGet.Versioning" Version="6.13.2" />
     <PackageReference Include="PolySharp" Version="1.15.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Computation" Version="14.0.0" />
-    <PackageReference Include="Sundew.Base.Memory" Version="14.0.0" />
-    <PackageReference Include="Sundew.Base.Text" Version="14.0.0" />
-    <PackageReference Include="Sundew.Base.Time" Version="14.0.0" />
+    <PackageReference Include="Sundew.Base.Computation" Version="15.0.0-u20250427-123342-ci" />
+    <PackageReference Include="Sundew.Base.Memory" Version="15.0.0-u20250427-123342-ci" />
+    <PackageReference Include="Sundew.Base.Text" Version="15.0.0-u20250427-123342-ci" />
+    <PackageReference Include="Sundew.Base.Time" Version="15.0.0-u20250427-123342-ci" />
     <PackageReference Include="Sundew.CommandLine" Version="10.0.14" />
-    <PackageReference Include="System.IO.Abstractions" Version="21.2.1" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="10.0.8">
+    <PackageReference Include="System.IO.Abstractions" Version="22.0.14" />
+    <PackageReference Include="Sundew.Packaging.Publish" Version="10.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
