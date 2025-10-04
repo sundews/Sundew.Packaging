@@ -19,16 +19,10 @@
     <File Path="Build/Development/stylecop.json" />
   </Folder>
   <Folder Name="/ToolsForLegacyRuntimes/">
-    <Project Path="PaketLocalUpdate-net6.0/PaketLocalUpdate-net6.0.csproj">
-      <BuildType Solution="Release-Stable|*" Project="Release" />
-    </Project>
     <Project Path="PaketLocalUpdate-net8.0/PaketLocalUpdate-net8.0.csproj">
       <BuildType Solution="Release-Stable|*" Project="Release" />
     </Project>
     <Project Path="PaketLocalUpdate-net9.0/PaketLocalUpdate-net9.0.csproj">
-      <BuildType Solution="Release-Stable|*" Project="Release" />
-    </Project>
-    <Project Path="Sundew.Packaging.Tool-net6.0/Sundew.Packaging.Tool-net6.0.csproj">
       <BuildType Solution="Release-Stable|*" Project="Release" />
     </Project>
     <Project Path="Sundew.Packaging.Tool-net8.0/Sundew.Packaging.Tool-net8.0.csproj">
