@@ -1,11 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Sundews">
+// <copyright file="Program.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Runtime.CompilerServices;
+namespace NuGet.Runtime.Development.Hack;
 
-[assembly: InternalsVisibleTo("Sundew.Packaging.Publish.Development.Tests")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+using System;
+
+public static class Program
+{
+    public static void Main()
+    {
+        Console.WriteLine("Hello World!");
+    }
+}

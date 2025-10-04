@@ -28,6 +28,7 @@ public class ProjectPackageInfoProvider : IProjectPackageInfoProvider
     /// <summary>
     /// Initializes a new instance of the <see cref="ProjectPackageInfoProvider"/> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     public ProjectPackageInfoProvider(ILogger logger)
     {
         this.logger = logger;

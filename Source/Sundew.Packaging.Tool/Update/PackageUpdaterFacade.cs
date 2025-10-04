@@ -83,7 +83,7 @@ public sealed class PackageUpdaterFacade
                 var msBuildProject = await this.msBuildProjectPackagesParser.GetPackages(project, updateVerb.PackageIds);
                 var packageUpdates = await this.packageVersionSelector.GetPackageVersions(msBuildProject.PossiblePackageUpdates, globalGlobRegex, rootDirectory, updateVerb.AllowPrerelease, updateVerb.Source);
                 var result = this.packageVersionUpdater.TryUpdateAsync(msBuildProject, packageUpdates);
-                if (result.HasValue())
+                if (result.HasValue)
                 {
                     changedProjects.Add(result);
                 }

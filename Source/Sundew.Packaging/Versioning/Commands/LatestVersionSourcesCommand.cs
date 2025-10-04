@@ -64,7 +64,7 @@ public class LatestVersionSourcesCommand : ILatestVersionSourcesCommand
         if (addNuGetOrgSource)
         {
             var nuGetOrgSource = nuGetSettings.PackageSources?.FirstOrDefault(x => x.Source == NuGetOrg);
-            if (nuGetOrgSource.HasValue())
+            if (nuGetOrgSource.HasValue)
             {
                 latestVersionSources.Add(nuGetOrgSource);
             }

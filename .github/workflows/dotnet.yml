@@ -16,8 +16,7 @@ jobs:
     name: .NET
     runs-on: windows-latest
     env:
-      solutionPath: ./Source/Sundew.Packaging.sln
-      toolsSolutionPath: ./Source/MultiTargettedTools.sln
+      solutionPath: ./Source/Sundew.Packaging.slnx
       versioningProjectPath: ./Source/Sundew.Packaging.Publish/Sundew.Packaging.Publish.csproj
       repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/sundews/Sundew.Packaging.git'
       source: 'https://api.nuget.org/v3/index.json'

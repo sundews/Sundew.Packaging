@@ -2,31 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <Configurations>DebugNoSelfVersioning;Debug;Release;Release-Stable</Configurations>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <AdditionalFiles Include="..\Sundew.Packaging.Tool\stylecop.json" />
-  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.Common" Version="6.13.2" />
-    <PackageReference Include="NuGet.Configuration" Version="6.13.2" />
-    <PackageReference Include="NuGet.Protocol" Version="6.13.2" />
-    <PackageReference Include="NuGet.Versioning" Version="6.13.2" />
-    <PackageReference Include="PolySharp" Version="1.15.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="15.0.0-u20250427-123342-ci" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="15.0.0-u20250427-123342-ci" />
-    <PackageReference Include="Sundew.Base.Text" Version="15.0.0-u20250427-123342-ci" />
+    <PackageReference Include="NuGet.Common"/>
+    <PackageReference Include="NuGet.Configuration"/>
+    <PackageReference Include="NuGet.Protocol"/>
+    <PackageReference Include="NuGet.Versioning"/>
+    <PackageReference Include="Sundew.Base.Collections" />
+    <PackageReference Include="Sundew.Base.Primitives"/>
+    <PackageReference Include="Sundew.Base.Text" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">

@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+    <RuntimeVersion>9</RuntimeVersion>
+    <TargetFramework>net$(RuntimeVersion).0</TargetFramework>
+		<PackAsTool>true</PackAsTool>
+		<AssemblyName>Sundew.Packaging.Tool</AssemblyName>
+		<ToolCommandName>spt</ToolCommandName>
+		<Description>* Get build stage including version, stage and sources from source control parameters.
+* Await NuGet package being published.
+* Alternative NuGet client for bulk updating NuGet packages in csproj, fsproj and vbproj projects.
+* Prune NuGet packages from a local source.</Description>
+		<NoWarn>1701;1702;1591;SA1402;SA1600</NoWarn>
+		<SppLocalPackageStage>pre</SppLocalPackageStage>
+		<DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
+		<Version>$(RuntimeVersion).$(Version)</Version>
+		<SppForceVersion>$(RuntimeVersion).$(GlobalVersion)</SppForceVersion>
+		<SppVersioningMode>AutomaticLatestRevision</SppVersioningMode>
+		<Configurations>Debug;Release;DebugNoSelfVersioning</Configurations>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Build" >
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Build.Locator" />
+		<PackageReference Include="NuGet.Commands" />
+		<PackageReference Include="NuGet.Protocol" />
+		<PackageReference Include="NuGet.Versioning" />
+    <PackageReference Include="Sundew.Base.Computation" />
+    <PackageReference Include="Sundew.Base.Memory" />
+    <PackageReference Include="Sundew.Base.Time" />
+    <PackageReference Include="Sundew.CommandLine" />
+		<PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="Sundew.Packaging.Publish" >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\Sundew.Packaging.Tool\**\*.cs" />
+		<Compile Remove="..\Sundew.Packaging.Tool\obj\**" />
+		<Compile Remove="..\Sundew.Packaging.Tool\bin\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Sundew.Packaging\Sundew.Packaging.csproj" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+		<Version>$(SppForceVersion)</Version>
+		<PackageVersion>$(SppForceVersion)</PackageVersion>
+	</PropertyGroup>
+</Project>

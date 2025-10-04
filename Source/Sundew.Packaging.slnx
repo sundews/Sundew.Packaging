@@ -1,0 +1,65 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugNoSelfVersioning" />
+    <BuildType Name="Release" />
+    <BuildType Name="Release-Stable" />
+  </Configurations>
+  <Folder Name="/Build/">
+    <File Path="../.github/workflows/dotnet.yml" />
+    <File Path="../README.md" />
+    <File Path=".editorconfig" />
+    <File Path="Build/stylecop.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.props.user" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/Build/Development/">
+    <File Path="Build/Development/stylecop.json" />
+  </Folder>
+  <Folder Name="/ToolsForLegacyRuntimes/">
+    <Project Path="PaketLocalUpdate-net6.0/PaketLocalUpdate-net6.0.csproj">
+      <BuildType Solution="Release-Stable|*" Project="Release" />
+    </Project>
+    <Project Path="PaketLocalUpdate-net8.0/PaketLocalUpdate-net8.0.csproj">
+      <BuildType Solution="Release-Stable|*" Project="Release" />
+    </Project>
+    <Project Path="PaketLocalUpdate-net9.0/PaketLocalUpdate-net9.0.csproj">
+      <BuildType Solution="Release-Stable|*" Project="Release" />
+    </Project>
+    <Project Path="Sundew.Packaging.Tool-net6.0/Sundew.Packaging.Tool-net6.0.csproj">
+      <BuildType Solution="Release-Stable|*" Project="Release" />
+    </Project>
+    <Project Path="Sundew.Packaging.Tool-net8.0/Sundew.Packaging.Tool-net8.0.csproj">
+      <BuildType Solution="Release-Stable|*" Project="Release" />
+    </Project>
+    <Project Path="Sundew.Packaging.Tool-net9.0/Sundew.Packaging.Tool-net9.0.csproj">
+      <BuildType Solution="Release-Stable|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Project Path="NuGet.Runtime.Development.Hack/NuGet.Runtime.Development.Hack.csproj" />
+  <Project Path="PaketLocalUpdate.Development.Tests/PaketLocalUpdate.Development.Tests.csproj">
+    <BuildType Solution="Release-Stable|*" Project="Release" />
+  </Project>
+  <Project Path="PaketLocalUpdate/PaketLocalUpdate.csproj">
+    <BuildType Solution="Release-Stable|*" Project="ReleaseDebug without self versioning" />
+  </Project>
+  <Project Path="Sundew.Packaging.Publish.Development.Tests/Sundew.Packaging.Publish.Development.Tests.csproj" />
+  <Project Path="Sundew.Packaging.Publish/Sundew.Packaging.Publish.csproj">
+    <BuildDependency Project="NuGet.Runtime.Development.Hack/NuGet.Runtime.Development.Hack.csproj" />
+  </Project>
+  <Project Path="Sundew.Packaging.Development.Testing/Sundew.Packaging.Development.Testing.csproj">
+    <BuildType Solution="Release-Stable|*" Project="Release" />
+  </Project>
+  <Project Path="Sundew.Packaging.Tool.Development.Tests/Sundew.Packaging.Tool.Development.Tests.csproj">
+    <BuildType Solution="Release-Stable|*" Project="Release" />
+  </Project>
+  <Project Path="Sundew.Packaging.Tool/Sundew.Packaging.Tool.csproj">
+    <BuildDependency Project="Sundew.Packaging.Publish/Sundew.Packaging.Publish.csproj" />
+    <BuildType Solution="Release-Stable|*" Project="Release" />
+  </Project>
+  <Project Path="Sundew.Packaging/Sundew.Packaging.csproj">
+    <BuildType Solution="Release-Stable|*" Project="Release" />
+  </Project>
+</Solution>

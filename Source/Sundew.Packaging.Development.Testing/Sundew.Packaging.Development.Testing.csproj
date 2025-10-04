@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CS1591;SA1600</NoWarn>
+    <Configurations>DebugNoSelfVersioning;Debug;Release;Release-Stable</Configurations>
+  </PropertyGroup>
+
+</Project>

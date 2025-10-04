@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Configurations>DebugNoSelfVersioning;Debug;Release;Release-Stable</Configurations>
+    <OutputPath>bin/$(Configuration)</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Internal\Commands\Sundew.Packaging.Publish.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Packaging.Publish\Sundew.Packaging.Publish.csproj" />
+    <ProjectReference Include="..\Sundew.Packaging.Development.Testing\Sundew.Packaging.Development.Testing.csproj" />
+  </ItemGroup>
+
+</Project>
