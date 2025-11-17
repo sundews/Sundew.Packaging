@@ -60,36 +60,38 @@ public class LatestPackageVersionCommand : ILatestPackageVersionCommand
         bool allowPrerelease)
     {
         this.logger?.LogInfo(new StringBuilder(DeterminingLatestVersionFromSources).AppendItems(sources, Separator).ToString());
-        var latestVersion = (await sources.SelectAsync(async packageSource =>
-            {
-                try
+        var latestVersion = (await sources.SelectAsync(
+                Parallelism.Default,
+                async packageSource =>
                 {
-                    var resourceAsync = await Repository.Factory.GetCoreV3(packageSource)
-                        .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
-                    return await resourceAsync.GetAllVersionsAsync(
-                        packageId,
-                        new SourceCacheContext { NoCache = true, RefreshMemoryCache = true },
-                        this.nuGetLogger,
-                        CancellationToken.None).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    return default;
-                }
-                catch (Exception e)
-                {
-                    this.logger?.LogMessage($"SPP: Failed to retrieve version from source: {packageSource}, with exception: {e}");
-                    return default;
-                }
-            }))
-            .Where(x => x != default)
-            .SelectMany(x => x)
-            .OrderByDescending(x => x)
-            .FirstOrDefault(x =>
-                x.Major == nuGetVersion.Major
-                && x.Minor == nuGetVersion.Minor
-                && (x.Patch == nuGetVersion.Patch || !includePatchInMatch)
-                && (!x.IsPrerelease || (allowPrerelease && x.IsPrerelease)));
+                    try
+                    {
+                        var resourceAsync = await Repository.Factory.GetCoreV3(packageSource)
+                            .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
+                        return await resourceAsync.GetAllVersionsAsync(
+                            packageId,
+                            new SourceCacheContext { NoCache = true, RefreshMemoryCache = true },
+                            this.nuGetLogger,
+                            CancellationToken.None).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return null;
+                    }
+                    catch (Exception e)
+                    {
+                        this.logger?.LogMessage($"SPP: Failed to retrieve version from source: {packageSource}, with exception: {e}");
+                        return default;
+                    }
+                }))
+                .Where(x => x != default)
+                .SelectMany(x => x)
+                .OrderByDescending(x => x)
+                .FirstOrDefault(x =>
+                    x.Major == nuGetVersion.Major
+                    && x.Minor == nuGetVersion.Minor
+                    && (x.Patch == nuGetVersion.Patch || !includePatchInMatch)
+                    && (!x.IsPrerelease || (allowPrerelease && x.IsPrerelease)));
         if (latestVersion != null)
         {
             this.logger?.LogInfo($"SPP: Found latest version: {latestVersion}");

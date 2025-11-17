@@ -10,8 +10,8 @@
     <PackageVersion Include="Microsoft.Build" Version="17.3.2" />
     <PackageVersion Include="Microsoft.Build.Locator" Version="1.6.10" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="nspec" Version="3.1.0" />
     <PackageVersion Include="NuGet.Common" Version="6.14.0" />
@@ -20,19 +20,19 @@
     <PackageVersion Include="NuGet.Protocol" Version="6.14.0" />
     <PackageVersion Include="NuGet.Versioning" Version="6.14.0" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="5.1.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageVersion Include="Paket.Core" Version="9.0.2" />
     <PackageVersion Include="PolySharp" Version="1.15.0" />
     <PackageVersion Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556" />
-    <PackageVersion Include="Sundew.Base.Collections" Version="15.0.0-u20251108-214246-ci" />
-    <PackageVersion Include="Sundew.Base.Computation" Version="15.0.0-u20251108-214246-ci" />
-    <PackageVersion Include="Sundew.Base.Memory" Version="15.0.0-u20251108-214246-ci" />
-    <PackageVersion Include="Sundew.Base.Text" Version="15.0.0-u20251108-214246-ci" />
-    <PackageVersion Include="Sundew.Base.Time" Version="15.0.0-u20251108-214246-ci" />
-    <PackageVersion Include="Sundew.Base.Primitives" Version="15.0.0-u20251108-214246-ci" />
-    <PackageVersion Include="Sundew.CommandLine" Version="10.0.14" />
+    <PackageVersion Include="Sundew.Base.Collections" Version="15.0.0" />
+    <PackageVersion Include="Sundew.Base.Computation" Version="15.0.0" />
+    <PackageVersion Include="Sundew.Base.Memory" Version="15.0.0" />
+    <PackageVersion Include="Sundew.Base.Text" Version="15.0.0" />
+    <PackageVersion Include="Sundew.Base.Time" Version="15.0.0" />
+    <PackageVersion Include="Sundew.Base.Primitives" Version="15.0.0" />
+    <PackageVersion Include="Sundew.CommandLine" Version="10.0.15" />
     <PackageVersion Include="Sundew.DiscriminatedUnions" Version="5.3.9" />
-    <PackageVersion Include="Sundew.Packaging.Publish" Version="10.0.10-u20251005-144150-ci" />
+    <PackageVersion Include="Sundew.Packaging.Publish" Version="10.0.9" />
     <PackageVersion Include="System.IO.Abstractions" Version="22.0.16" />
     <PackageVersion Include="System.Reflection.Metadata" Version="9.0.4" />
     <PackageVersion Include="TransparentMoq" Version="4.20.70.2" />

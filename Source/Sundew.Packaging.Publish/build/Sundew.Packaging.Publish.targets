@@ -58,7 +58,7 @@
 
   <Target Name="SppPreparePublishNuGet" 
           DependsOnTargets="SppGetBuildDateTime"
-          BeforeTargets="PrepareForBuild;DispatchToInnerBuilds"
+          BeforeTargets="PrepareForBuild;DispatchToInnerBuilds;SppPublishNuGet;GenerateNuspec"
           Condition="'$(_SppEnableTargets)' == 'true'">
     <PreparePublishTask
                  SolutionDir="$(_SppSolutionDir)"

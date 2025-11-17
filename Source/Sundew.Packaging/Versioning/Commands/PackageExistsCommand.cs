@@ -46,21 +46,23 @@ public class PackageExistsCommand : IPackageExistsCommand
     /// <exception cref="System.NotSupportedException">Thrown when no NuGet resource could be found.</exception>
     public async Task<bool> ExistsAsync(string packageId, SemanticVersion semanticVersion, IReadOnlyList<PackageSource> packageSources)
     {
-        return (await packageSources.SelectAsync(async x =>
-        {
-            var resourceAsync = await Repository.Factory.GetCoreV3(x)
-                .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
-            if (resourceAsync != null)
+        return (await packageSources.SelectAsync(
+            Parallelism.Default,
+            async x =>
             {
-                return await resourceAsync.DoesPackageExistAsync(
-                    packageId,
-                    new NuGetVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, semanticVersion.Release),
-                    new NullSourceCacheContext(),
-                    this.logger,
-                    CancellationToken.None).ConfigureAwait(false);
-            }
+                var resourceAsync = await Repository.Factory.GetCoreV3(x)
+                    .GetResourceAsync<FindPackageByIdResource>(CancellationToken.None).ConfigureAwait(false);
+                if (resourceAsync != null)
+                {
+                    return await resourceAsync.DoesPackageExistAsync(
+                        packageId,
+                        new NuGetVersion(semanticVersion.Major, semanticVersion.Minor, semanticVersion.Patch, semanticVersion.Release),
+                        new NullSourceCacheContext(),
+                        this.logger,
+                        CancellationToken.None).ConfigureAwait(false);
+                }
 
-            throw new NotSupportedException($"{nameof(RemoteV3FindPackageByIdResource)} not supported.");
-        })).Any(x => x);
+                throw new NotSupportedException($"{nameof(RemoteV3FindPackageByIdResource)} not supported.");
+            })).Any(x => x);
     }
 }

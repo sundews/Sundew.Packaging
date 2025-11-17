@@ -29,19 +29,21 @@ public class PackageVersionSelector
 
     public async Task<IEnumerable<PackageUpdate>> GetPackageVersions(IReadOnlyList<PackageUpdateSuggestion> possiblePackageUpdates, GlobRegex? globalGlobRegex, string rootDirectory, bool allowPrerelease, string? source)
     {
-        return (await possiblePackageUpdates.SelectAsync(async x =>
-            {
-                var actualGlobRegex = x.GlobRegex ?? globalGlobRegex;
-                var newNuGetVersion = actualGlobRegex != null && !actualGlobRegex.IsPattern ? NuGetVersion.Parse(actualGlobRegex.Pattern) : await this.GetLatestVersion(x.Id, actualGlobRegex, rootDirectory, allowPrerelease, source);
-
-                if (x.NuGetVersion != newNuGetVersion)
+        return (await possiblePackageUpdates.SelectAsync(
+                Parallelism.Default,
+                async x =>
                 {
-                    this.packageVersionSelectorReporter?.PackageUpdateSelected(x.Id, x.NuGetVersion, newNuGetVersion);
-                    return new PackageUpdate(x.Id, x.NuGetVersion, newNuGetVersion);
-                }
+                    var actualGlobRegex = x.GlobRegex ?? globalGlobRegex;
+                    var newNuGetVersion = actualGlobRegex != null && !actualGlobRegex.IsPattern ? NuGetVersion.Parse(actualGlobRegex.Pattern) : await this.GetLatestVersion(x.Id, actualGlobRegex, rootDirectory, allowPrerelease, source);
 
-                return default;
-            }))
+                    if (x.NuGetVersion != newNuGetVersion)
+                    {
+                        this.packageVersionSelectorReporter?.PackageUpdateSelected(x.Id, x.NuGetVersion, newNuGetVersion);
+                        return new PackageUpdate(x.Id, x.NuGetVersion, newNuGetVersion);
+                    }
+
+                    return default;
+                }))
             .Where(x => x != null)
             .Cast<PackageUpdate>();
     }

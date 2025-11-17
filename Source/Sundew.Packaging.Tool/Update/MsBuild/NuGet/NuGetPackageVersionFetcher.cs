@@ -39,17 +39,19 @@ public class NuGetPackageVersionFetcher : INuGetPackageVersionFetcher
             ? sourceSettings.PackageSourcesSection?.Items.OfType<AddItem>().Select(x => x.Value) ?? throw new InvalidOperationException($"No package sources were found for: {source}")
             : new[] { sourceSettings.Source ?? throw new InvalidOperationException($"A source for: {source} was not found.") };
 
-        return (await sources.SelectAsync(async x =>
-            {
-                var sourceRepository = Repository.Factory.GetCoreV3(x);
-                var resource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false);
+        return (await sources.SelectAsync(
+                Parallelism.Default,
+                async x =>
+                {
+                    var sourceRepository = Repository.Factory.GetCoreV3(x);
+                    var resource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false);
 
-                return await resource.GetAllVersionsAsync(
-                    packageId,
-                    new SourceCacheContext { NoCache = true, RefreshMemoryCache = true },
-                    logger,
-                    cancellationToken).ConfigureAwait(false);
-            }))
-            .SelectMany(x => x);
+                    return await resource.GetAllVersionsAsync(
+                        packageId,
+                        new SourceCacheContext { NoCache = true, RefreshMemoryCache = true },
+                        logger,
+                        cancellationToken).ConfigureAwait(false);
+                }))
+                .SelectMany(x => x);
     }
 }

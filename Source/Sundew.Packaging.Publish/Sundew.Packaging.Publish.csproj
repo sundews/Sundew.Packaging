@@ -58,7 +58,8 @@
 	  <SundewBasePrimitivesCompile Remove="..\Sundew.Base\Source\Sundew.Base.Primitives\obj\**\*.cs" />
 	  <Compile Include="@(SundewBasePrimitivesCompile)" LinkBase="Shared\Sundew.Base.Primitives" />
 	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\EnumerableExtensions.cs;" />
-	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\AsyncEnumerableExtensions.cs" />
+    <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\ParallelEnumerableAsyncExtensions.cs" />
+    <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\Parallelism.cs" />
 	  <SundewBaseCollectionsCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections\ArrayExtensions.cs" />
     <Compile Include="@(SundewBaseCollectionsCompile)" LinkBase="Shared\Sundew.Base.Collections" />
     <SundewBaseCollectionsLinqCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections.Linq\EnumerableExtensions.WhereNotDefault.cs" />

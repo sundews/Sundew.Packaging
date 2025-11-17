@@ -51,7 +51,9 @@ public class NewestPrereleasesPruneFacade
 
                     return (id: x, count: 1);
                 })
-                .SelectAsync(async idAndCount => (await
+                .SelectAsync(
+                    Parallelism.Default,
+                    async idAndCount => (await
                     packageSearchResourceV3.SearchAsync(
                         idAndCount.id,
                         new SearchFilter(true),
@@ -60,7 +62,7 @@ public class NewestPrereleasesPruneFacade
                         NullLogger.Instance,
                         cancellationToken).ConfigureAwait(false))).ConfigureAwait(false))
             .SelectMany(x => x).ToList();
-        var packageIdentities = (await packages.SelectAsync(async x => (package: x, versions: (await x.GetVersionsAsync().ConfigureAwait(false))
+        var packageIdentities = (await packages.SelectAsync(Parallelism.Default, async x => (package: x, versions: (await x.GetVersionsAsync().ConfigureAwait(false))
                 .OrderByDescending(x => x.Version)
                 .TakeWhile(x => x.Version.IsPrerelease))).ConfigureAwait(false))
             .Select(x => x.versions.Select(y => new PackageIdentity(x.package.Identity.Id, y.Version)))
