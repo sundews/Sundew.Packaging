@@ -36,8 +36,9 @@
 	<Target Name="SppInitialize" 
           Condition="'$(SppDisable)' != 'true' AND !$(DefineConstants.Contains('DISABLE_SPP')) AND ((('$(DesignTimeBuild)' != 'true' AND '$(BuildingProject)' != 'false')) OR '$(BuildProjectReferences)' == 'false')" 
           AfterTargets="BuildOnlySettings" 
-          BeforeTargets="DispatchToInnerBuilds;SppGetPackageVersionForProjectReference">
+          BeforeTargets="DispatchToInnerBuilds;SppGetPackageVersionForProjectReference;GenerateNuspec">
     <PropertyGroup>
+      <SppEnablePublish Condition="'$(ContinuePackingAfterGeneratingNuspec)' == 'true'">True</SppEnablePublish>
       <_SppPublishInfoFilePath>$(NuspecOutputPath)$(MSBuildProjectName).sppi</_SppPublishInfoFilePath>
       <_SppReferencedPackageVersionFilePath>$(NuspecOutputPath)$(MSBuildProjectName).sppv</_SppReferencedPackageVersionFilePath>
       <_SppPackageVersionFilePath>$(_SppPackageVersionsPath)$(MSBuildProjectName).sppv</_SppPackageVersionFilePath>
