@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Configurations>DebugNoSelfVersioning;Debug;Release;Release-Stable</Configurations>
+    <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,13 @@
   <ItemGroup>
     <ProjectReference Include="..\Sundew.Packaging.Development.Testing\Sundew.Packaging.Development.Testing.csproj" />
     <ProjectReference Include="..\Sundew.Packaging.Tool\Sundew.Packaging.Tool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

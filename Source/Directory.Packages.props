@@ -3,26 +3,26 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AwesomeAssertions" Version="9.3.0" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="FSharp.Core" Version="9.0.202" />
-    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.4" />
+    <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="FSharp.Core" Version="11.0.100" />
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Build" Version="17.3.2" />
-    <PackageVersion Include="Microsoft.Build.Locator" Version="1.6.10" />
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.102" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.402" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.402" />
     <PackageVersion Include="nspec" Version="3.1.0" />
-    <PackageVersion Include="NuGet.Common" Version="6.14.0" />
-    <PackageVersion Include="NuGet.Commands" Version="6.14.0" />
-    <PackageVersion Include="NuGet.Configuration" Version="6.14.0" />
-    <PackageVersion Include="NuGet.Protocol" Version="6.14.0" />
-    <PackageVersion Include="NuGet.Versioning" Version="6.14.0" />
-    <PackageVersion Include="NUnit" Version="4.4.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0" />
-    <PackageVersion Include="Paket.Core" Version="9.0.2" />
-    <PackageVersion Include="PolySharp" Version="1.15.0" />
+    <PackageVersion Include="NuGet.Common" Version="6.14.3" />
+    <PackageVersion Include="NuGet.Commands" Version="6.14.3" />
+    <PackageVersion Include="NuGet.Configuration" Version="6.14.3" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.14.3" />
+    <PackageVersion Include="NuGet.Versioning" Version="6.14.3" />
+    <PackageVersion Include="NUnit" Version="5.0.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="6.3.1" />
+    <PackageVersion Include="Paket.Core" Version="11.0.1" />
+    <PackageVersion Include="PolySharp" Version="1.16.0" />
     <PackageVersion Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556" />
     <PackageVersion Include="Sundew.Base.Collections" Version="16.0.0" />
     <PackageVersion Include="Sundew.Base.Computation" Version="16.0.0" />
@@ -30,14 +30,14 @@
     <PackageVersion Include="Sundew.Base.Text" Version="16.0.0" />
     <PackageVersion Include="Sundew.Base.Time" Version="16.0.0" />
     <PackageVersion Include="Sundew.Base.Primitives" Version="16.0.0" />
-    <PackageVersion Include="Sundew.CommandLine" Version="10.0.16" />
-    <PackageVersion Include="Sundew.DiscriminatedUnions" Version="5.4.1" />
+    <PackageVersion Include="Sundew.CommandLine" Version="10.0.17" />
+    <PackageVersion Include="Sundew.DiscriminatedUnions" Version="6.0.3" />
     <PackageVersion Include="Sundew.Packaging.Publish" Version="10.0.12" />
-    <PackageVersion Include="System.IO.Abstractions" Version="22.1.0" />
-    <PackageVersion Include="System.Reflection.Metadata" Version="10.0.2" />
+    <PackageVersion Include="System.IO.Abstractions" Version="22.3.0" />
+    <PackageVersion Include="System.Reflection.Metadata" Version="10.0.13" />
     <PackageVersion Include="TransparentMoq" Version="4.20.70.2" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageVersion Include="Microsoft.Bcl.Hashcode" Version="6.0.0" />

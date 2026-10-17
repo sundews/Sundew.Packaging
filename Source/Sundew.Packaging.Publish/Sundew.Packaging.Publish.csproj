@@ -65,6 +65,7 @@
     <SundewBaseCollectionsLinqCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections.Linq\EnumerableExtensions.WhereNotDefault.cs" />
     <Compile Include="@(SundewBaseCollectionsLinqCompile)" LinkBase="Shared\Sundew.Base.Collections.Linq" />
     <SundewBaseCollectionsPrimitivesCompile Include="..\Sundew.Base\Source\Sundew.Base.Collections.Primitives\**\*.cs" />
+    <SundewBaseCollectionsPrimitivesCompile Remove="..\Sundew.Base\Source\Sundew.Base.Collections.Primitives\obj\**\*.cs" />
     <Compile Include="@(SundewBaseCollectionsPrimitivesCompile)" LinkBase="Shared\Sundew.Base.Collections.Primitives" />
 	  <SundewBaseTextCompile Include="..\Sundew.Base\Source\Sundew.Base.Text\**\*.cs" />
 	  <SundewBaseTextCompile Remove="..\Sundew.Base\Source\Sundew.Base.Text\obj\**\*.cs" />
