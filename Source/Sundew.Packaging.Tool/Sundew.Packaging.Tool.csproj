@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RuntimeVersion>9</RuntimeVersion>
+    <RuntimeVersion>10</RuntimeVersion>
     <TargetFramework>net$(RuntimeVersion).0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>spt</ToolCommandName>

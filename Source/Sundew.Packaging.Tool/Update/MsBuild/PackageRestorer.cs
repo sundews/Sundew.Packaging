@@ -37,13 +37,10 @@ public class PackageRestorer
         {
             this.packageRestorerReporter.ReportMessage(string.Empty);
             this.packageRestorerReporter.ReportMessage($"Restoring in path: {rootDirectory}");
-            while (!process.StandardOutput.EndOfStream)
+            string? line;
+            while ((line = await process.StandardOutput.ReadLineAsync()) != null)
             {
-                var line = await process.StandardOutput.ReadLineAsync();
-                if (line != null)
-                {
-                    this.packageRestorerReporter.ReportMessage(line);
-                }
+                this.packageRestorerReporter.ReportMessage(line);
             }
 
             process.WaitForExit();

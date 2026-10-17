@@ -33,6 +33,7 @@ public class AwaitPublishFacade
     public async Task<int> Await(AwaitPublishVerb awaitPublishVerb)
     {
         var stopwatch = Stopwatch.StartNew();
+        var packageExists = false;
         try
         {
             var rootDirectory = awaitPublishVerb.RootDirectory ?? this.fileSystem.Directory.GetCurrentDirectory();
@@ -43,11 +44,10 @@ public class AwaitPublishFacade
             this.awaitPublishFacadeReporter.StartWaitingForPackage(awaitPublishVerb.PackageIdAndVersion, source);
             var resource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(CancellationToken.None)
                 .ConfigureAwait(false);
-            var packageExists = false;
             using var cancellationTokenSource = new CancellationTokenSource(awaitPublishVerb.Timeout);
             if (resource != null)
             {
-                while (!packageExists && !cancellationTokenSource.IsCancellationRequested)
+                while (!cancellationTokenSource.IsCancellationRequested)
                 {
                     packageExists = await resource.DoesPackageExistAsync(
                         awaitPublishVerb.PackageIdAndVersion.Id,
@@ -61,6 +61,10 @@ public class AwaitPublishFacade
                         logger,
                         cancellationTokenSource.Token).ConfigureAwait(false);
                     this.awaitPublishFacadeReporter.PackageExistsResult(awaitPublishVerb.PackageIdAndVersion, packageExists);
+                    if (packageExists)
+                    {
+                        break;
+                    }
 
                     await Task.Delay(TimeSpan.FromSeconds(2), cancellationTokenSource.Token).ConfigureAwait(false);
                 }
@@ -71,8 +75,8 @@ public class AwaitPublishFacade
         }
         catch (OperationCanceledException)
         {
-            this.awaitPublishFacadeReporter.CompletedWaitingForPackage(awaitPublishVerb.PackageIdAndVersion, false, stopwatch.Elapsed);
-            return -3;
+            this.awaitPublishFacadeReporter.CompletedWaitingForPackage(awaitPublishVerb.PackageIdAndVersion, packageExists, stopwatch.Elapsed);
+            return packageExists ? 0 : -3;
         }
         catch (Exception e)
         {

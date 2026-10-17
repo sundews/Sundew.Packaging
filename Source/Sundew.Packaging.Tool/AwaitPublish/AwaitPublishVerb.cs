@@ -37,7 +37,7 @@ public class AwaitPublishVerb : IVerb
     /// <param name="rootDirectory">The root directory.</param>
     /// <param name="timeoutInSeconds">The timeout in seconds.</param>
     /// <param name="verbose">if set to <c>true</c> [verbose].</param>
-    public AwaitPublishVerb(PackageIdAndVersion packageIdAndVersion, string? source = null, string? rootDirectory = null, int timeoutInSeconds = 300, bool verbose = false)
+    public AwaitPublishVerb(PackageIdAndVersion packageIdAndVersion, string? source = null, string? rootDirectory = null, int timeoutInSeconds = 1800, bool verbose = false)
     {
         this.PackageIdAndVersion = packageIdAndVersion;
         this.Source = source;
