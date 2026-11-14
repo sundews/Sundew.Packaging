@@ -38,19 +38,15 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 11.x.x
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v6
-      with:
         dotnet-version: |
-            9.x.x
-            8.x.x
+            11.x.x
+            10.x.x
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 8.10.*
+        dotnet tool update Sundew.Packaging.Tool -g --version 10.10.*
 
-        dotnet tool update CommandlineBatcher -g --version 8.6.1.*
+        dotnet tool update CommandlineBatcher -g --version 10.6.*
 
         git rev-parse --short=10 HEAD | cb -c ">> $Env:GITHUB_OUTPUT|git-hash={0}{NL}" --batches-stdin
 
