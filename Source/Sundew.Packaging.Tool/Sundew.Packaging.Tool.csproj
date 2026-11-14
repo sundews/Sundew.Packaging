@@ -33,6 +33,10 @@
     <PackageReference Include="Sundew.Base.Time"  />
     <PackageReference Include="Sundew.CommandLine"  />
     <PackageReference Include="System.IO.Abstractions"  />
+    <PackageReference Include="Sundew.Packaging.Publish" >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

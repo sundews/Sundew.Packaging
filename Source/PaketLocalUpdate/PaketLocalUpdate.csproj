@@ -16,6 +16,10 @@
     <PackageReference Include="FSharp.Core"  />
     <PackageReference Include="Paket.Core"  />
     <PackageReference Include="Sundew.CommandLine"  />
+    <PackageReference Include="Sundew.Packaging.Publish" >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
