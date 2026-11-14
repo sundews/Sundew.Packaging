@@ -8,9 +8,7 @@
 namespace Sundew.Packaging.Tool;
 
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Threading.Tasks;
 using Sundew.Base;
 using Sundew.Base.Computation;
@@ -57,7 +55,7 @@ public static class Program
             });
             commandLineParser.AddVerb(new DeleteVerb(), ExecuteDeleteAsync);
             var result = await commandLineParser.ParseAsync(Environment.CommandLine, 1);
-            if (!result)
+            if (result.IsError)
             {
                 result.WriteToConsole();
                 return -1;

@@ -15,6 +15,9 @@ jobs:
   build:
     name: .NET
     runs-on: windows-latest
+    permissions:
+      contents: read
+      id-token: write
     env:
       solutionPath: ./Source/Sundew.Packaging.slnx
       versioningProjectPath: ./Source/Sundew.Packaging.Publish/Sundew.Packaging.Publish.csproj
@@ -35,7 +38,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 10.x.x
+        dotnet-version: 11.x.x
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
@@ -59,8 +62,8 @@ jobs:
       run: >
         spt stage-build --project-file "${{ env.versioningProjectPath }}"
         --stage "${{ github.ref }}"
-        --production  "refs/(heads/release/.+|tags/release)                                  => ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Release"
-        --integration "refs/heads/(?:master|main).*                                          => &u{DateTime}-{Stage} ${{ secrets.SPP_API_KEY }}@${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
+        --production  "refs/(heads/release/.+|tags/release)                                  => ${{ env.source }}|${{ env.source }}||Configuration=Release"
+        --integration "refs/heads/(?:master|main).*                                          => &u{DateTime}-{Stage} ${{ env.source }}|${{ env.source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --development "refs/heads/(?:develop.*|feature/(?<Postfix>.+)|bugfix/(?<Postfix>.+)) => ${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-source }} {${{ env.dev-source-latest-version }}}|${{ secrets.SPP_DEVELOPMENT_API_KEY }}@${{ env.dev-symbols-source }}||Configuration=Debug|DevFeedSource= -s ${{ env.dev-source-latest-version }}"
         --no-stage "Configuration=Release"
         --build-promotion-input "< git_commit_message.txt"
@@ -88,11 +91,17 @@ jobs:
         -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
     - name: Test
       run: dotnet test ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
+    - name: 'NuGet login'
+      if: ${{ steps.stage-build.outputs.stage == 'production' || steps.stage-build.outputs.stage == 'integration' }}
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: ${{ secrets.NUGET_USER }}
     - name: 'Publish package(s)'
       if: ${{ steps.stage-build.outputs.stage != 'none' }}
       run: |
-        cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n {1}" -bs NewLine -bvs '=' -bf ${{ env.source-packages-to-push }}
-        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -n
+        cb --if "{0} != Sundew.Packaging"  -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.nuget-login.outputs.NUGET_API_KEY || steps.stage-build.outputs.apiKey }} -n {1}" -bs NewLine -bvs '=' -bf ${{ env.source-packages-to-push }}
+        dotnet nuget push "${{ steps.stage-build.outputs.nuGetPackagesPath }}/Sundew.Packaging.Publish.${{ steps.stage-build.outputs.version }}.nupkg" -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.nuget-login.outputs.NUGET_API_KEY || steps.stage-build.outputs.apiKey }} -n
     - name: 'Tag stable version'
       if: ${{ steps.stage-build.outputs.stage == 'production' }}
       run: |

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RuntimeVersion>10</RuntimeVersion>
+    <RuntimeVersion>11</RuntimeVersion>
     <TargetFramework>net$(RuntimeVersion).0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>plu</ToolCommandName>
