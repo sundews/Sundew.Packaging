@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NuGetPackageVersionFetcher.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -44,7 +44,7 @@ public class NuGetPackageVersionFetcher : INuGetPackageVersionFetcher
                 async x =>
                 {
                     var sourceRepository = Repository.Factory.GetCoreV3(x);
-                    var resource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false);
+                    var resource = (await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false))!;
 
                     return await resource.GetAllVersionsAsync(
                         packageId,

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PushFacade.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -67,6 +67,7 @@ public class PushFacade
                 true,
                 true,
                 pushVerb.SkipDuplicate,
+                false,
                 this.nuGetLogger);
 
             if (!pushVerb.NoSymbols)
@@ -95,6 +96,7 @@ public class PushFacade
                     pushVerb.NoSymbols,
                     true,
                     pushVerb.SkipDuplicate,
+                    false,
                     this.nuGetLogger);
             }
         }

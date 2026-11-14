@@ -41,10 +41,11 @@ jobs:
         dotnet-version: |
             11.x.x
             10.x.x
+            8.x.x
     - name: Build setup
       id: build-setup
       run: >
-        dotnet tool update Sundew.Packaging.Tool -g --version 10.10.*
+        dotnet tool update Sundew.Packaging.Tool -g --version 8.10.*
 
         dotnet tool update CommandlineBatcher -g --version 10.6.*
 

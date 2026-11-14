@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NewestPrereleasesPruneFacade.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -40,7 +40,7 @@ public class NewestPrereleasesPruneFacade
 
         var sourceRepository = Repository.Factory.GetCoreV3(source);
         var cancellationToken = CancellationToken.None;
-        var packageSearchResourceV3 = await sourceRepository.GetResourceAsync<PackageSearchResource>(cancellationToken).ConfigureAwait(false);
+        var packageSearchResourceV3 = (await sourceRepository.GetResourceAsync<PackageSearchResource>(cancellationToken).ConfigureAwait(false))!;
         var packages = (await newestPrereleasesPurgeModeVerb.PackageIds
                 .Select(x =>
                 {
